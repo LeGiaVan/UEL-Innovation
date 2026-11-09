@@ -1,0 +1,74 @@
+schema_version: "1.0"
+release_id: "bdcl-khao-khi-2026-11-09-002"
+created_at: "2026-11-09"
+
+department:
+  id: "bao_dam_chat_luong"
+  name: "Phòng Bảo đảm chất lượng"
+
+module:
+  code: "khao_khi"
+  name: "Mô-đun Khảo khí"
+
+source_type: "xlsx"
+release_status: "approved_for_dev"
+
+business_approval:
+  status: "pending"
+  approved_by: null
+  approved_at: null
+  note: "Được phép dùng cho development/test; chưa được xem là dữ liệu đã duyệt cho UAT."
+
+files:
+  - name: "1. Thông tin Mô-đun - Khảo khí.xlsx"
+    role: "module_and_routing"
+    file_sha256: "01f847bb40448d37dcdfdc6de0c681263146223f76afa501f7839a17e4f4b9df"
+    schema_sha256: "2e0b929ed54f92ac0b67ef8598ed831aeb5d4b6303c9dcd838b8526a929ca658"
+
+  - name: "2. FAQ - Câu hỏi thường gặp.xlsx"
+    role: "faq"
+    file_sha256: "d79630b9d492394704361b64d0ca71077e8fd74e3f0e12bc6b9cab529ed75c4a"
+    schema_sha256: "bfa822225f0c5f28aec5d0e4bebf61bd85c519a6d58c9a571d1a9f89134168a6"
+
+  - name: "3. Tài liệu nghiệp vụ.xlsx"
+    role: "business_documents"
+    file_sha256: "39c1e025b79047812ae989952591d68ea489e500e37685d3ed11cbefa39f71d0"
+    schema_sha256: "9d4b95081796c7134366b0517eabc273ffdf28d01845e4bb7fb4bb98c960cfae"
+
+expected_counts:
+  routing_rules: 17
+  faqs: 71
+  documents: 4
+  regulation_sections: 15
+  condition_exception_sections: 26
+  dossier_items: 4
+  procedure_steps: 13
+
+known_limitations:
+  - id: "LIMIT-01"
+    description: "59/71 FAQ chưa có văn bản căn cứ."
+    policy: "Warning trong development; cần business review trước UAT."
+
+  - id: "LIMIT-02"
+    description: "FAQ không có contact riêng."
+    policy: "Kế thừa contact đã xác nhận từ module/department."
+
+  - id: "LIMIT-03"
+    description: "Lệ phí TL02, TL03 và TL04 chưa xác định."
+    policy: "Không nêu số tiền; abstain hoặc handoff."
+
+  - id: "LIMIT-04"
+    description: "Email, hotline và URL chưa có xác nhận business cho UAT."
+    policy: "Được dùng như dữ liệu development; phải xác minh trước UAT."
+
+  - id: "LIMIT-05"
+    description: "Workbook không có row-level approval/effective fields đầy đủ."
+    policy: "Kế thừa trạng thái từ release manifest."
+
+allowed_environments:
+  - "development"
+  - "test"
+
+prohibited_environments:
+  - "uat"
+  - "production"

@@ -4,14 +4,16 @@ Hệ thống chatbot trợ lý ảo sử dụng Retrieval-Augmented Generation (
 
 ## Trạng thái dự án
 
-> Trạng thái: Đang lập kế hoạch và chuẩn bị phát triển PoC.
+> Trạng thái: Phase 0–1 đã hoàn thành (`reports/phases/phase-01.md`); sẵn sàng bắt đầu Phase 2 (Bronze ingestion).
 
 PoC được triển khai cho:
 
 | Thuộc tính | Giá trị |
 |---|---|
-| Phòng ban | Phòng Đảm Bảo Chất Lượng |
-| `department_id` | `dam_bao_chat_luong` |
+| Phòng ban | Phòng Bảo đảm chất lượng |
+| `department_id` | `bao_dam_chat_luong` |
+| Mô-đun PoC | Khảo khí |
+| `module_code` | `khao_khi` |
 | Đối tượng sử dụng | Người học |
 | Thời gian dự kiến | 8 tuần |
 | Nhân sự phát triển | 1 người |
@@ -46,8 +48,9 @@ PoC không cam kết “không ảo giác 100%”. Thay vào đó, hệ thống 
 
 ### Trong phạm vi
 
-- Phòng Đảm Bảo Chất Lượng.
-- Một `department_id` cố định.
+- Phòng Bảo đảm chất lượng.
+- Mô-đun Khảo khí.
+- Một `department_id` và `module_code` cố định.
 - Ba biểu mẫu dữ liệu chuẩn của dự án.
 - Đồng bộ dữ liệu theo yêu cầu.
 - PostgreSQL, Qdrant và MinIO.
@@ -86,9 +89,11 @@ Kiến trúc được thiết kế để có thể mở rộng cho:
 | `quan_tri_tai_san` | Phòng Quản Trị Tài Sản | Công nhân viên chức |
 | `nhan_su` | Phòng Nhân Sự - Tôi làm | Công nhân viên chức |
 | `khoa_hoc_cong_nghe` | Phòng Khoa Học Công Nghệ | Công nhân viên chức |
-| `dam_bao_chat_luong` | Phòng Đảm Bảo Chất Lượng | Người học |
+| `bao_dam_chat_luong` | Phòng Bảo đảm chất lượng | Người học |
 
 Các mã trên cần được xác nhận trước khi mở rộng production.
+
+Một phòng ban có thể có nhiều mô-đun độc lập, ví dụ Khảo khí, Khảo sát & Đánh giá. Routing rule, FAQ, tài liệu và vector luôn được phân vùng theo cả `department_id` và `module_code`. PoC hiện chỉ kích hoạt `bao_dam_chat_luong/khao_khi`.
 
 ## 4. Kiến trúc tổng quan
 
@@ -292,6 +297,7 @@ Qdrant lưu:
 - Có thể bổ sung sparse vector nếu benchmark chứng minh cần thiết.
 - Nội dung STAIR Markdown.
 - `department_id`.
+- `module_code`.
 - `document_id`.
 - `section_id`.
 - Đối tượng áp dụng.
@@ -308,7 +314,8 @@ Mỗi đoạn được tạo thành một đơn vị có thể đọc độc l�
 ```markdown
 # [Tên chủ đề]
 
-- Phòng ban: Phòng Đảm Bảo Chất Lượng
+- Phòng ban: Phòng Bảo đảm chất lượng
+- Mô-đun: Khảo khí
 - Đối tượng áp dụng: [...]
 - Không áp dụng cho: [...]
 - Khóa/Ngành/Hệ: [...]
@@ -354,7 +361,7 @@ flowchart TB
 ### Thứ tự ưu tiên
 
 1. Kiểm tra API key.
-2. Gắn `department_id=dam_bao_chat_luong` từ cấu hình server.
+2. Gắn `department_id=bao_dam_chat_luong` và `module_code=khao_khi` từ cấu hình server.
 3. Kiểm tra routing rule.
 4. FAQ normalized match.
 5. Trích xuất metadata.
@@ -364,7 +371,7 @@ flowchart TB
 9. Sinh câu trả lời.
 10. Kiểm tra nguồn và trả kết quả.
 
-Client không được quyền truyền `department_id` để thay đổi tenant.
+Client không được quyền truyền `department_id` hoặc `module_code` để thay đổi phạm vi PoC.
 
 ## 11. API dự kiến
 
@@ -432,7 +439,7 @@ FastAPI dependency chịu trách nhiệm:
 1. Đọc header.
 2. So sánh API key bằng phương pháp constant-time.
 3. Từ chối với HTTP 401 nếu không hợp lệ.
-4. Inject request context chứa `department_id` cố định.
+4. Inject request context chứa `department_id` và `module_code` cố định.
 5. Không ghi API key vào log.
 
 Đây không phải cơ chế xác thực phù hợp cho production nhiều người dùng.
@@ -442,7 +449,8 @@ FastAPI dependency chịu trách nhiệm:
 ```dotenv
 APP_ENV=development
 APP_API_KEY=change-me
-APP_DEPARTMENT_ID=dam_bao_chat_luong
+APP_DEPARTMENT_ID=bao_dam_chat_luong
+APP_MODULE_CODE=khao_khi
 
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
@@ -480,7 +488,8 @@ Quy trình dự kiến:
 
 ```bash
 python -m app.cli sync \
-  --department dam_bao_chat_luong \
+  --department bao_dam_chat_luong \
+  --module khao_khi \
   --source xlsx \
   --dry-run
 ```
@@ -489,7 +498,8 @@ Sau khi báo cáo validation hợp lệ:
 
 ```bash
 python -m app.cli sync \
-  --department dam_bao_chat_luong \
+  --department bao_dam_chat_luong \
+  --module khao_khi \
   --source xlsx
 ```
 
@@ -497,7 +507,8 @@ Khi chuyển sang Google Sheets:
 
 ```bash
 python -m app.cli sync \
-  --department dam_bao_chat_luong \
+  --department bao_dam_chat_luong \
+  --module khao_khi \
   --source google-sheets
 ```
 
@@ -531,6 +542,15 @@ Pipeline phải:
 ├── alembic/
 ├── configs/
 │   └── departments.yaml
+├── data/
+│   └── P.BDCL/
+├── docs/
+│   ├── decisions/
+│   ├── data-dictionary.md
+│   ├── data-mapping.md
+│   └── data-approval-policy.md
+├── reports/
+│   └── phases/
 ├── template/
 ├── tests/
 │   ├── unit/
@@ -544,29 +564,61 @@ Pipeline phải:
 ├── .env.example
 ├── Proposal.md
 ├── PLAN.md
+├── PHASE_PLAN.md
 └── README.md
 ```
 
-Đây là cấu trúc mục tiêu, chưa phải cấu trúc đã được triển khai.
+Một phần cấu trúc đã được triển khai trong Phase 1; các package ingestion, agent và migration sẽ được bổ sung ở các phase tiếp theo.
 
-## 16. Khởi chạy dự kiến
+## 16. Khởi chạy Phase 1
 
-Sau khi mã nguồn được hoàn thành:
+### 16.1. Kiểm tra mã nguồn
 
-```bash
-cp .env.example .env
-docker compose up -d postgres qdrant minio
-docker compose run --rm api alembic upgrade head
-docker compose run --rm worker python -m app.cli sync \
-  --department dam_bao_chat_luong \
-  --source xlsx
-docker compose up -d api
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\ruff.exe check .
+.\.venv\Scripts\ruff.exe format --check .
+.\.venv\Scripts\mypy.exe app tests
+.\.venv\Scripts\pytest.exe --cov=app
 ```
 
-Kiểm tra:
+### 16.2. Khởi động hạ tầng
+
+Sao chép `.env.example` thành `.env` và thay toàn bộ giá trị `replace-with-*` trước khi dùng ngoài kiểm thử local.
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --build
+```
+
+MinIO Community không còn cung cấp public container image vào thời điểm triển khai. Compose build image PoC đã pin checksum từ binary release `RELEASE.2025-09-07T16-13-09Z` trong `infra/minio/Dockerfile`. Image này chỉ phù hợp PoC; cần đánh giá object storage còn được bảo trì trước production.
+
+### 16.3. Kiểm tra trạng thái
 
 ```bash
+curl http://localhost:8000/health/live
 curl http://localhost:8000/health/ready
+docker compose ps
+```
+
+Kết quả readiness mong đợi:
+
+```json
+{
+  "status": "ready",
+  "dependencies": {
+    "postgres": "ok",
+    "qdrant": "ok",
+    "minio": "ok"
+  }
+}
+```
+
+Dừng dịch vụ nhưng giữ dữ liệu:
+
+```bash
+docker compose down
 ```
 
 ## 17. Tiêu chí chất lượng PoC
@@ -595,7 +647,7 @@ Không được tối ưu ngưỡng chỉ trên bộ dữ liệu dùng để ph�
 - Chỉ gửi các đoạn tài liệu cần thiết cho việc trả lời.
 - Không lưu toàn bộ nội dung chat mặc định.
 - Mask API key và secret trong log.
-- Không nhận `department_id` tùy ý từ client.
+- Không nhận `department_id` hoặc `module_code` tùy ý từ client.
 - Chỉ index tài liệu `Đã duyệt` và còn hiệu lực.
 - File MinIO không public mặc định.
 - URL tải file nên là presigned URL có thời hạn.
@@ -638,5 +690,9 @@ Không log:
 
 - `Proposal.md`: đề xuất ban đầu.
 - `PLAN.md`: kế hoạch thực hiện PoC.
+- `PHASE_PLAN.md`: checklist triển khai và theo dõi tiến độ theo từng phase.
+- `reports/phases/`: báo cáo nghiệm thu sau mỗi phase.
+- `docs/`: data contract, mapping, enum và decision records.
+- `data/P.BDCL/`: dữ liệu thực tế dùng cho PoC Phòng Bảo đảm chất lượng.
 - `template/`: ba biểu mẫu dữ liệu chuẩn.
 - `danh_sach_phong_ban.txt`: danh sách phòng ban định hướng mở rộng.

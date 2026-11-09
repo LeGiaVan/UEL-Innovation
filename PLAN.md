@@ -5,8 +5,10 @@
 | Thuộc tính | Giá trị |
 |---|---|
 | Phạm vi | PoC |
-| Phòng ban | Phòng Đảm Bảo Chất Lượng |
-| `department_id` | `dam_bao_chat_luong` |
+| Phòng ban | Phòng Bảo đảm chất lượng |
+| `department_id` | `bao_dam_chat_luong` |
+| Mô-đun PoC | Khảo khí |
+| `module_code` | `khao_khi` |
 | Thời lượng | 8 tuần |
 | Nhân sự | 1 người |
 | Hạ tầng | Ubuntu Server, Docker Compose, CPU-only |
@@ -37,9 +39,9 @@ PoC được coi là hoàn thành khi:
 
 ## 3. Giả định
 
-- Chuyên viên Phòng Đảm Bảo Chất Lượng cung cấp dữ liệu thử nghiệm.
+- Dữ liệu phát triển của Phòng Bảo đảm chất lượng đã có tại `data/P.BDCL/`.
 - Dữ liệu không chứa thông tin cá nhân nhạy cảm.
-- Tài liệu dùng cho PoC đã được xác nhận nội dung.
+- Release hiện tại được phép dùng cho development/test, chưa được coi là business-approved cho UAT.
 - Máy chủ có đủ RAM cho PostgreSQL, Qdrant, MinIO và embedding model.
 - Có quyền truy cập một cloud LLM được UEL chấp thuận.
 - Có credential Google Sheets trước giai đoạn tích hợp.
@@ -49,15 +51,16 @@ PoC được coi là hoàn thành khi:
 
 ## 4. Các quyết định kiến trúc
 
-### ADR-001 — Một tenant cố định trong PoC
+### ADR-001 — Một department/module context cố định trong PoC
 
-`department_id` được lấy từ cấu hình server, không lấy từ request.
+`department_id` và `module_code` được lấy từ cấu hình server, không lấy từ request.
 
 Lý do:
 
-- Giảm nguy cơ giả mạo tenant.
-- Phù hợp phạm vi một phòng ban.
-- Vẫn giữ trường `department_id` trong mọi bảng và payload để chuẩn bị mở rộng.
+- Giảm nguy cơ giả mạo phạm vi.
+- Phù hợp PoC một mô-đun.
+- Một phòng ban có thể có nhiều mô-đun.
+- Mọi bảng và payload giữ cả department/module context để chuẩn bị mở rộng.
 
 ### ADR-002 — API key qua dependency injection
 
@@ -141,8 +144,9 @@ Cần xác định:
 
 - `id`
 - `department_id`
-- `source_id`
+- `code`
 - `name`
+- `release_status`
 - `source_created_at`
 - `source_updated_at`
 - `content_hash`
@@ -168,6 +172,7 @@ Cần xác định:
 
 - `id`
 - `department_id`
+- `module_id`
 - `question_code`
 - `category`
 - `subcategory`
@@ -189,6 +194,7 @@ Cần xác định:
 
 - `id`
 - `department_id`
+- `module_id`
 - `document_code`
 - `title`
 - `document_type`
@@ -260,7 +266,8 @@ Cần xác định:
 
 ```json
 {
-  "department_id": "dam_bao_chat_luong",
+  "department_id": "bao_dam_chat_luong",
+  "module_code": "khao_khi",
   "document_id": "uuid",
   "document_code": "TL01",
   "section_id": "uuid",
@@ -343,6 +350,7 @@ Nếu Qdrant thất bại sau khi PostgreSQL commit, sync được đánh dấu 
 
 - `request_id`
 - `department_id`
+- `module_code`
 - `message`
 - `normalized_message`
 - `conversation_context`
@@ -391,7 +399,7 @@ Loại bỏ các điểm mơ hồ trước khi viết pipeline.
 #### Công việc
 
 - Xác nhận phạm vi PoC.
-- Thu thập dữ liệu mẫu của Phòng Đảm Bảo Chất Lượng.
+- Sử dụng dữ liệu mẫu của Phòng Bảo đảm chất lượng tại `data/P.BDCL/`.
 - Kiểm kê ba workbook.
 - Liệt kê tất cả sheet, cột, enum, validation và công thức.
 - Xác định trường bắt buộc.
@@ -562,7 +570,7 @@ Loại bỏ các điểm mơ hồ trước khi viết pipeline.
 - Xây request/response schema.
 - Xây API key dependency.
 - Dùng constant-time comparison.
-- Inject tenant context cố định.
+- Inject department/module context cố định.
 - Xây `/v1/chat`.
 - Xây health endpoints.
 - Chuẩn hóa exception.
@@ -584,7 +592,7 @@ Loại bỏ các điểm mơ hồ trước khi viết pipeline.
 #### Tiêu chí hoàn thành
 
 - Thiếu hoặc sai API key trả 401.
-- Client không thể thay đổi `department_id`.
+- Client không thể thay đổi `department_id` hoặc `module_code`.
 - Citation mở đúng nguồn.
 - UI không render HTML không tin cậy từ LLM.
 - API error không làm lộ stack trace hoặc secret.
@@ -706,7 +714,7 @@ Loại bỏ các điểm mơ hồ trước khi viết pipeline.
 
 ### Security tests
 
-- Giả mạo `department_id`.
+- Giả mạo `department_id` hoặc `module_code`.
 - Prompt injection.
 - Citation URL độc hại.
 - XSS từ nội dung LLM.

@@ -4,4 +4,4 @@ Phòng Đào Tạo - Đối tượng sử dụng: Người học
 Phòng Quản Trị Tài Sản - Đối tượng sử dụng: Công nhân viên chức
 Phòng Nhân Sự - Tôi làm - Đối tượng sử dụng: Công nhân viên chức
 Phòng Khoa Học Công Nghệ - Đối tượng sử dụng: Công nhân viên chức
-Phòng Đảm Bảo Chất Lượng - Đối tượng sử dụng: Người học
+Phòng Bảo đảm chất lượng - Đối tượng sử dụng: Người học

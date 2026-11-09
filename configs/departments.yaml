@@ -1,0 +1,13 @@
+schema_version: "1.0"
+
+departments:
+  - id: "bao_dam_chat_luong"
+    name: "Phòng Bảo đảm chất lượng"
+    audience: "nguoi_hoc"
+    enabled: true
+    modules:
+      - code: "khao_khi"
+        name: "Mô-đun Khảo khí"
+        source_type: "xlsx"
+        source_path: "data/P.BDCL"
+        enabled: true
