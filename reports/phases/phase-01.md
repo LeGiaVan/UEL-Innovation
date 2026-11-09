@@ -12,7 +12,7 @@
 | `department_id` | `bao_dam_chat_luong` |
 | `module_code` | `khao_khi` |
 | Người thực hiện | Lê Gia Văn / dự án UEL Innovation |
-| Commit/Tag | `68e18ef` |
+| Commit/Tag | `e9ea43c` |
 
 ## 2. Mục tiêu
 
