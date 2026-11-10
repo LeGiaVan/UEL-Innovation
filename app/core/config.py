@@ -36,6 +36,20 @@ class Settings(BaseSettings):
     postgres_password: SecretStr = Field(min_length=8)
 
     qdrant_url: AnyHttpUrl
+    qdrant_collection: str = Field(default="uel_knowledge", min_length=3)
+    embedding_model: str = Field(default="BAAI/bge-m3")
+    embedding_device: Literal["cpu"] = "cpu"
+    embedding_batch_size: int = Field(default=2, ge=1, le=32)
+    embedding_max_length: int = Field(default=512, ge=32, le=8192)
+    gold_faq_score_boost: float = Field(default=0.12, ge=0, le=1)
+    rag_top_k: int = Field(default=5, ge=1, le=20)
+    rag_score_threshold: float = Field(default=0.4167, ge=0, le=10)
+
+    llm_provider: Literal["groq", "gemini", "fake"] = "fake"
+    llm_model: str = Field(default="openai/gpt-oss-20b", min_length=1)
+    llm_api_key: SecretStr = Field(default=SecretStr(""))
+    llm_timeout_seconds: float = Field(default=45.0, gt=0, le=120)
+    llm_max_retries: int = Field(default=1, ge=0, le=3)
 
     minio_url: AnyHttpUrl
     minio_access_key: SecretStr = Field(min_length=8)
@@ -47,6 +61,17 @@ class Settings(BaseSettings):
     def postgres_url(self) -> URL:
         return URL.create(
             drivername="postgresql+asyncpg",
+            username=self.postgres_user,
+            password=self.postgres_password.get_secret_value(),
+            host=self.postgres_host,
+            port=self.postgres_port,
+            database=self.postgres_db,
+        )
+
+    @property
+    def postgres_sync_url(self) -> URL:
+        return URL.create(
+            drivername="postgresql+psycopg",
             username=self.postgres_user,
             password=self.postgres_password.get_secret_value(),
             host=self.postgres_host,

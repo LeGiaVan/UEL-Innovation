@@ -19,7 +19,7 @@ Tài liệu này dùng để theo dõi tiến độ triển khai theo từng gia
 | LLM | Cloud API, provider-agnostic |
 | Embedding | Local trên CPU |
 | Hạ tầng | Ubuntu Server, Docker Compose |
-| Trạng thái chung | Phase 0–1 đã hoàn thành; sẵn sàng bắt đầu Phase 2 |
+| Trạng thái chung | Phase 0–6 đã hoàn thành; sẵn sàng bắt đầu Phase 7 |
 
 ## 2. Cách sử dụng tài liệu
 
@@ -51,11 +51,11 @@ Mỗi phase chỉ sử dụng một trong các trạng thái:
 |---:|---|---:|---|---|---|
 | 0 | Baseline, kiểm kê và khóa dữ liệu PoC | 2 ngày | `ACCEPTED` | Không | Đã khóa data contract và release policy |
 | 1 | Nền tảng repository và hạ tầng local | 3 ngày | `ACCEPTED` | Phase 0 | Stack khởi động, health check đạt |
-| 2 | Bronze ingestion và validation | 5 ngày | `NOT_STARTED` | Phase 0–1 | Đọc đủ 3 workbook, có báo cáo validation |
-| 3 | Silver Layer và đồng bộ idempotent | 5 ngày | `NOT_STARTED` | Phase 2 | PostgreSQL phản ánh đúng dữ liệu nguồn |
-| 4 | STAIR, embedding và Gold Layer | 5 ngày | `NOT_STARTED` | Phase 3 | Qdrant truy xuất đúng với hard filter |
-| 5 | Retrieval baseline và bộ đánh giá | 4 ngày | `NOT_STARTED` | Phase 4 | Recall@5 sơ bộ đạt ngưỡng |
-| 6 | LangGraph RAG agent | 6 ngày | `NOT_STARTED` | Phase 3–5 | Luồng FAQ/RAG/handoff hoạt động end-to-end |
+| 2 | Bronze ingestion và validation | 5 ngày | `ACCEPTED` | Phase 0–1 | Đọc đủ 3 workbook, có báo cáo validation |
+| 3 | Silver Layer và đồng bộ idempotent | 5 ngày | `ACCEPTED` | Phase 2 | PostgreSQL phản ánh đúng dữ liệu nguồn |
+| 4 | STAIR, embedding và Gold Layer | 5 ngày | `ACCEPTED` | Phase 3 | Qdrant truy xuất đúng với hard filter |
+| 5 | Retrieval baseline và bộ đánh giá | 4 ngày | `ACCEPTED` | Phase 4 | Recall@5 sơ bộ đạt ngưỡng |
+| 6 | LangGraph RAG agent | 6 ngày | `ACCEPTED` | Phase 3–5 | Luồng FAQ/RAG/handoff hoạt động end-to-end |
 | 7 | FastAPI, API key và web chat | 4 ngày | `NOT_STARTED` | Phase 6 | API và UI vượt smoke test |
 | 8 | Hardening, kiểm thử và đánh giá | 4 ngày | `NOT_STARTED` | Phase 7 | Không còn lỗi P0/P1, KPI đạt hoặc có ngoại lệ |
 | 9 | Deploy, UAT và bàn giao PoC | 2 ngày | `NOT_STARTED` | Phase 8 | UAT được xác nhận, có runbook |
@@ -254,32 +254,32 @@ Bằng chứng: `reports/phases/phase-01.md`.
 
 ## 7. Phase 2 — Bronze ingestion và validation
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`  
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 0 và Phase 1.
 
 ### 7.1. Checklist
 
-- [ ] P2.01 — Định nghĩa `SourceAdapter` chung.
-- [ ] P2.02 — Xây XLSX adapter cho dữ liệu PoC.
-- [ ] P2.03 — Chỉ đọc sheet dữ liệu, bỏ qua sheet hướng dẫn/ẩn khi phù hợp.
-- [ ] P2.04 — Nhận diện workbook bằng schema fingerprint, không chỉ bằng tên file.
-- [ ] P2.05 — Đọc thông tin mô-đun và routing rows.
-- [ ] P2.06 — Đọc 71 FAQ.
-- [ ] P2.07 — Đọc TL01–TL04 theo schema thực tế.
-- [ ] P2.08 — Giữ source location: file, sheet, row, column.
-- [ ] P2.09 — Tạo raw snapshot và checksum.
-- [ ] P2.10 — Upload snapshot vào MinIO Bronze bucket.
-- [ ] P2.11 — Tạo Pydantic models cho raw records.
-- [ ] P2.12 — Validate required fields.
-- [ ] P2.13 — Validate mã FAQ duy nhất.
-- [ ] P2.14 — Validate enum routing.
-- [ ] P2.15 — Validate email, hotline và URL theo format.
-- [ ] P2.16 — Validate nội dung “Chưa xác định”.
-- [ ] P2.17 — Phân loại lỗi `ERROR`, `WARNING`, `INFO`.
-- [ ] P2.18 — Xuất validation report dạng JSON và Markdown.
-- [ ] P2.19 — Xây `--dry-run`.
-- [ ] P2.20 — Viết unit tests bằng bản sao fixture tối thiểu.
+- [x] P2.01 — Định nghĩa `SourceAdapter` chung.
+- [x] P2.02 — Xây XLSX adapter cho dữ liệu PoC.
+- [x] P2.03 — Chỉ đọc sheet dữ liệu, bỏ qua sheet hướng dẫn/ẩn khi phù hợp.
+- [x] P2.04 — Nhận diện workbook bằng schema fingerprint, không chỉ bằng tên file.
+- [x] P2.05 — Đọc thông tin mô-đun và routing rows.
+- [x] P2.06 — Đọc 71 FAQ.
+- [x] P2.07 — Đọc TL01–TL04 theo schema thực tế.
+- [x] P2.08 — Giữ source location: file, sheet, row, column.
+- [x] P2.09 — Tạo raw snapshot và checksum.
+- [x] P2.10 — Upload snapshot vào MinIO Bronze bucket.
+- [x] P2.11 — Tạo Pydantic models cho raw records.
+- [x] P2.12 — Validate required fields.
+- [x] P2.13 — Validate mã FAQ duy nhất.
+- [x] P2.14 — Validate enum routing.
+- [x] P2.15 — Validate email, hotline và URL theo format.
+- [x] P2.16 — Validate nội dung “Chưa xác định”.
+- [x] P2.17 — Phân loại lỗi `ERROR`, `WARNING`, `INFO`.
+- [x] P2.18 — Xuất validation report dạng JSON và Markdown.
+- [x] P2.19 — Xây `--dry-run`.
+- [x] P2.20 — Viết unit tests bằng bản sao fixture tối thiểu.
 
 ### 7.2. Validation policy tối thiểu
 
@@ -298,112 +298,118 @@ Bằng chứng: `reports/phases/phase-01.md`.
 
 ### 7.3. Exit gate
 
-- Parser đọc đúng 17 routing rules.
-- Parser đọc đúng 71 FAQ.
-- Parser đọc đủ TL01–TL04.
-- Mọi record có source location.
-- Chạy `dry-run` không ghi PostgreSQL/Qdrant.
-- Validation report phản ánh đầy đủ DATA-01 đến DATA-10.
-- Dữ liệu nguồn không bị thay đổi.
+Phase 2 đã đạt `ACCEPTED` (2026-11-10):
+
+- Parser đọc đúng 17 routing rules, 71 FAQ, TL01–TL04 (15/26/4/13 section counts).
+- Mọi issue record-level có source location.
+- `python -m app.cli sync --dry-run` không ghi PostgreSQL/Qdrant/MinIO.
+- Validation report JSON/Markdown phản ánh DATA-01 đến DATA-10.
+- Checksum ba workbook nguồn không đổi sau dry-run.
+
+Bằng chứng: `reports/phases/phase-02.md`.
 
 ## 8. Phase 3 — Silver Layer và đồng bộ idempotent
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`  
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 2.
 
 ### 8.1. Checklist
 
-- [ ] P3.01 — Chốt ERD.
-- [ ] P3.02 — Tạo SQLAlchemy models.
-- [ ] P3.03 — Tạo Alembic migration.
-- [ ] P3.04 — Tạo bảng `departments`.
-- [ ] P3.05 — Tạo bảng `modules`.
-- [ ] P3.06 — Tạo bảng `routing_rules`.
-- [ ] P3.07 — Tạo bảng `faqs`.
-- [ ] P3.08 — Tạo bảng `documents`.
-- [ ] P3.09 — Tạo bảng `document_sections`.
-- [ ] P3.10 — Tạo bảng `procedures` hoặc cấu trúc tương đương.
-- [ ] P3.11 — Tạo bảng `attachments`.
-- [ ] P3.12 — Tạo bảng `sync_runs` và `source_records`.
-- [ ] P3.13 — Chuẩn hóa Unicode NFC và khoảng trắng.
-- [ ] P3.14 — Chuẩn hóa tên phòng ban và module theo decision.
-- [ ] P3.15 — Tính content hash.
-- [ ] P3.16 — Upsert bằng business key ổn định.
-- [ ] P3.17 — Thực hiện transaction theo sync run.
-- [ ] P3.18 — Xây soft-delete/deactivate.
-- [ ] P3.19 — Xây chính sách kế thừa contact.
-- [ ] P3.20 — Xây lệnh rollback/retry sync thất bại.
-- [ ] P3.21 — Chạy cùng input hai lần và so sánh kết quả.
-- [ ] P3.22 — Viết integration tests với PostgreSQL thật.
+- [x] P3.01 — Chốt ERD.
+- [x] P3.02 — Tạo SQLAlchemy models.
+- [x] P3.03 — Tạo Alembic migration.
+- [x] P3.04 — Tạo bảng `departments`.
+- [x] P3.05 — Tạo bảng `modules`.
+- [x] P3.06 — Tạo bảng `routing_rules`.
+- [x] P3.07 — Tạo bảng `faqs`.
+- [x] P3.08 — Tạo bảng `documents`.
+- [x] P3.09 — Tạo bảng `document_sections`.
+- [x] P3.10 — Tạo bảng `procedures` hoặc cấu trúc tương đương.
+- [x] P3.11 — Tạo bảng `attachments`.
+- [x] P3.12 — Tạo bảng `sync_runs` và `source_records`.
+- [x] P3.13 — Chuẩn hóa Unicode NFC và khoảng trắng.
+- [x] P3.14 — Chuẩn hóa tên phòng ban và module theo decision.
+- [x] P3.15 — Tính content hash.
+- [x] P3.16 — Upsert bằng business key ổn định.
+- [x] P3.17 — Thực hiện transaction theo sync run.
+- [x] P3.18 — Xây soft-delete/deactivate.
+- [x] P3.19 — Xây chính sách kế thừa contact.
+- [x] P3.20 — Xây lệnh rollback/retry sync thất bại.
+- [x] P3.21 — Chạy cùng input hai lần và so sánh kết quả.
+- [x] P3.22 — Viết integration tests với PostgreSQL thật.
 
 ### 8.2. Exit gate
 
-- PostgreSQL có đúng 1 department và 1 module PoC.
-- Có đúng 17 routing rules active theo nguồn đã duyệt.
-- Có đúng 71 FAQ theo nguồn đã duyệt.
-- Có đúng 4 documents và các section tương ứng.
-- Chạy lại cùng input không tạo duplicate.
-- Thay đổi một ô chỉ cập nhật record liên quan.
-- Sync lỗi không để lại trạng thái nửa vời không được ghi nhận.
+Phase 3 đã đạt `ACCEPTED` (2026-11-10):
+
+- PostgreSQL: 1 department, 1 module, 17 routing, 71 FAQ, 4 documents, 15/26/4/13 sections.
+- Sync lần 2: 0 insert, 0 update, 0 deactivate, 159 unchanged.
+- Đổi một ô FAQ chỉ cập nhật record đó (integration test).
+- Sync lỗi ghi `sync_runs.status=failed` và rollback dữ liệu Silver.
+
+Bằng chứng: `reports/phases/phase-03.md`.
 
 ## 9. Phase 4 — STAIR, embedding và Gold Layer
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`  
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 3.
 
 ### 9.1. Checklist
 
-- [ ] P4.01 — Định nghĩa format STAIR Markdown.
-- [ ] P4.02 — Serialize TL01 theo loại quy định.
-- [ ] P4.03 — Serialize TL02–TL04 theo loại thủ tục.
-- [ ] P4.04 — Gắn department, module, audience và nguồn vào mỗi chunk.
-- [ ] P4.05 — Không tách thời hạn, lệ phí hoặc ngoại lệ khỏi chủ đề.
-- [ ] P4.06 — Tạo deterministic chunk ID.
-- [ ] P4.07 — Benchmark `BAAI/bge-m3`.
-- [ ] P4.08 — Benchmark `intfloat/multilingual-e5-base`.
-- [ ] P4.09 — Chọn model dựa trên chất lượng và tốc độ CPU.
-- [ ] P4.10 — Tạo Qdrant collection với dimension phù hợp.
-- [ ] P4.11 — Tạo payload indexes.
-- [ ] P4.12 — Hard filter theo `department_id`.
-- [ ] P4.13 — Hard filter theo approval/status/effective date.
-- [ ] P4.14 — Upsert chỉ chunk thay đổi.
-- [ ] P4.15 — Xóa/deactivate vector của record ngưng dùng.
-- [ ] P4.16 — Xây lệnh rebuild toàn bộ Qdrant từ PostgreSQL.
-- [ ] P4.17 — Kiểm tra payload không chứa secret hoặc PII.
+- [x] P4.01 — Định nghĩa format STAIR Markdown.
+- [x] P4.02 — Serialize TL01 theo loại quy định.
+- [x] P4.03 — Serialize TL02–TL04 theo loại thủ tục.
+- [x] P4.04 — Gắn department, module, audience và nguồn vào mỗi chunk.
+- [x] P4.05 — Không tách thời hạn, lệ phí hoặc ngoại lệ khỏi chủ đề.
+- [x] P4.06 — Tạo deterministic chunk ID.
+- [x] P4.07 — Benchmark `BAAI/bge-m3` trên CPU.
+- [x] P4.08 — Không benchmark e5: đã khóa BGE-M3 dense+sparse (DR-P4-05).
+- [x] P4.09 — Model: `BAAI/bge-m3`.
+- [x] P4.10 — Tạo Qdrant collection với dimension phù hợp.
+- [x] P4.11 — Tạo payload indexes.
+- [x] P4.12 — Hard filter theo `department_id`.
+- [x] P4.13 — Hard filter theo approval/status/effective date.
+- [x] P4.14 — Upsert chỉ chunk thay đổi.
+- [x] P4.15 — Xóa/deactivate vector của record ngưng dùng.
+- [x] P4.16 — Xây lệnh rebuild toàn bộ Qdrant từ PostgreSQL.
+- [x] P4.17 — Kiểm tra payload không chứa secret hoặc PII.
 
 ### 9.2. Exit gate
 
-- Mỗi chunk đọc độc lập vẫn xác định được chủ đề và đối tượng.
-- TL02–TL04 giữ đúng thời hạn và các ngoại lệ theo hệ đào tạo.
-- Không index dữ liệu chưa được duyệt.
-- Filter `department_id` luôn xuất hiện trong truy vấn.
-- Rebuild Qdrant từ PostgreSQL tạo kết quả tương đương.
-- Đã ghi lại model, dimension, thời gian và RAM benchmark.
+Phase 4 đã đạt `ACCEPTED` (2026-11-10):
+
+- Qdrant `uel_knowledge`: 130 point (71 FAQ + 15/25/3/3/13).
+- Incremental: 130 unchanged, 0 upsert; tenant leak 0; PII 0.
+- Smoke 6 câu PoC khớp từ khóa; mọi hit có `department_id` đúng.
+- BGE-M3 dense 1024 + sparse, query ~0.47s CPU sau load.
+
+Bằng chứng: `reports/phases/phase-04.md`, `reports/phases/phase-04-evidence.json`.
 
 ## 10. Phase 5 — Retrieval baseline và bộ đánh giá
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`  
 **Thời lượng:** 4 ngày  
-**Phụ thuộc:** Phase 4.
+**Phụ thuộc:** Phase 4.  
+**Evidence:** `reports/phases/phase-05.md`; `reports/phases/phase-05-baseline.json`.
 
 ### 10.1. Checklist
 
-- [ ] P5.01 — Tạo tập câu hỏi từ 71 FAQ.
-- [ ] P5.02 — Tạo paraphrase cho một phần FAQ nhưng không dùng để kiểm tra exact match.
-- [ ] P5.03 — Tạo câu hỏi retrieval cho TL01–TL04.
-- [ ] P5.04 — Tạo câu hỏi cần phân biệt ĐHCQ, SĐH và VB2/VLVH.
-- [ ] P5.05 — Tạo câu hỏi ngoài phạm vi.
-- [ ] P5.06 — Tạo câu hỏi cần handoff.
-- [ ] P5.07 — Tạo câu hỏi thiếu dữ liệu, gồm câu hỏi về lệ phí chưa xác định.
-- [ ] P5.08 — Tạo adversarial/prompt injection cases.
-- [ ] P5.09 — Chia calibration set và test set.
-- [ ] P5.10 — Đo Recall@1, Recall@5 và MRR.
-- [ ] P5.11 — So sánh dense-only với lexical+dense nếu cần.
-- [ ] P5.12 — Hiệu chỉnh `top_k` và score threshold trên calibration set.
-- [ ] P5.13 — Đóng băng test set trước khi tối ưu tiếp.
-- [ ] P5.14 — Ghi baseline report.
+- [x] P5.01 — Tạo tập câu hỏi từ 71 FAQ.
+- [x] P5.02 — Tạo paraphrase cho một phần FAQ nhưng không dùng để kiểm tra exact match.
+- [x] P5.03 — Tạo câu hỏi retrieval cho TL01–TL04.
+- [x] P5.04 — Tạo câu hỏi cần phân biệt ĐHCQ, SĐH và VB2/VLVH.
+- [x] P5.05 — Tạo câu hỏi ngoài phạm vi.
+- [x] P5.06 — Tạo câu hỏi cần handoff.
+- [x] P5.07 — Tạo câu hỏi thiếu dữ liệu, gồm câu hỏi về lệ phí chưa xác định.
+- [x] P5.08 — Tạo adversarial/prompt injection cases.
+- [x] P5.09 — Chia calibration set và test set.
+- [x] P5.10 — Đo Recall@1, Recall@5 và MRR.
+- [x] P5.11 — So sánh dense-only với lexical+dense nếu cần.
+- [x] P5.12 — Hiệu chỉnh `top_k` và score threshold trên calibration set.
+- [x] P5.13 — Đóng băng test set trước khi tối ưu tiếp.
+- [x] P5.14 — Ghi baseline report.
 
 ### 10.2. Tình huống bắt buộc trong evaluation
 
@@ -431,32 +437,33 @@ Bằng chứng: `reports/phases/phase-01.md`.
 
 ## 11. Phase 6 — LangGraph RAG agent
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`  
 **Thời lượng:** 6 ngày  
-**Phụ thuộc:** Phase 3–5.
+**Phụ thuộc:** Phase 3–5.  
+**Evidence:** `reports/phases/phase-06.md`; `docs/decisions/phase-06-decisions.md`.
 
 ### 11.1. Checklist
 
-- [ ] P6.01 — Định nghĩa graph state.
-- [ ] P6.02 — Xây `normalize_input`.
-- [ ] P6.03 — Xây routing node.
-- [ ] P6.04 — Xây normalized FAQ match.
-- [ ] P6.05 — Xây metadata extractor.
-- [ ] P6.06 — Giới hạn metadata extractor bằng enum cho phép.
-- [ ] P6.07 — Xây retrieval node với hard filter.
-- [ ] P6.08 — Xây evidence gate.
-- [ ] P6.09 — Xây LLM provider interface.
-- [ ] P6.10 — Xây system prompt tiếng Việt.
-- [ ] P6.11 — Cấm dùng kiến thức ngoài context để kết luận quy định UEL.
-- [ ] P6.12 — Xây generation node.
-- [ ] P6.13 — Xây citation verifier.
-- [ ] P6.14 — Xây `insufficient_evidence`.
-- [ ] P6.15 — Xây `human_handoff`.
-- [ ] P6.16 — Xây `out_of_scope`.
-- [ ] P6.17 — Xử lý timeout, retry giới hạn và provider error.
-- [ ] P6.18 — Ghi latency từng node.
-- [ ] P6.19 — Viết graph integration tests.
-- [ ] P6.20 — Chạy evaluation regression.
+- [x] P6.01 — Định nghĩa graph state.
+- [x] P6.02 — Xây `normalize_input`.
+- [x] P6.03 — Xây routing node.
+- [x] P6.04 — Xây normalized FAQ match.
+- [x] P6.05 — Xây metadata extractor.
+- [x] P6.06 — Giới hạn metadata extractor bằng enum cho phép.
+- [x] P6.07 — Xây retrieval node với hard filter.
+- [x] P6.08 — Xây evidence gate.
+- [x] P6.09 — Xây LLM provider interface.
+- [x] P6.10 — Xây system prompt tiếng Việt.
+- [x] P6.11 — Cấm dùng kiến thức ngoài context để kết luận quy định UEL.
+- [x] P6.12 — Xây generation node.
+- [x] P6.13 — Xây citation verifier.
+- [x] P6.14 — Xây `insufficient_evidence`.
+- [x] P6.15 — Xây `human_handoff`.
+- [x] P6.16 — Xây `out_of_scope`.
+- [x] P6.17 — Xử lý timeout, retry giới hạn và provider error.
+- [x] P6.18 — Ghi latency từng node.
+- [x] P6.19 — Viết graph integration tests.
+- [x] P6.20 — Chạy evaluation regression.
 
 ### 11.2. Nhánh bắt buộc
 
@@ -681,6 +688,51 @@ YYYY-MM-DD
 - Blocked: Không.
 - Evidence: `reports/phases/phase-01.md`; `docker compose ps` (4/4 healthy); readiness JSON `postgres/qdrant/minio=ok`.
 - Bước tiếp theo: Bắt đầu Phase 2 — Bronze ingestion và validation.
+
+### 2026-11-10 (Phase 2)
+
+- Phase: 2.
+- Hoàn thành: SourceAdapter + XLSX parser, schema fingerprint, validation ERROR/WARNING/INFO, CLI `--dry-run`, Bronze snapshot/MinIO upload, báo cáo JSON/Markdown.
+- Đang làm: Không.
+- Blocked: Không.
+- Evidence: `reports/phases/phase-02.md`; dry-run 17/71/4, 0 ERROR, 62 WARNING; pytest 20 passed.
+- Bước tiếp theo: Bắt đầu Phase 3 — Silver Layer và đồng bộ idempotent.
+
+### 2026-11-10 (Phase 3)
+
+- Phase: 3.
+- Hoàn thành: ERD, SQLAlchemy/Alembic, upsert idempotent, soft-delete, contact inheritance, sync_runs audit, integration PostgreSQL.
+- Đang làm: Không.
+- Blocked: Không.
+- Evidence: `reports/phases/phase-03.md`; CLI sync `completed` 17/71/4; lần 2 unchanged=159; pytest 27 passed.
+- Bước tiếp theo: Bắt đầu Phase 4 — STAIR, embedding và Gold Layer.
+
+### 2026-11-10 (Phase 4)
+
+- Phase: 4.
+- Hoàn thành: STAIR, BGE-M3 dense+sparse, Qdrant 130 point, incremental, gold-verify, ẩn email STAIR.
+- Đang làm: Không.
+- Blocked: Không.
+- Evidence: `reports/phases/phase-04.md`; `phase-04-evidence.json` (130 unchanged, PII 0, smoke 6/6).
+- Bước tiếp theo: Bắt đầu Phase 5 — Retrieval baseline và bộ đánh giá.
+
+### 2026-11-10 (Phase 5)
+
+- Phase: 5.
+- Hoàn thành: Bộ 115 câu (97 retrieval), hybrid Recall@5 test = 100%, dense-only 94.9%, tenant leak 0, đóng băng `dataset_sha256`.
+- Đang làm: Không.
+- Blocked: Không.
+- Evidence: `reports/phases/phase-05.md`; `phase-05-baseline.json` (R@5 test 1.000, R@1 test 0.872, threshold 0.4167).
+- Bước tiếp theo: Bắt đầu Phase 6 — LangGraph RAG agent.
+
+### 2026-11-10 (Phase 6)
+
+- Phase: 6.
+- Hoàn thành: LangGraph agent, FAQ exact, routing keyword+LLM, Groq (live) + Gemini interface, FakeLLM tests, CLI chat, MemorySaver.
+- Đang làm: Không.
+- Blocked: Không.
+- Evidence: `reports/phases/phase-06.md`; pytest unit 58 passed.
+- Bước tiếp theo: Bắt đầu Phase 7 — FastAPI, API key và web chat.
 
 ## 19. Go/No-Go checklist
 

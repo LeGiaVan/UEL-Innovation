@@ -9,6 +9,10 @@ def test_settings_use_the_poc_context(settings: Settings) -> None:
     assert settings.app_module_code == "khao_khi"
     assert settings.postgres_url.drivername == "postgresql+asyncpg"
     assert settings.qdrant_ready_url == "http://qdrant:6333/readyz"
+    assert settings.qdrant_collection == "uel_knowledge_test"
+    assert settings.embedding_model == "hash-test"
+    assert settings.llm_provider == "fake"
+    assert settings.rag_top_k == 5
     assert settings.minio_ready_url == "http://minio:9000/minio/health/ready"
 
 

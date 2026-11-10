@@ -4,7 +4,7 @@ Hệ thống chatbot trợ lý ảo sử dụng Retrieval-Augmented Generation (
 
 ## Trạng thái dự án
 
-> Trạng thái: Phase 0–1 đã hoàn thành (`reports/phases/phase-01.md`); sẵn sàng bắt đầu Phase 2 (Bronze ingestion).
+> Trạng thái: Phase 0–6 đã hoàn thành (`reports/phases/phase-06.md`); sẵn sàng bắt đầu Phase 7 (FastAPI, API key và web chat).
 
 PoC được triển khai cho:
 
@@ -87,7 +87,7 @@ Kiến trúc được thiết kế để có thể mở rộng cho:
 | `cong_tac_sinh_vien` | Phòng Công tác sinh viên | Người học |
 | `dao_tao` | Phòng Đào Tạo | Người học |
 | `quan_tri_tai_san` | Phòng Quản Trị Tài Sản | Công nhân viên chức |
-| `nhan_su` | Phòng Nhân Sự - Tôi làm | Công nhân viên chức |
+| `nhan_su` | Phòng Nhân Sự | Công nhân viên chức |
 | `khoa_hoc_cong_nghe` | Phòng Khoa Học Công Nghệ | Công nhân viên chức |
 | `bao_dam_chat_luong` | Phòng Bảo đảm chất lượng | Người học |
 
@@ -467,17 +467,15 @@ MINIO_SECRET_KEY=change-me
 MINIO_BUCKET_BRONZE=bronze
 MINIO_BUCKET_ATTACHMENTS=attachments
 
-LLM_PROVIDER=openai_compatible
-LLM_MODEL=<model>
-LLM_BASE_URL=<provider-url>
-LLM_API_KEY=<secret>
+LLM_PROVIDER=groq
+LLM_MODEL=openai/gpt-oss-20b
+LLM_API_KEY=<groq-key>
 
 EMBEDDING_MODEL=BAAI/bge-m3
 EMBEDDING_DEVICE=cpu
 
-RAG_TOP_K=8
-RAG_FINAL_K=4
-RAG_SCORE_THRESHOLD=<calibrated-value>
+RAG_TOP_K=5
+RAG_SCORE_THRESHOLD=0.4167
 ```
 
 Không commit `.env` hoặc secret vào Git.
@@ -548,7 +546,8 @@ Pipeline phải:
 │   ├── decisions/
 │   ├── data-dictionary.md
 │   ├── data-mapping.md
-│   └── data-approval-policy.md
+│   ├── data-approval-policy.md
+│   └── erd.md
 ├── reports/
 │   └── phases/
 ├── template/
@@ -568,7 +567,7 @@ Pipeline phải:
 └── README.md
 ```
 
-Một phần cấu trúc đã được triển khai trong Phase 1; các package ingestion, agent và migration sẽ được bổ sung ở các phase tiếp theo.
+Phase 2 đã bổ sung `app/ingestion/` và `app/cli.py`. Phase 3 đã bổ sung `app/models/`, `app/db/`, `app/repositories/silver.py` và Alembic. Phase 4 đã bổ sung `app/gold/` (STAIR, BGE-M3, Qdrant).
 
 ## 16. Khởi chạy Phase 1
 
@@ -620,6 +619,83 @@ Dừng dịch vụ nhưng giữ dữ liệu:
 ```bash
 docker compose down
 ```
+
+### 16.4. Phase 2 — Bronze dry-run
+
+```powershell
+.\.venv\Scripts\python.exe -m app.cli sync `
+  --department bao_dam_chat_luong `
+  --module khao_khi `
+  --source xlsx `
+  --dry-run
+```
+
+Kỳ vọng: 17 routing rules, 71 FAQ, 4 documents, 0 ERROR. Báo cáo ghi vào `reports/validation/<release_id>/`. Dry-run không ghi PostgreSQL, Qdrant hay MinIO và không sửa file trong `data/P.BDCL/`.
+
+### 16.5. Phase 3 — Schema Silver và sync PostgreSQL
+
+Từ máy host (Compose đang chạy), trỏ Postgres/MinIO về `localhost`:
+
+```powershell
+$env:POSTGRES_HOST = "localhost"
+$env:MINIO_URL = "http://localhost:9000"
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m app.cli sync `
+  --department bao_dam_chat_luong `
+  --module khao_khi `
+  --source xlsx
+```
+
+Kỳ vọng lần đầu: `status=completed`, 17 routing, 71 FAQ, 4 documents. Chạy lại cùng nguồn: `silver_inserted=0`, `silver_updated=0`, `silver_deactivated=0`. ERD: `docs/erd.md`. Không bỏ `--dry-run` nếu chỉ muốn validate — dry-run không ghi Silver.
+
+Sync không `--dry-run` cũng index Gold (Qdrant) trừ khi thêm `--skip-gold`. Quyết định Phase 4: `docs/decisions/phase-04-decisions.md`.
+
+### 16.6. Phase 4 — Gold / Qdrant
+
+```powershell
+$env:POSTGRES_HOST = "localhost"
+$env:QDRANT_URL = "http://localhost:6333"
+$env:MINIO_URL = "http://localhost:9000"
+.\.venv\Scripts\python.exe -m pip install -e ".[gold]"
+.\.venv\Scripts\python.exe -m app.cli rebuild-gold `
+  --department bao_dam_chat_luong `
+  --module khao_khi
+.\.venv\Scripts\python.exe -m app.cli gold-verify `
+  --department bao_dam_chat_luong `
+  --module khao_khi
+```
+
+Kỳ vọng: 130 point, `pii_hits=0`, `tenant_leak_hits=0`, incremental `unchanged=130`. Model `BAAI/bge-m3` dense 1024 + sparse. STAIR: `reports/gold/` (gitignored). Dashboard: http://localhost:6333/dashboard
+
+### 16.7. Phase 5 — Retrieval baseline
+
+```powershell
+$env:POSTGRES_HOST = "localhost"
+$env:QDRANT_URL = "http://localhost:6333"
+$env:MINIO_URL = "http://localhost:9000"
+.\.venv\Scripts\python.exe -m app.cli eval-retrieval `
+  --department bao_dam_chat_luong `
+  --module khao_khi
+```
+
+Kỳ vọng: ≥ 80 câu retrieval, hybrid Recall@5 test ≥ 85%, `tenant_leak_failures=0`. Baseline: `reports/phases/phase-05-baseline.json`. Test set đóng băng theo `dataset_sha256`. Thêm `--skip-dense` nếu không cần so dense-only.
+
+### 16.8. Phase 6 — LangGraph chat
+
+```powershell
+$env:POSTGRES_HOST = "localhost"
+$env:QDRANT_URL = "http://localhost:6333"
+$env:MINIO_URL = "http://localhost:9000"
+$env:LLM_PROVIDER = "groq"
+$env:LLM_MODEL = "openai/gpt-oss-20b"
+$env:LLM_API_KEY = "<groq-key>"
+.\.venv\Scripts\python.exe -m pip install -e ".[gold]"
+.\.venv\Scripts\python.exe -m app.cli chat `
+  --department bao_dam_chat_luong `
+  --module khao_khi
+```
+
+Một câu: thêm `--message "Thời hạn phúc khảo đại học chính quy?"`. REPL dùng `--conversation-id` để giữ clarification. `LLM_PROVIDER=fake` để chạy graph không gọi Groq. Quyết định: `docs/decisions/phase-06-decisions.md`. Key: https://console.groq.com/keys
 
 ## 17. Tiêu chí chất lượng PoC
 
@@ -692,7 +768,8 @@ Không log:
 - `PLAN.md`: kế hoạch thực hiện PoC.
 - `PHASE_PLAN.md`: checklist triển khai và theo dõi tiến độ theo từng phase.
 - `reports/phases/`: báo cáo nghiệm thu sau mỗi phase.
-- `docs/`: data contract, mapping, enum và decision records.
+- `docs/`: data contract, mapping, enum, ERD (`docs/erd.md`) và decision records (`docs/decisions/phase-04-decisions.md`, `phase-06-decisions.md`).
+- `evaluation/cases.yaml`: bộ câu paraphrase / TL / policy / adversarial Phase 5.
 - `data/P.BDCL/`: dữ liệu thực tế dùng cho PoC Phòng Bảo đảm chất lượng.
 - `template/`: ba biểu mẫu dữ liệu chuẩn.
 - `danh_sach_phong_ban.txt`: danh sách phòng ban định hướng mở rộng.

@@ -29,6 +29,11 @@ Sử dụng `_TEMPLATE.md` để tạo báo cáo mới.
 |---:|---|---|
 | 0 | `phase-00.md` | `ACCEPTED` |
 | 1 | `phase-01.md` | `ACCEPTED` |
+| 2 | `phase-02.md` | `ACCEPTED` |
+| 3 | `phase-03.md` | `ACCEPTED` |
+| 4 | `phase-04.md` | `ACCEPTED` |
+| 5 | `phase-05.md` | `ACCEPTED` |
+| 6 | `phase-06.md` | `ACCEPTED` |
 
 ## Yêu cầu tối thiểu
 

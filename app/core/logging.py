@@ -15,6 +15,11 @@ def configure_logging(level: str) -> None:
         force=True,
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("google_genai").setLevel(logging.WARNING)
+    logging.getLogger("google.genai").setLevel(logging.WARNING)
+    logging.getLogger("huggingface_hub").setLevel(logging.WARNING)
+    logging.getLogger("transformers").setLevel(logging.WARNING)
 
     structlog.configure(
         cache_logger_on_first_use=True,

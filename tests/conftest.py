@@ -17,4 +17,6 @@ def settings() -> Settings:
         postgres_password="test-password",
         postgres_user="uel",
         qdrant_url="http://qdrant:6333",
+        qdrant_collection="uel_knowledge_test",
+        embedding_model="hash-test",
     )

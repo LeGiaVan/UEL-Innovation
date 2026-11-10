@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-11-10T09:46:56.395670Z",
+  "collection": "uel_knowledge",
+  "model": "BAAI/bge-m3",
+  "point_count": 130,
+  "entity_counts": {
+    "step": 13,
+    "faq": 71,
+    "regulation": 15,
+    "condition": 25,
+    "dossier": 3,
+    "procedure": 3
+  },
+  "release_statuses": {
+    "approved_for_dev": 130
+  },
+  "pii_hits": 0,
+  "tenant_leak_hits": 0,
+  "incremental_unchanged": 130,
+  "incremental_upserted": 0,
+  "dense_dim": 1024,
+  "query_embed_seconds": 0.468,
+  "smoke": [
+    {
+      "query": "Thời hạn phúc khảo đại học chính quy",
+      "hit_count": 5,
+      "top_entity": "regulation",
+      "top_preview": "# Thời hạn đăng ký và công bố kết quả phúc khảo  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Mã tài liệu: TL02 - Trạng thái release: approved_for_dev - Chủ đề tài liệu: Đăng ký phúc khảo điểm thi",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "query": "Thời hạn phúc khảo sau đại học",
+      "hit_count": 5,
+      "top_entity": "regulation",
+      "top_preview": "# Thời hạn đăng ký và công bố kết quả phúc khảo  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Mã tài liệu: TL02 - Trạng thái release: approved_for_dev - Chủ đề tài liệu: Đăng ký phúc khảo điểm thi",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "query": "Thời hạn nộp đơn nhận điểm I",
+      "hit_count": 5,
+      "top_entity": "procedure",
+      "top_preview": "# Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng)  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Mã tài liệu: TL03 - Trạng thái release: approved_for_dev - Hiệu lực: từ k",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "query": "Đăng ký trả điểm I trước đợt thi bổ sung",
+      "hit_count": 5,
+      "top_entity": "procedure",
+      "top_preview": "# Đăng ký trả điểm I, thi bổ sung  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Mã tài liệu: TL04 - Trạng thái release: approved_for_dev - Hiệu lực: từ không nêu đến không nêu  ## Tóm tắt  Người h",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "query": "Mang điện thoại vào phòng thi",
+      "hit_count": 5,
+      "top_entity": "faq",
+      "top_preview": "# Điện thoại của tôi reo trong phòng thi có bị xử lý không?  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Trạng thái release: approved_for_dev - Mã câu hỏi: II.2.047 - Phân mục: II. NGƯỜI HỌC ĐẠI ",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "query": "Lệ phí phúc khảo bao nhiêu",
+      "hit_count": 5,
+      "top_entity": "procedure",
+      "top_preview": "# Đăng ký phúc khảo điểm thi kết thúc học phần  - Phòng ban: Phòng Bảo đảm chất lượng - Mô-đun: Mô-đun Khảo khí - Đối tượng: Người học - Mã tài liệu: TL02 - Trạng thái release: approved_for_dev - Hiệu lực: từ không nêu đến không nêu  ## Tóm",
+      "expect_matched": true,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    }
+  ]
+}

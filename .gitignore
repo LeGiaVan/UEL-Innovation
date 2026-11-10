@@ -32,3 +32,7 @@ Thumbs.db
 # Runtime
 *.log
 tmp/
+
+# Generated validation reports
+reports/validation/
+reports/gold/

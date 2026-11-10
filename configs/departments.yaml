@@ -5,9 +5,19 @@ departments:
     name: "Phòng Bảo đảm chất lượng"
     audience: "nguoi_hoc"
     enabled: true
+    contact:
+      support_contact: "Phòng Bảo đảm chất lượng"
+      contact_information: "phongbdcl@uel.edu.vn | 19001239"
+      online_channel: null
+      verified: false
     modules:
       - code: "khao_khi"
         name: "Mô-đun Khảo khí"
         source_type: "xlsx"
         source_path: "data/P.BDCL"
         enabled: true
+        contact:
+          support_contact: "Phòng Bảo đảm chất lượng"
+          contact_information: "phongbdcl@uel.edu.vn | 19001239"
+          online_channel: null
+          verified: false
