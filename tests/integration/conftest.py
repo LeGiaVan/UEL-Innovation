@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import re
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -21,20 +23,23 @@ def _host_settings(database: str) -> Settings:
 
 @pytest.fixture(scope="session")
 def silver_engine() -> Iterator[Engine]:
+    database = os.environ.get("TEST_POSTGRES_DB", "uel_rag_test")
+    if not re.fullmatch(r"uel_rag_test[a-z0-9_]*", database):
+        raise ValueError("Integration database must be a dedicated uel_rag_test database")
     try:
         admin_settings = _host_settings("uel_rag")
         admin = create_engine(admin_settings.postgres_sync_url, isolation_level="AUTOCOMMIT")
         with admin.connect() as connection:
             exists = connection.execute(
-                text("SELECT 1 FROM pg_database WHERE datname = 'uel_rag_test'")
+                text("SELECT 1 FROM pg_database WHERE datname = :database"), {"database": database}
             ).scalar()
             if not exists:
-                connection.execute(text("CREATE DATABASE uel_rag_test"))
+                connection.execute(text(f'CREATE DATABASE "{database}"'))
         admin.dispose()
     except OperationalError as exc:
         pytest.skip(f"PostgreSQL is not available on localhost: {exc}")
 
-    test_settings = _host_settings("uel_rag_test")
+    test_settings = _host_settings(database)
     engine = create_engine(test_settings.postgres_sync_url, pool_pre_ping=True)
     config = Config(str(Path("alembic.ini")))
     config.set_main_option(

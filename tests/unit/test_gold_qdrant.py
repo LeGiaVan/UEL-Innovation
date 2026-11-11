@@ -79,3 +79,54 @@ def test_incremental_upsert_skips_unchanged_and_deletes_stale() -> None:
     store.delete_ids(stale_ids)
     remaining = set(store.tenant_point_ids("bao_dam_chat_luong", "khao_khi"))
     assert remaining == {updated.point_id}
+
+
+def test_search_excludes_inactive_expired_and_unapproved_documents() -> None:
+    store = QdrantGoldStore(QdrantClient(":memory:"), "uel_knowledge_test")
+    embedder = HashEmbedder()
+    chunks = [
+        _chunk("regulation", key, "same matching query")
+        for key in ("valid", "expired", "inactive", "future", "bad-date", "draft")
+    ]
+    chunks[1].payload["effective_to"] = "2000-01-01"
+    chunks[2].payload["is_active"] = False
+    chunks[3].payload["effective_from"] = "2999-01-01"
+    chunks[4].payload["effective_to"] = "not-a-date"
+    chunks[5].payload["release_status"] = "draft"
+    store.ensure_collection(embedder.dense_dim)
+    store.upsert(chunks, embedder.embed([item.stair_markdown for item in chunks]))
+    hits = store.search(
+        query=embedder.embed(["same matching query"])[0],
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        limit=10,
+        faq_boost=0.12,
+    )
+    assert [hit.chunk_id for hit in hits] == [chunks[0].chunk_id]
+
+
+def test_bge_model_initializes_once_across_concurrent_requests(monkeypatch):
+    import sys
+    import threading
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+    from types import SimpleNamespace
+
+    from app.gold.embedder import BgeM3Embedder
+
+    created = []
+    lock = threading.Lock()
+
+    def fake_model(*args, **kwargs):
+        with lock:
+            created.append(1)
+        time.sleep(0.05)
+        return object()
+
+    monkeypatch.setitem(sys.modules, "FlagEmbedding", SimpleNamespace(BGEM3FlagModel=fake_model))
+    embedder = BgeM3Embedder()
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        instances = list(pool.map(lambda _: embedder._load(), range(8)))
+    assert len(created) == 1
+    assert all(item is instances[0] for item in instances)

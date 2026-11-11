@@ -1,0 +1,125 @@
+{
+  "scope": "extractive fallback only",
+  "cases": [
+    {
+      "id": "para-dien-thoai",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-hinh-thuc-thi",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-xem-diem",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-hoan-thi-gia-dinh",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-seb-su-co",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-khong-phuc-khao-luan-van",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-lich-thi",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-quyen-3388",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-vang-thi-diem",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "para-nop-tieu-luan-sdh",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl01-hinh-thuc",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl01-dien-thoai",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl02-thoi-han-dhcq",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl02-thoi-han-sdh",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl03-mot-nam",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl04-bay-ngay",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl04-hieu-luc",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "p8-nhan-i-ho-so",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "p8-i-thoi-han",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "p8-tra-i-dang-ky",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    }
+  ]
+}

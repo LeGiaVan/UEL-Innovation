@@ -1,0 +1,47 @@
+[
+  {
+    "expected": "out_of_scope",
+    "scope": "out_of_scope",
+    "source": "template_policy",
+    "rule_id": "route:94636278a6d26bb355a1",
+    "rule_version": "bdcl-khao-khi-2026-11-09-002:15db5027013a5c23c5b0615c6000d641c756f43c66b8309a1a69c60d5545adfa",
+    "status": "out_of_scope",
+    "search_called": false,
+    "generate_called": false,
+    "citation_values": [],
+    "answer_preview": "Yêu cầu nằm ngoài phạm vi Mô-đun Khảo khí. Vui lòng liên hệ đơn vị phụ trách.\n\nĐầu mối hỗ trợ: Phòng Tài Chính | phongtaichinh@uel.edu.vn | 19001239",
+    "provider_fallback": false
+  },
+  {
+    "expected": "human_required",
+    "scope": "human_required",
+    "source": "template_policy",
+    "rule_id": "route:7bb967f9e9fc69cdbfd3",
+    "rule_version": "bdcl-khao-khi-2026-11-09-002:3880f274f5287b1913bdf78e36ac63982c8e87ef6299b15632f29da414279c47",
+    "status": "human_handoff",
+    "search_called": false,
+    "generate_called": false,
+    "citation_values": [],
+    "answer_preview": "Tôi không kết luận hồ sơ, điểm số hoặc kết quả của một người học cụ thể. Vui lòng liên hệ cán bộ phụ trách để được hỗ trợ.\n\nĐầu mối hỗ trợ: Phòng Bảo đảm chất lượng | phongbdcl@uel.edu.vn | 19001239",
+    "provider_fallback": false
+  },
+  {
+    "expected": "answer_allowed",
+    "scope": "answer_allowed",
+    "source": "template_policy",
+    "rule_id": "route:5b3398c5f7511f584456",
+    "rule_version": "bdcl-khao-khi-2026-11-09-002:789ffeaff461cee2317210b965a4bac528b2e01b99144be9b9c0062dcd1809e8",
+    "status": "answered",
+    "search_called": true,
+    "generate_called": true,
+    "citation_values": [
+      "II.1.038",
+      "gold:4609ff3590d0799dea17e891",
+      "TL03",
+      "gold:b7241930225d28372f47994b",
+      "gold:43ffecc47c7c56f8ed39d882"
+    ],
+    "answer_preview": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.1.038] Điểm I do lý do sức khỏe\n## Câu trả lời\n\nCó thể được xem xét nếu thuộc trường hợp sức khỏe được quy định và có minh chứng hợp lệ. Đối với lý do sức khỏe, minh chứng phải l",
+    "provider_fallback": false
+  }
+]

@@ -10,9 +10,16 @@ RUN groupadd --system app \
     && useradd --system --gid app --home-dir /app app
 
 COPY pyproject.toml README.md ./
-COPY app ./app
+RUN python -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch
+RUN python -m pip install --no-cache-dir "FlagEmbedding>=1.3,<2"
 
+COPY app ./app
+COPY --chown=app:app configs ./configs
 RUN python -m pip install --no-cache-dir .
+
+ENV HF_HOME=/tmp/huggingface
+RUN mkdir -p /app/data /app/reports /tmp/huggingface \
+    && chown -R app:app /app/configs /app/data /app/reports /tmp/huggingface
 
 USER app
 

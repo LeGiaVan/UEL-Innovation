@@ -128,6 +128,15 @@ def parse_routing_rules(
             scope_type or scope_raw or "",
             topic or "",
         )
+        # Optional v1-compatible extension: stable IDs survive topic edits/reordering.
+        if str(worksheet.cell(9, 8).value or "").strip().casefold() in {"rule_id", "mã phạm vi"}:
+            explicit_id = optional_text(worksheet.cell(row, 8).value)
+            if explicit_id:
+                if len(explicit_id) > 64 or not all(
+                    c.isalnum() or c in "_.:-" for c in explicit_id
+                ):
+                    raise SchemaDriftError("Invalid rule_id in routing workbook")
+                source_key = explicit_id
         bot_behavior = optional_text(worksheet.cell(row, 4).value, multiline=True)
         support_contact = optional_text(worksheet.cell(row, 5).value)
         contact_information = optional_text(worksheet.cell(row, 6).value)

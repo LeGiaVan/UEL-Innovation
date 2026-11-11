@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -54,16 +54,19 @@ class ReleaseManifest(BaseModel):
 
 
 class DepartmentModuleConfig(BaseModel):
-    code: str
+    code: str = Field(pattern=r"^[a-z0-9_]+$")
     name: str
-    source_type: str
+    source_type: Literal["xlsx", "google-sheets"]
     source_path: str
     enabled: bool = True
     contact: ContactConfig = Field(default_factory=ContactConfig)
+    profile: Literal["generic", "assessment"] = "generic"
+    description: str = ""
+    routing_aliases: dict[str, list[str]] = Field(default_factory=dict)
 
 
 class DepartmentConfig(BaseModel):
-    id: str
+    id: str = Field(pattern=r"^[a-z0-9_]+$")
     name: str
     audience: str
     enabled: bool = True
@@ -114,7 +117,13 @@ def load_department_configs(path: Path) -> list[DepartmentConfig]:
         payload = yaml.safe_load(handle)
     data = _require_mapping(payload, str(path))
     departments = data.get("departments") or []
-    return [DepartmentConfig.model_validate(item) for item in departments]
+    parsed = [DepartmentConfig.model_validate(item) for item in departments]
+    if len({d.id for d in parsed}) != len(parsed):
+        raise ManifestError("Duplicate department IDs")
+    for department in parsed:
+        if len({m.code for m in department.modules}) != len(department.modules):
+            raise ManifestError("Duplicate module codes")
+    return parsed
 
 
 def resolve_module(

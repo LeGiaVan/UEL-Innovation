@@ -35,7 +35,7 @@ def _runtime(
         ]
     )
     memory = retriever or MemoryRetriever([_hit()])
-    runtime = AgentRuntime(AgentDeps(llm=fake, faqs=store, retriever=memory))
+    runtime = AgentRuntime(AgentDeps(llm=fake, faqs=store, retriever=memory, legacy_mode=True))
     return runtime, fake, memory
 
 
@@ -146,9 +146,10 @@ def test_generate_without_citation_attaches_retrieved_codes() -> None:
     )
     assert result.status == "answered"
     assert any(item.value == "TL02" for item in result.citations)
+    assert "[TL02]" in result.answer
 
 
-def test_invalid_citation_becomes_insufficient() -> None:
+def test_invalid_citation_falls_back_to_extractive() -> None:
     runtime, _, _ = _runtime(llm=FakeLlm(generate_text="Theo Wikipedia TL99, hạn là 2 ngày."))
     result = runtime.invoke(
         "Thời hạn phúc khảo đại học chính quy là mấy ngày?",
@@ -157,8 +158,11 @@ def test_invalid_citation_becomes_insufficient() -> None:
         environment="test",
         conversation_id="cite-fail",
     )
-    assert result.status == "insufficient_evidence"
+    assert result.status == "answered"
     assert result.generate_called is True
+    assert "Wikipedia" not in result.answer
+    assert "trích" in result.answer.casefold()
+    assert any(item.value == "TL02" for item in result.citations)
 
 
 def test_diem_i_uses_keyword_routing_and_skips_metadata_llm() -> None:
@@ -180,9 +184,7 @@ def test_diem_i_uses_keyword_routing_and_skips_metadata_llm() -> None:
 
 
 def test_generate_timeout_falls_back_to_retrieved_stair() -> None:
-    runtime, _, _ = _runtime(
-        llm=FakeLlm(fail=LlmTimeoutError("deadline"), fail_on={"generate"})
-    )
+    runtime, _, _ = _runtime(llm=FakeLlm(fail=LlmTimeoutError("deadline"), fail_on={"generate"}))
     result = runtime.invoke(
         "Thời hạn phúc khảo đại học chính quy là mấy ngày?",
         department_id="bao_dam_chat_luong",
@@ -221,11 +223,7 @@ def test_routing_llm_failure_defaults_to_answer_allowed() -> None:
 
 def test_policy_and_adversarial_cases_from_yaml() -> None:
     runtime, llm, retriever = _runtime()
-    cases = [
-        item
-        for item in load_authored_cases()
-        if item.kind in {"policy", "adversarial"}
-    ]
+    cases = [item for item in load_authored_cases() if item.kind in {"policy", "adversarial"}]
     for case in cases:
         retriever.calls.clear()
         llm.calls.clear()
@@ -263,3 +261,96 @@ def test_policy_and_adversarial_cases_from_yaml() -> None:
 
 def test_normalize_question_used_for_faq_key() -> None:
     assert normalize_question("Thời hạn phúc khảo?") == "thời hạn phúc khảo"
+
+
+def test_extractive_citations_only_reference_displayed_excerpts() -> None:
+    hits = [
+        GoldHit(
+            chunk_id=f"gold:{i:024x}",
+            entity_type="regulation",
+            score=0.9,
+            boosted_score=0.9,
+            stair_markdown=f"Evidence {i}",
+            payload={"document_code": f"TL0{i}"},
+        )
+        for i in range(1, 5)
+    ]
+    runtime, _, _ = _runtime(
+        llm=FakeLlm(generate_text="Answer without source."), retriever=MemoryRetriever(hits)
+    )
+    result = runtime.invoke(
+        "Quy dinh phuc khao dai hoc chinh quy",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="fallback-citations",
+    )
+    assert result.status == "answered"
+    assert "Evidence 3" in result.answer
+    assert "Evidence 4" not in result.answer
+    assert {item.value for item in result.citations if item.kind == "document_code"} == {
+        "TL01",
+        "TL02",
+        "TL03",
+    }
+
+
+def test_fee_amount_paraphrase_abstains_without_retrieval() -> None:
+    runtime, _, retriever = _runtime()
+    result = _ask(runtime, "Xin hoan thi nhan diem I phai dong bao nhieu tien?")
+    assert result.status == "insufficient_evidence"
+    assert not result.generate_called
+    assert not retriever.calls
+
+
+def test_vb2_retake_uses_exception_evidence_instead_of_general_online_rule() -> None:
+    hit = GoldHit(
+        chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+        entity_type="regulation",
+        score=0.9,
+        boosted_score=0.9,
+        stair_markdown=(
+            "Trực tuyến qua Portal UEL. Ngoại lệ VB2/VLVH: trả điểm I thực hiện qua Phòng Đào tạo."
+        ),
+        payload={"document_code": "TL04"},
+    )
+    runtime, llm, _ = _runtime(retriever=MemoryRetriever([hit]))
+    result = _ask(runtime, "Trả điểm I cho người học VB2/VLVH")
+    assert result.status == "answered"
+    assert "Phòng Đào tạo" in result.answer
+    assert "trực tuyến" not in result.answer
+    assert any(item.value == "TL04" for item in result.citations)
+    assert "generate" not in llm.calls
+
+
+def test_vb2_regrade_without_specific_evidence_abstains() -> None:
+    unrelated = GoldHit(
+        chunk_id="gold:cccccccccccccccccccccccc",
+        entity_type="regulation",
+        score=0.9,
+        boosted_score=0.9,
+        stair_markdown="Trả điểm I cho hệ VB2/VLVH qua Phòng Đào tạo.",
+        payload={"document_code": "TL04"},
+    )
+    runtime, llm, _ = _runtime(retriever=MemoryRetriever([unrelated]))
+    result = _ask(runtime, "Phúc khảo dành cho người học hệ VB2 hoặc VLVH khác ĐHCQ như thế nào?")
+    assert result.status == "insufficient_evidence"
+    assert not result.generate_called
+    assert "generate" not in llm.calls
+
+
+def test_vb2_postponement_uses_specific_department_channel() -> None:
+    hit = GoldHit(
+        chunk_id="gold:bbbbbbbbbbbbbbbbbbbbbbbb",
+        entity_type="regulation",
+        score=0.9,
+        boosted_score=0.9,
+        stair_markdown="VB2/VLVH nộp đơn trực tiếp tại Phòng Đào tạo.",
+        payload={"document_code": "TL03"},
+    )
+    runtime, llm, _ = _runtime(retriever=MemoryRetriever([hit]))
+    result = _ask(runtime, "Xin nhận điểm I hệ VB2")
+    assert result.status == "answered"
+    assert "trực tiếp tại Phòng Đào tạo" in result.answer
+    assert any(item.value == "TL03" for item in result.citations)
+    assert "generate" not in llm.calls

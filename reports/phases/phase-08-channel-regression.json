@@ -1,0 +1,24 @@
+[
+  {
+    "id": "para-xem-diem",
+    "status": "answered",
+    "answer": "Người học có thể tra cứu điểm học phần chính thức trên tài khoản cá nhân/portal UEL (https://portal.uel.edu.vn) theo thông báo và quy trình công bố điểm của Trường.  \n\nMã nguồn: **I.3.025**",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.3.025"
+      }
+    ]
+  },
+  {
+    "id": "para-nop-tieu-luan-sdh",
+    "status": "answered",
+    "answer": "Học viên cao học nộp tiểu luận cuối kỳ theo hình thức đã được công bố cho học phần: nộp bản in tại phòng thi theo lịch hoặc nộp file trên LMS theo link trong lịch thi. (Mã câu hỏi: **III.3.066**)",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "III.3.066"
+      }
+    ]
+  }
+]

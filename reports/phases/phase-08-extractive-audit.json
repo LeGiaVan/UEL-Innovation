@@ -1,0 +1,29 @@
+{
+  "scope": "extractive fallback only",
+  "cases": [
+    {
+      "id": "doc-tl02-thoi-han-dhcq",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl02-thoi-han-sdh",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl03-mot-nam",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    },
+    {
+      "id": "doc-tl04-bay-ngay",
+      "chunks": 3,
+      "all_excerpts_match": true,
+      "all_labels_match": true
+    }
+  ]
+}

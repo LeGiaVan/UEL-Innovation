@@ -2,24 +2,39 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.ingestion.enums import CANONICAL_DEPARTMENT_NAME, CANONICAL_MODULE_NAME
 from app.ingestion.normalize import normalize_rich_text, normalize_space
+
+_AUDIENCE_LABELS = {
+    "nguoi_hoc": "Người học",
+    "students": "Người học",
+    "can_bo": "Cán bộ",
+    "staff": "Cán bộ",
+}
+
+
+def audience_label(value: str | None) -> str:
+    text = (value or "").strip()
+    if not text:
+        return "Người học"
+    return _AUDIENCE_LABELS.get(text.casefold(), text)
 
 
 def stair_header(
     *,
     title: str,
     document_code: str | None,
-    audience: str = "Người học",
+    audience: str = "",
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
     extra_lines: list[str] | None = None,
 ) -> str:
     lines = [
         f"# {title.strip()}",
         "",
-        f"- Phòng ban: {CANONICAL_DEPARTMENT_NAME}",
-        f"- Mô-đun: {CANONICAL_MODULE_NAME}",
-        f"- Đối tượng: {audience}",
+        f"- Phòng ban: {department_name}",
+        f"- Mô-đun: {module_name}",
+        f"- Đối tượng: {audience_label(audience)}",
         f"- Trạng thái release: {release_status}",
     ]
     if document_code:
@@ -43,6 +58,9 @@ def serialize_faq(
     category: str | None,
     subcategory: str | None,
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     source_file: str,
     source_sheet: str,
     source_row: int,
@@ -55,7 +73,13 @@ def serialize_faq(
     extra.append(f"- Có văn bản căn cứ: {'có' if legal_basis else 'không'}")
     body = [
         stair_header(
-            title=question, document_code=None, release_status=release_status, extra_lines=extra
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
+            title=question,
+            document_code=None,
+            release_status=release_status,
+            extra_lines=extra,
         ),
         "## Câu trả lời",
         "",
@@ -82,6 +106,9 @@ def serialize_regulation(
     resolution: str | None,
     related_conditions: list[tuple[str | None, str | None, str | None]],
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     source_file: str,
     source_sheet: str,
     source_row: int,
@@ -90,6 +117,9 @@ def serialize_regulation(
     extra = [f"- Chủ đề tài liệu: {document_title}"]
     parts = [
         stair_header(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             title=section_title,
             document_code=document_code,
             release_status=release_status,
@@ -119,6 +149,9 @@ def serialize_condition(
     scenario: str | None,
     resolution: str | None,
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     source_file: str,
     source_sheet: str,
     source_row: int,
@@ -130,6 +163,9 @@ def serialize_condition(
     ]
     parts = [
         stair_header(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             title=title,
             document_code=document_code,
             release_status=release_status,
@@ -163,6 +199,9 @@ def serialize_procedure(
     answer_policy: str | None,
     related_conditions: list[tuple[str | None, str | None, str | None]],
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     effective_from: date | None,
     effective_to: date | None,
     source_file: str,
@@ -172,6 +211,9 @@ def serialize_procedure(
     extra = [_effective_line(effective_from, effective_to)]
     parts = [
         stair_header(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             title=document_title,
             document_code=document_code,
             release_status=release_status,
@@ -209,6 +251,9 @@ def serialize_dossier(
     document_code: str,
     items: list[tuple[str, str | None, str | None, bool | None]],
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     source_file: str,
     source_sheet: str,
     source_row: int,
@@ -216,6 +261,9 @@ def serialize_dossier(
     extra = [f"- Chủ đề tài liệu: {document_title}"]
     lines = [
         stair_header(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             title=f"{document_title} — Hồ sơ",
             document_code=document_code,
             release_status=release_status,
@@ -255,6 +303,9 @@ def serialize_step(
     responsible_unit: str | None,
     channel: str | None,
     release_status: str,
+    department_name: str = "",
+    module_name: str = "",
+    audience: str = "",
     source_file: str,
     source_sheet: str,
     source_row: int,
@@ -262,6 +313,9 @@ def serialize_step(
     extra = [f"- Chủ đề tài liệu: {document_title}", f"- Bước: {step_number}"]
     parts = [
         stair_header(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             title=f"{document_title} — Bước {step_number}",
             document_code=document_code,
             release_status=release_status,

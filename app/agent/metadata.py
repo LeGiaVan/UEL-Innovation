@@ -6,7 +6,24 @@ _DHCQ = ("đại học chính quy", "dai hoc chinh quy", "đhcq", "dhcq", "chín
 _SDH = ("sau đại học", "sau dai hoc", "sđh", "sdh", "cao học", "cao hoc", "thạc sĩ", "thac si")
 _VB2 = ("vb2", "văn bằng 2", "van bang 2", "vlvh", "vừa làm vừa học", "vua lam vua hoc")
 
-_FEE = ("lệ phí", "le phi", "bao nhiêu đồng", "mức thu", "mat phi", "mất phí")
+_FEE = (
+    "lệ phí",
+    "le phi",
+    "bao nhiêu đồng",
+    "bao nhieu dong",
+    "bao nhiêu tiền",
+    "bao nhieu tien",
+    "mức thu",
+    "muc thu",
+    "mat phi",
+    "mất phí",
+    "chi phí",
+    "chi phi",
+    "có thu tiền",
+    "co thu tien",
+    "thu bao nhiêu",
+    "thu bao nhieu",
+)
 _PHUC_KHAO = ("phúc khảo", "phuc khao")
 _DIEM_I = ("điểm i", "diem i")
 _TRA_DIEM = ("trả điểm i", "tra diem i", "thi bổ sung", "thi bo sung")

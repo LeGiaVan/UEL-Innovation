@@ -33,6 +33,10 @@ def is_effective(payload: dict[str, Any], today: date | None = None) -> bool:
     current = today or date.today()
     start = _parse_optional_date(payload.get("effective_from"))
     end = _parse_optional_date(payload.get("effective_to"))
+    if (payload.get("effective_from") not in (None, "") and start is None) or (
+        payload.get("effective_to") not in (None, "") and end is None
+    ):
+        return False
     if start is not None and start > current:
         return False
     return not (end is not None and end < current)

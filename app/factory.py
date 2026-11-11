@@ -1,15 +1,20 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import httpx
 import structlog
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app.api.routes.admin import router as admin_router
+from app.api.routes.chat import router as chat_router
 from app.api.routes.health import router as health_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
-from app.core.middleware import RequestContextMiddleware
+from app.core.middleware import RequestContextMiddleware, RequestSizeLimitMiddleware
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -42,16 +47,55 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await logger.ainfo("application_stopped")
 
     app = FastAPI(
-        description="PoC API for the UEL RAG virtual assistant.",
+        description=(
+            "UEL RAG assistant. Chat uses X-API-Key. "
+            "Adding a department: POST /v1/admin/packages/inspect (fingerprint the three "
+            "standard XLSX templates) then POST /v1/admin/releases (registry + Bronze/Silver/"
+            "Qdrant). dry_run=true validates; dry_run=false writes MinIO, PostgreSQL and Qdrant. "
+            "Admin uses X-Admin-Key. New modules following Template 1/2/3 need no code change."
+        ),
         docs_url="/docs" if runtime_settings.app_env != "uat" else None,
         lifespan=lifespan,
+        openapi_tags=[
+            {"name": "health", "description": "Liveness and dependency readiness."},
+            {
+                "name": "chat",
+                "description": "Tenant-scoped chat. Server derives tenant from the API key.",
+            },
+            {
+                "name": "administration",
+                "description": (
+                    "Registry and ETL. Inspect templates → ingest release → Bronze snapshot, "
+                    "Silver policy/FAQ/docs, Gold vectors in Qdrant."
+                ),
+            },
+        ],
         redoc_url=None,
         title=runtime_settings.app_name,
         version="0.1.0",
     )
     app.add_middleware(
+        RequestSizeLimitMiddleware,
+        max_bytes=runtime_settings.request_max_bytes,
+        upload_max_bytes=runtime_settings.source_upload_max_bytes,
+    )
+    app.add_middleware(
         RequestContextMiddleware,
         header_name=runtime_settings.request_id_header,
     )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=runtime_settings.cors_origins,
+        allow_methods=["POST", "GET", "PUT"],
+        allow_headers=["Content-Type", "X-API-Key", "X-Request-ID", "X-Admin-Key", "If-Match"],
+        expose_headers=["ETag", runtime_settings.request_id_header],
+    )
     app.include_router(health_router)
+    app.include_router(chat_router)
+    app.include_router(admin_router)
+
+    @app.get("/", include_in_schema=False)
+    async def web_chat() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "web" / "index.html")
+
     return app

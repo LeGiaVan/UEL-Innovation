@@ -79,6 +79,23 @@ ROLE_SCHEMA_EXTRACTORS: dict[WorkbookRole, Callable[[Workbook], dict[str, Any]]]
 }
 
 
+def classify_workbook(path: Path) -> tuple[WorkbookRole, str, str]:
+    """Identify a template workbook by layout only, without a release manifest."""
+    workbook = load_workbook(path, data_only=False, read_only=False)
+    matches: list[tuple[WorkbookRole, str]] = []
+    for role, extractor in ROLE_SCHEMA_EXTRACTORS.items():
+        try:
+            matches.append((role, schema_fingerprint(extractor(workbook))))
+        except SchemaExtractionError:
+            continue
+    if len(matches) != 1:
+        raise SchemaDriftError(
+            f"Workbook {path.name} must match exactly one of the three standard templates."
+        )
+    role, digest = matches[0]
+    return role, sha256_file(path), digest
+
+
 def identify_workbook(path: Path, manifest: ReleaseManifest) -> IdentifiedWorkbook:
     workbook = load_workbook(path, data_only=False, read_only=False)
     expected = manifest.schema_by_digest()

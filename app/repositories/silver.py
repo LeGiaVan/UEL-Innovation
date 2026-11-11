@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings
 from app.ingestion.contact import ContactConfig, ResolvedContact, resolve_contact
-from app.ingestion.enums import CANONICAL_DEPARTMENT_NAME, CANONICAL_MODULE_NAME
 from app.ingestion.keys import section_key
 from app.ingestion.manifest import DepartmentConfig, DepartmentModuleConfig, ReleaseManifest
 from app.ingestion.models import ExtractionBundle, IdentifiedWorkbook, SourceLocation
@@ -316,7 +315,7 @@ def _upsert_department(
     stats: SilverStats,
 ) -> Department:
     row = session.scalar(select(Department).where(Department.code == config.id))
-    name = CANONICAL_DEPARTMENT_NAME
+    name = config.name
     if row is None:
         row = Department(
             code=config.id,
@@ -368,7 +367,7 @@ def _upsert_module(
     now: datetime,
     stats: SilverStats,
 ) -> Module:
-    name = bundle.module.name or CANONICAL_MODULE_NAME
+    name = bundle.module.name or module_config.name
     workbook = next(item for item in bundle.workbooks if item.role == "module_and_routing")
     content = content_hash(name, manifest.release_status)
     row = session.scalar(

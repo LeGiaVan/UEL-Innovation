@@ -1,0 +1,359 @@
+[
+  {
+    "id": "para-phuc-khao-dhcq",
+    "split": "calibration",
+    "query": "Sinh viên đại học chính quy được phúc khảo bài thi trong mấy ngày làm việc?",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "2 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-phuc-khao-sdh",
+    "split": "test",
+    "query": "Học viên cao học phúc khảo thì thời hạn là bao lâu so với đại học chính quy?",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "7 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-diem-i-nop",
+    "split": "calibration",
+    "query": "Tôi ốm không dự thi, phải nộp đơn nhận điểm I trước hạn nào?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.036"
+    ],
+    "known_answer_fragments": [
+      "3 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-diem-i-hieu-luc",
+    "split": "test",
+    "query": "Điểm I còn hiệu lực bao lâu và quá hạn thì sao?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.037"
+    ],
+    "known_answer_fragments": [
+      "1 năm"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-tra-diem-i",
+    "split": "calibration",
+    "query": "Muốn thi trả điểm I thì phải đăng ký trước đợt thi bổ sung bao nhiêu ngày?",
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "7 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-dien-thoai",
+    "split": "test",
+    "query": "Điện thoại reo trong phòng thi thì bị xử lý thế nào?",
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [
+      "II.2.047"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-hinh-thuc-thi",
+    "split": "calibration",
+    "query": "Trường tổ chức thi kết thúc học phần bằng những hình thức nào?",
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [
+      "I.2.012"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-xem-diem",
+    "split": "test",
+    "query": "Tra cứu điểm học phần trên hệ thống nào của trường?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.3.025"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-hoan-thi-gia-dinh",
+    "split": "calibration",
+    "query": "Có việc gia đình đột xuất, xin hoãn thi được không?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.034"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-seb-su-co",
+    "split": "test",
+    "query": "Khi thi máy bị treo hoặc SEB lỗi thì xử lý ra sao theo hướng dẫn nghiệp vụ?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "II.2.046"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-khong-phuc-khao-luan-van",
+    "split": "calibration",
+    "query": "Khóa luận tốt nghiệp đã qua hội đồng thì có phúc khảo được không?",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [
+      "II.3.050"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-lich-thi",
+    "split": "test",
+    "query": "Xem lịch thi cuối kỳ ở đâu?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "II.2.042"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-quyen-3388",
+    "split": "calibration",
+    "query": "Quyết định 3388 về khảo thí áp dụng cho những hệ đào tạo nào?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.1.004"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-vang-thi-diem",
+    "split": "test",
+    "query": "Vắng thi không lý do thì điểm học phần tính thế nào?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.3.023"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "para-nop-tieu-luan-sdh",
+    "split": "calibration",
+    "query": "Học viên cao học nộp tiểu luận cuối kỳ ở đâu?",
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "III.3.066"
+    ],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl01-hinh-thuc",
+    "split": "calibration",
+    "query": "Hình thức thi, phương thức thi và thời lượng làm bài theo quy định khảo thí",
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl01-dien-thoai",
+    "split": "test",
+    "query": "Quy định mang điện thoại và thiết bị vào phòng thi",
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl02-thoi-han-dhcq",
+    "split": "calibration",
+    "query": "Thời hạn đăng ký phúc khảo đối với đại học chính quy là 2 ngày làm việc",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "2 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl02-thoi-han-sdh",
+    "split": "test",
+    "query": "Thời hạn phúc khảo sau đại học 7 ngày làm việc",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "7 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl02-vb2",
+    "split": "calibration",
+    "query": "Phúc khảo dành cho người học hệ VB2 hoặc VLVH khác ĐHCQ như thế nào?",
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl03-ba-ngay",
+    "split": "test",
+    "query": "Hồ sơ nhận điểm I phải nộp trong 3 ngày làm việc sau ngày thi",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "3 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl03-mot-nam",
+    "split": "calibration",
+    "query": "Quá 01 năm chưa thi trả điểm I thì hệ quả thế nào?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "1 năm"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl03-vb2",
+    "split": "test",
+    "query": "Hoãn thi nhận điểm I với hệ vừa làm vừa học hoặc VB2",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl04-bay-ngay",
+    "split": "calibration",
+    "query": "Đăng ký trả điểm I trước 7 ngày của đợt thi bổ sung",
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "7 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl04-hieu-luc",
+    "split": "test",
+    "query": "Kiểm tra hiệu lực điểm I trước khi đăng ký thi bổ sung",
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "doc-tl04-vb2",
+    "split": "calibration",
+    "query": "Trả điểm I cho người học VB2/VLVH",
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [],
+    "review_status": "pending"
+  },
+  {
+    "id": "p8-nhan-i-ho-so",
+    "split": "test",
+    "query": "Hồ sơ xin hoãn thi nhận điểm I cần nộp khi nào?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "3 ngày"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "p8-i-thoi-han",
+    "split": "test",
+    "query": "Quá thời hạn một năm chưa trả điểm I thì sao?",
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "1 năm"
+    ],
+    "review_status": "pending"
+  },
+  {
+    "id": "p8-tra-i-dang-ky",
+    "split": "test",
+    "query": "Hạn đăng ký dự thi bổ sung trả điểm I là khi nào?",
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "known_answer_fragments": [
+      "7 ngày"
+    ],
+    "review_status": "pending"
+  }
+]

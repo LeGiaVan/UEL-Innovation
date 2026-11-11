@@ -29,6 +29,11 @@ def test_keyword_routing_oos_handoff_seb() -> None:
     assert keyword_scope("Cách thức thi SEB chung theo hướng dẫn") == "answer_allowed"
     assert keyword_scope("điểm thi mã số sinh viên 123 của tôi") == "human_required"
     assert keyword_scope("Thời hạn phúc khảo") == "answer_allowed"
+    assert keyword_scope("Vắng thi không lý do thì điểm học phần tính thế nào?") == "answer_allowed"
+    assert keyword_scope("Điểm thi của tôi, tôi vắng thi không lý do") == "human_required"
+    assert keyword_scope("Tra cứu điểm học phần trên hệ thống nào của trường?") == "answer_allowed"
+    assert keyword_scope("Nộp tiểu luận/báo cáo cuối kỳ ở đâu?") == "answer_allowed"
+    assert keyword_scope("Tra cứu điểm học phần của tôi trên hệ thống nào?") is None
     assert keyword_scope("tôi muốn xin điểm I, điều kiện và quy trình như nào") == (
         "answer_allowed"
     )
@@ -36,9 +41,7 @@ def test_keyword_routing_oos_handoff_seb() -> None:
 
 def test_deadline_clarification() -> None:
     assert needs_training_system_clarification("Thời hạn phúc khảo mấy ngày")
-    assert not needs_training_system_clarification(
-        "Thời hạn phúc khảo đại học chính quy mấy ngày"
-    )
+    assert not needs_training_system_clarification("Thời hạn phúc khảo đại học chính quy mấy ngày")
     assert detect_training_system("học viên cao học") == "sdh"
     assert detect_training_system("VB2 vừa làm vừa học") == "vb2_vlvh"
 
@@ -58,6 +61,17 @@ def test_citation_rule_requires_retrieved_codes() -> None:
     assert not citations_are_valid("Theo TL99.", evidence)
     kinds = {item.kind for item in extract_citations("Xem TL02 và I.1.001")}
     assert kinds == {"document_code", "question_code"}
+    generic = [
+        RetrievedEvidence(
+            chunk_id="gold:bbbbbbbbbbbbbbbbbbbbbbbb",
+            entity_type="regulation",
+            document_code="FIN-01",
+            boosted_score=0.9,
+            stair_markdown="Hoc phi hoc ky.",
+        )
+    ]
+    assert citations_are_valid("Theo FIN-01 hoc phi duoc thong bao rieng.", generic)
+    assert not citations_are_valid("Theo FIN-99.", generic)
     from_hits = citations_from_evidence(evidence)
     assert [item.value for item in from_hits if item.kind == "document_code"] == ["TL02"]
 

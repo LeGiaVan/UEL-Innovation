@@ -85,6 +85,11 @@ services:
       MINIO_URL: http://minio:9000
     ports:
       - "${API_HOST_PORT:-8000}:8000"
+    volumes:
+      - api_config:/app/configs
+      - api_sources:/app/data
+      - api_reports:/app/reports
+      - embedding_cache:/tmp/huggingface
     depends_on:
       minio:
         condition: service_healthy
@@ -113,6 +118,10 @@ networks:
     driver: bridge
 
 volumes:
+  api_config:
+  api_sources:
+  api_reports:
+  embedding_cache:
   minio_data:
   postgres_data:
   qdrant_data:

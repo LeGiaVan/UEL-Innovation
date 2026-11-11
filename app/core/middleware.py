@@ -57,3 +57,54 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         )
         clear_contextvars()
         return response
+
+
+class RequestSizeLimitMiddleware:
+    """Bound request bodies, including streamed requests without Content-Length."""
+
+    def __init__(self, app: ASGIApp, max_bytes: int, upload_max_bytes: int = 16777216) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+        self.upload_max_bytes = upload_max_bytes
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        chunks = []
+        size = 0
+        path = scope.get("path", "")
+        limit = (
+            self.upload_max_bytes
+            if path in {"/v1/admin/sources", "/v1/admin/packages/inspect", "/v1/admin/releases"}
+            else self.max_bytes
+        )
+        while True:
+            event = await receive()
+            if event["type"] != "http.request":
+                return
+            chunk = event.get("body", b"")
+            size += len(chunk)
+            if size > limit:
+                await send(
+                    {
+                        "type": "http.response.start",
+                        "status": 413,
+                        "headers": [(b"content-type", b"text/plain")],
+                    }
+                )
+                await send({"type": "http.response.body", "body": b"Request too large"})
+                return
+            chunks.append(chunk)
+            if not event.get("more_body", False):
+                break
+        delivered = False
+
+        async def replay():
+            nonlocal delivered
+            if not delivered:
+                delivered = True
+                return {"type": "http.request", "body": b"".join(chunks), "more_body": False}
+            return await receive()
+
+        await self.app(scope, replay, send)

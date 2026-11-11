@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import threading
 from typing import Any, Protocol
 
 from app.gold.models import EmbeddedText
@@ -43,8 +44,15 @@ class BgeM3Embedder:
         self._batch_size = batch_size
         self._max_length = max_length
         self._model: Any = None
+        self._load_lock = threading.Lock()
 
     def _load(self) -> Any:
+        if self._model is None:
+            with self._load_lock:
+                return self._load_once()
+        return self._model
+
+    def _load_once(self) -> Any:
         if self._model is None:
             try:
                 from FlagEmbedding import BGEM3FlagModel  # type: ignore[import-untyped]

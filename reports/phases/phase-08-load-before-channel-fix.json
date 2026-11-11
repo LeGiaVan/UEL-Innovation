@@ -1,0 +1,60 @@
+{
+  "warmup": {
+    "faq": {
+      "http": 200,
+      "status": "faq_answered",
+      "provider_fallback": false,
+      "fallback": false,
+      "seconds": 1.407
+    },
+    "rag": {
+      "http": 200,
+      "status": "answered",
+      "provider_fallback": false,
+      "fallback": false,
+      "seconds": 21.932
+    }
+  },
+  "faq": {
+    "requests": 10,
+    "http_errors": 0,
+    "application_errors": 0,
+    "p95_seconds": 0.94,
+    "median_seconds": 0.8009999999999999,
+    "fallback_responses": 0,
+    "provider_fallbacks": 0,
+    "statuses": [
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered"
+    ]
+  },
+  "rag": {
+    "requests": 10,
+    "http_errors": 0,
+    "application_errors": 0,
+    "p95_seconds": 7.08,
+    "median_seconds": 6.8469999999999995,
+    "fallback_responses": 8,
+    "provider_fallbacks": 8,
+    "statuses": [
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered"
+    ]
+  }
+}

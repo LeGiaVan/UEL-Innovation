@@ -68,6 +68,10 @@ class SilverFaqStore:
                     Department.code == department_id,
                     Module.code == module_code,
                     Faq.is_active.is_(True),
+                    Module.is_active.is_(True),
+                    Department.is_active.is_(True),
+                    Module.release_status.in_(allowed),
+                    Faq.release_id == Module.release_id,
                     Faq.release_status.in_(allowed),
                     Faq.normalized_question == normalized_question,
                 )

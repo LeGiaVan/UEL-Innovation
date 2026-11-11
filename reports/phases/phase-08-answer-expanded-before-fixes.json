@@ -1,0 +1,1094 @@
+[
+  {
+    "id": "para-phuc-khao-dhcq",
+    "query": "Sinh viên đại học chính quy được phúc khảo bài thi trong mấy ngày làm việc?",
+    "expected_substrings": [
+      "2 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Sinh viên đại học chính quy được phúc khảo bài thi trong **02 ngày làm việc** kể từ ngày Trường công bố điểm thi chính thức trên Portal UEL.  \n\n**Mã tài liệu tham khảo:** TL02 (đăng ký phúc khảo điểm thi kết thúc học phần).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-phuc-khao-sdh",
+    "query": "Học viên cao học phúc khảo thì thời hạn là bao lâu so với đại học chính quy?",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Học viên **cao học** phúc khảo có thời hạn đăng ký **07 ngày làm việc** kể từ ngày công bố điểm, trong khi học viên **đại học chính quy** chỉ có **02 ngày làm việc**.  \n\nMã nguồn: TL02 (định nghĩa thời hạn đăng ký và công bố kết quả phúc khảo).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-diem-i-nop",
+    "query": "Tôi ốm không dự thi, phải nộp đơn nhận điểm I trước hạn nào?",
+    "expected_substrings": [
+      "3 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Bạn phải nộp đơn xin nhận điểm I **chậm nhất 03 ngày làm việc** sau ngày thi.  \n\n**Mã nguồn:** TL03.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.036"
+    ],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-diem-i-hieu-luc",
+    "query": "Điểm I còn hiệu lực bao lâu và quá hạn thì sao?",
+    "expected_substrings": [
+      "1 năm"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Điểm I có hiệu lực **01 năm kể từ ngày được nhận**. Nếu người học không thi trả điểm I trong thời hạn này, điểm I tự động chuyển thành điểm 0.  \n\n**Mã nguồn tham khảo:** TL03 (hoặc TL04).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.037"
+    ],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-tra-diem-i",
+    "query": "Muốn thi trả điểm I thì phải đăng ký trước đợt thi bổ sung bao nhiêu ngày?",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Theo quy định của Trường Đại học Kinh tế – Luật, để đăng ký thi trả điểm I (thi bổ sung) người học phải đăng ký **chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung**.  \n\nMã tài liệu tham khảo: **TL04**.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-dien-thoai",
+    "query": "Điện thoại reo trong phòng thi thì bị xử lý thế nào?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.2.047] Điện thoại của tôi reo trong phòng thi có bị xử lý không?\n## Câu trả lời\n\nĐiện thoại và các thiết bị không được phép sử dụng trong phòng thi phải được thực hiện theo hướng dẫn của cán bộ coi thi. Nếu điện thoại reo hoặc người học sử dụng điện thoại trong phòng thi, việc xử lý sẽ căn cứ vào hành vi thực tế và Quy định về xử lý vi phạm thi. Người học phải tắt nguồn hoặc để điện thoại ở vị trí theo hướng dẫn trước khi bắt đầu thi.\n\n[TL01] Mang điện thoại vào phòng thi nhưng đã tắt nguồn, để trong túi quần/túi xách\n- Loại: common_error\n\n## Tình huống\n\nMang điện thoại vào phòng thi nhưng đã tắt nguồn, để trong túi quần/túi xách\n\n## Cách xử lý\n\nVẫn bị lập biên bản đình chỉ thi và nhận điểm 0. Cấm tuyệt đối mang thiết bị điện tử có khả năng thu phát sóng (điện thoại, đồng hồ thông minh…) vào vị trí ngồi thi, bất kể bật hay tắt nguồn. Để thiết bị ở nơi quy định ngoài phòng thi trước khi làm bài.\n\n[I.1.010] Nếu vi phạm quy chế thi thì tôi có thể bị xử lý như thế nào?\n## Câu trả lời\n\nTùy theo tính chất và mức độ vi phạm, người học có thể bị áp dụng các hình thức xử lý như khiển trách, cảnh cáo, đình chỉ thi và các hình thức xử lý liên quan theo Quy định về công tác khảo thí. Mức xử lý cụ thể được xác định căn cứ vào hành vi vi phạm thực tế và quy định hiện hành.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.2.047"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b6f171c901935e3283e4ec4a"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f4ecc5fdbca7341563b23048"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.1.010"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:cd98fa6eefad27166872a44b"
+      }
+    ],
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [
+      "II.2.047"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-hinh-thuc-thi",
+    "query": "Trường tổ chức thi kết thúc học phần bằng những hình thức nào?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "routing",
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.2.012] Các hình thức thi kết thúc học phần tại Trường Đại học Kinh tế - Luật?\n## Câu trả lời\n\nTại Trường Đại học Kinh tế - Luật, hình thức thi kết thúc học phần được xác định phù hợp với tính chất, đặc thù và yêu cầu đánh giá của từng học phần. Các hình thức thi có thể gồm: thi viết (tự luận, trắc nghiệm hoặc kết hợp), thi vấn đáp, thi thực hành và các hình thức phù hợp khác theo quy định của Trường. Hình thức thi cụ thể của từng học phần được xác định trong đề cương chi tiết học phần và được công bố cho người học.\n\n[III.1.054] Kỳ thi kết thúc học phần của tôi được tổ chức như thế nào?\n## Câu trả lời\n\nKỳ thi được tổ chức theo từng đợt, căn cứ kế hoạch đào tạo và tiến độ của lớp học phần; lịch cụ thể do Phòng Bảo đảm chất lượng công bố.\n\n[I.2.017] Hình thức thi được xác định/căn cứ vào đâu?\n## Câu trả lời\n\nHình thức thi kết thúc học phần được xác định theo hình thức đã được phê duyệt trong đề cương chi tiết học phần của chương trình đào tạo và phải được công bố công khai cho người học ngay từ buổi học đầu tiên.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.2.012"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:01f56230539e81d4d57f01c5"
+      },
+      {
+        "kind": "question_code",
+        "value": "III.1.054"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:30d4fa39721ef8be9264e5cc"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.2.017"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:035c82171c0ac5cb52ab7409"
+      }
+    ],
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [
+      "I.2.012"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-xem-diem",
+    "query": "Tra cứu điểm học phần trên hệ thống nào của trường?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "routing",
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.3.026] Điểm học phần trên hệ thống có phải là điểm chính thức không?\n## Câu trả lời\n\nCó. Điểm được Trường công bố trên hệ thống chính thức của Trường là căn cứ để người học theo dõi kết quả học tập. Trường hợp phát hiện sai sót hoặc không đồng ý với kết quả, người học thực hiện theo quy trình khiếu nại/phúc khảo trong thời hạn quy định.\n\n[III.1.056] Tôi muốn biết điểm học phần được xác định như thế nào?\n## Câu trả lời\n\nĐiểm học phần là tổng điểm các thành phần theo trọng số trong đề cương. Các điểm thành phần: Quá trình, Giữa kỳ, Cuối kỳ, Nâng cao không được làm tròn. Điểm trung bình học phần được hệ thống làm tròn đến một chữ số thập phân (đối với khóa 2025 trở về trước); đến hai chữ số thập phân (đối với khóa 2026 trở về sau).\n\n[I.3.025] Người học xem điểm học phần ở đâu?\n## Câu trả lời\n\nNgười học xem điểm học phần chính thức trên tài khoản cá nhân/portal UEL (https://portal.uel.edu.vn) theo thông báo và quy trình công bố điểm của Trường.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.3.026"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:ffae77039ff0b9c44d7df0be"
+      },
+      {
+        "kind": "question_code",
+        "value": "III.1.056"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:4b4d062b96ab87aaaad32ef3"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.3.025"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f9c1ce9655611e33022ddfd8"
+      }
+    ],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.3.025"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-hoan-thi-gia-dinh",
+    "query": "Có việc gia đình đột xuất, xin hoãn thi được không?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.1.034] Tôi có việc gia đình nên không thể đi thi, có được xin hoãn thi không?\n## Câu trả lời\n\nChỉ các trường hợp thuộc quy định mới được xem xét. Các trường hợp được xem xét: Tang gia người thân trong gia đình (cha mẹ, vợ chồng, con) (cần có bản sao giấy chứng tử); Lễ cưới của người học. Người học cần cung cấp minh chứng tương ứng nếu được yêu cầu.\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng)\n## Tóm tắt\n\nNgười học vắng thi kết thúc học phần có lý do chính đáng và minh chứng hợp lệ (nằm viện, tang gia, được Trường cử đi thi/công tác/trao đổi, bất khả kháng do thiên tai, dịch bệnh hoặc sự cố kỹ thuật thi trực tuyến) được xin hoãn thi và nhận điểm I.\nHồ sơ nộp chậm nhất 03 ngày làm việc sau ngày thi: ĐHCQ, SĐH đăng ký trực tuyến; VB2/VLVH nộp đơn trực tiếp tại Phòng Đào tạo.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; sau đó người học đăng ký thi trả điểm I (xem TL04). Mã quy trình: KT-QT-I-001.\n\n## Kết quả\n\nKết quả công nhận hoãn thi/nhận điểm I theo quy trình của Trường; học phần được ghi điểm I (hiệu lực 01 năm).\n\n## Thời hạn xử lý\n\nTùy trường hợp. Nộp hồ sơ chậm nhất 03 ngày làm việc sau ngày thi.\n\n## Nơi nộp / kênh\n\nĐHCQ, SĐH: trực tuyến qua Portal UEL. VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo.\nĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/n…\n\n[TL03] Điều kiện thực hiện\n## Điều kiện thực hiện\n\nVắng thi kết thúc học phần có lý do chính đáng và minh chứng hợp lệ.\nCác trường hợp: nằm viện; tang gia; được Trường cử đi thi/công tác/trao đổi; bất khả kháng do thiên tai, dịch bệnh hoặc sự cố kỹ thuật thi trực tuyến.\nNộp hồ sơ chậm nhất 03 ngày làm việc sau ngày thi.\nCăn cứ pháp lý: Khoản 4 Điều 6; Phụ lục 16 mục III.2.1, V.A, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.1.034"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:164dc42881fcc87a7d5e157c"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b7241930225d28372f47994b"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:7bc885ebd4276652c6792c24"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.034"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-seb-su-co",
+    "query": "Khi thi máy bị treo hoặc SEB lỗi thì xử lý ra sao theo hướng dẫn nghiệp vụ?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL01] Gặp sự cố kỹ thuật khi thi trên máy (treo máy, mất mạng, lỗi SEB, không nộp được bài)\n- Loại: common_error\n\n## Tình huống\n\nGặp sự cố kỹ thuật khi thi trên máy (treo máy, mất mạng, lỗi SEB, không nộp được bài)\n\n## Cách xử lý\n\nBáo ngay cho cán bộ coi thi; không tự ý thoát hoặc đóng phần mềm, không rời khỏi trang thi khi chưa được hướng dẫn. Cán bộ coi thi hướng dẫn xử lý theo quy trình (Phụ lục 18).\n\n[II.2.046] Khi thi trên máy gặp sự cố kỹ thuật (treo máy, mất mạng, lỗi SEB hoặc không nộp được bài) thì phải làm gì?\n## Câu trả lời\n\nNgười học phải báo ngay cho cán bộ coi thi và không tự ý thoát phần mềm, đóng phần mềm hoặc rời khỏi trang thi khi chưa được hướng dẫn. Cán bộ coi thi sẽ hướng dẫn xử lý sự cố theo quy trình.\n\n[TL01] Xử lý kỷ luật người học vi phạm quy chế thi\n## Xử lý kỷ luật người học vi phạm quy chế thi\n\nMọi hành vi vi phạm phải được lập biên bản và xử lý theo đúng mức độ vi phạm.\n- Khiển trách (trừ 25% điểm bài thi): lỗi vi phạm 1 lần như nhìn bài, trao đổi, nhắc nộp bài trễ lần 1.\n- Cảnh cáo (trừ 50% điểm bài thi): đã bị khiển trách vẫn tái phạm; trao đổi bài làm/giấy nháp; bài thi giống nhau; di chuyển khỏi vị trí thi trực tuyến không xin phép.\n- Đình chỉ thi (nhận điểm 0): mang tài liệu/thiết bị điện tử thu phát sóng vào phòng thi không cho phép; tắt camera/không trả lời CBCT khi thi trực tuyến; tự ý thoát phần mềm SEB.\n- Đình chỉ học tập 01 năm: thi hộ hoặc nhờ người thi hộ lần thứ nhất.\n- Buộc thôi học: tái phạm thi hộ/nhờ thi hộ lần thứ hai; tổ chức lấy đề và đưa bài giải vào phòng thi; gây rối trật tự phòng thi.\nCăn cứ pháp lý: Điều 17, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:8bbf15c4c40476ad4921c061"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.2.046"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:ba7077cea137ef2b18b2381d"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:7678d3e68600fff3dcd6a901"
+      }
+    ],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "II.2.046"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-khong-phuc-khao-luan-van",
+    "query": "Khóa luận tốt nghiệp đã qua hội đồng thì có phúc khảo được không?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.3.050] Tôi có thể phúc khảo khóa luận tốt nghiệp không?\n## Câu trả lời\n\nĐối với các học phần có Hội đồng đánh giá như Khóa luận tốt nghiệp, Trường không tổ chức chấm phúc khảo.\n\n[TL02] Bài thi là khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức\n- Loại: exception\n\n## Tình huống\n\nBài thi là khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức\n\n## Cách xử lý\n\nKhông áp dụng phúc khảo.\n\n[TL01] Bài thi là khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã thông qua Hội đồng đánh giá chuyên môn chính thức\n- Loại: exception\n\n## Tình huống\n\nBài thi là khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã thông qua Hội đồng đánh giá chuyên môn chính thức\n\n## Cách xử lý\n\nKhông áp dụng phúc khảo.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.3.050"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:26e88453763f40bc6b322669"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:1ab24d32e6db3bc84a735655"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:9022dee23a5ca2bcbbf0a405"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [
+      "II.3.050"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-lich-thi",
+    "query": "Xem lịch thi cuối kỳ ở đâu?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "routing",
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.2.042] Tôi xem lịch thi cuối kỳ ở đâu?\n## Câu trả lời\n\nNgười học xem lịch thi cuối kỳ trên hệ thống portal UEL theo thông báo và lịch thi được Trường công bố. Khi có thay đổi về lịch thi, người học cần theo dõi thông báo cập nhật trên hệ thống và các kênh thông tin chính thức của Trường.\n\n[III.3.066] Tôi nộp tiểu luận/báo cáo cuối kỳ ở đâu?\n## Câu trả lời\n\nNgười học nộp theo hình thức đã được công bố cho học phần: nộp bản in tại phòng thi theo lịch hoặc nộp file trên LMS theo link trong lịch thi.\n\n[II.2.043] Tôi xem danh sách dự thi ở đâu?\n## Câu trả lời\n\nNgười học xem danh sách dự thi và phòng thi tại tài khoản cá nhân trên hệ thống portal UEL. Đối với các học phần thi trực tuyến, người học cần kiểm tra thêm thông tin phòng thi và danh sách thi trên hệ thống E-Learning. Nếu không có tên hoặc thông tin dự thi chưa chính xác, người học phản hồi về Phòng Bảo đảm chất lượng để được kiểm tra, xử lý.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.2.042"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:6ed27a8e7fe1a2bd0dfd337a"
+      },
+      {
+        "kind": "question_code",
+        "value": "III.3.066"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:472ee122a1a4b97f896f8897"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.2.043"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:ff5bae1c4aed0acd3c025f71"
+      }
+    ],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "II.2.042"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-quyen-3388",
+    "query": "Quyết định 3388 về khảo thí áp dụng cho những hệ đào tạo nào?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.1.004] Quyết định 3388 áp dụng cho những bậc, hệ và loại hình đào tạo nào?\n## Câu trả lời\n\nQuyết định 3388/QĐ-ĐHKTL ngày 31/12/2024 được áp dụng đối với tất cả các bậc, hệ và các loại hình đào tạo do Trường Đại học Kinh tế - Luật tổ chức đào tạo bao gồm đại học và sau đại học.\n\nQuyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024\n\n[I.1.006] Mục đích của công tác khảo thí theo Quyết định 3388 là gì?\n## Câu trả lời\n\nCông tác khảo thí nhằm bảo đảm việc đo lường, đánh giá học phần được thực hiện nghiêm túc, đúng quy chế đào tạo; bảo đảm sự thống nhất, nhanh chóng và chính xác giữa các đơn vị có liên quan. Đồng thời, công tác khảo thí phải bảo đảm tính công bằng, chặt chẽ, khách quan trong đánh giá kết quả học tập, góp phần nâng cao chất lượng đào tạo và bảo đảm tính độc lập giữa quá trình dạy học với kiểm tra, đánh giá, nhằm ngăn ngừa các tiêu cực có thể phát sinh trong thi cử.\n\n[I.1.003] Quyết định 3388 có thay thế các quyết định khảo thí trước đây không?\n## Câu trả lời\n\nCó. Quyết định 3388/QĐ-ĐHKTL ngày 31/12/2024 thay thế Quyết định số 1622/QĐ-ĐHKTL ngày 03/11/2022 và Quyết định số 488/QĐ-ĐHKTL ngày 04/5/2023; các văn bản ban hành trước đây có nội dung trái với Quyết định 3388 cũng được bãi bỏ.\n\nQuyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024\nQuyết định số 1622/QĐ-ĐHKTL ngày 03/11/2022 (bị thay thế)\nQuyết định số 488/QĐ-ĐHKTL ngày 04/5/2023 (bị thay thế)",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.1.004"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:d5b26bd03c515c13b898ae77"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.1.006"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b0d49eaeb108758f976ac8a1"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.1.003"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:71af67510e9f01d6e1c18bda"
+      }
+    ],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.1.004"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-vang-thi-diem",
+    "query": "Vắng thi không lý do thì điểm học phần tính thế nào?",
+    "expected_substrings": [],
+    "initial_status": "human_handoff",
+    "llm_calls": [
+      "routing"
+    ],
+    "provider_error": false,
+    "status": "human_handoff",
+    "answer": "Tôi không kết luận hồ sơ, điểm số hoặc kết quả của một người học cụ thể. Vui lòng liên hệ cán bộ phụ trách để được hỗ trợ.\n\nĐầu mối hỗ trợ: Phòng Bảo đảm chất lượng | phongbdcl@uel.edu.vn | 19001239",
+    "citations": [],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "I.3.023"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "para-nop-tieu-luan-sdh",
+    "query": "Học viên cao học nộp tiểu luận cuối kỳ ở đâu?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "routing",
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[III.3.066] Tôi nộp tiểu luận/báo cáo cuối kỳ ở đâu?\n## Câu trả lời\n\nNgười học nộp theo hình thức đã được công bố cho học phần: nộp bản in tại phòng thi theo lịch hoặc nộp file trên LMS theo link trong lịch thi.\n\n[III.3.072] Tôi nộp nhầm file tiểu luận trên LMS thì phải làm sao?\n## Câu trả lời\n\nNếu còn hạn và LMS cho phép, người học nộp lại đúng file ngay, nếu LMS khóa thì liên hệ Phòng Bảo đảm chất lượng để được hỗ trợ. Nếu đã hết hạn, không gửi file thay thế qua email/tin nhắn; bài được xử lý theo dữ liệu đã ghi nhận trên LMS.\n\n[II.2.042] Tôi xem lịch thi cuối kỳ ở đâu?\n## Câu trả lời\n\nNgười học xem lịch thi cuối kỳ trên hệ thống portal UEL theo thông báo và lịch thi được Trường công bố. Khi có thay đổi về lịch thi, người học cần theo dõi thông báo cập nhật trên hệ thống và các kênh thông tin chính thức của Trường.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "III.3.066"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:472ee122a1a4b97f896f8897"
+      },
+      {
+        "kind": "question_code",
+        "value": "III.3.072"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:7f8c07579441cf40925adfa6"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.2.042"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:6ed27a8e7fe1a2bd0dfd337a"
+      }
+    ],
+    "expected_document_codes": [],
+    "expected_question_codes": [
+      "III.3.066"
+    ],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl01-hinh-thuc",
+    "query": "Hình thức thi, phương thức thi và thời lượng làm bài theo quy định khảo thí",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL01] Hình thức thi, phương thức thi và thời lượng làm bài thi\n## Hình thức thi, phương thức thi và thời lượng làm bài thi\n\nHình thức bài thi: Tự luận, Trắc nghiệm, Kết hợp, Vấn đáp, Tiểu luận/Bài tập lớn (BTL)\nPhương thức thi: Trực tiếp (trên giấy/máy tính), Trực tuyến (Zoom/LMS).\nThời lượng làm bài thi được quy định khống chế theo số lượng tín chỉ của học phần: Học phần từ 3 tín chỉ trở xuống: tối đa 90 phút; 4 tín chỉ: tối đa 120 phút; từ 5 tín chỉ trở lên: tối đa không quá 150 phút.\nĐối với hình thức thi vấn đáp: thời gian chuẩn bị cho mỗi thí sinh là 05 phút, thời gian đối đáp tối thiểu 03 phút và tối đa 07 phút. Kết quả thi vấn đáp được công bố công khai ngay sau buổi thi.\nĐối với tiểu luận/BTL: thời gian thực hiện tính theo ngày và quy định trong Đề cương chi tiết học phần/kế hoạch đánh giá được phê duyệt; không áp dụng một số ngày cứng cho mọi học phần.\nCăn cứ pháp lý: Quy định về công tác khảo thí ban hành kèm theo Quyết định số 3388/QĐ-ĐHK…\n\n[I.1.002] Quy định về công tác khảo thí (Quyết định 3388/QĐ-ĐHKTL ngày 31/12/2024) bao gồm những nội dung gì?\n## Câu trả lời\n\nQuyết định 3388/QĐ-ĐHKTL ngày 31/12/2024 (gọi tắt là Quyết định 3388) quy định về hoạt động khảo thí tại Trường, bao gồm các nội dung liên quan đến thi kết thúc học phần, hình thức thi, điểm học phần, điều kiện và số lần dự thi, chuẩn bị kỳ thi, chấm thi, quản lý điểm, phúc khảo, xử lý vi phạm và trách nhiệm của các đơn vị, người học.\n\nQuyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024\n\n[I.1.010] Nếu vi phạm quy chế thi thì tôi có thể bị xử lý như thế nào?\n## Câu trả lời\n\nTùy theo tính chất và mức độ vi phạm, người học có thể bị áp dụng các hình thức xử lý như khiển trách, cảnh cáo, đình chỉ thi và các hình thức xử lý liên quan theo Quy định về công tác khảo thí. Mức xử lý cụ thể được xác định căn cứ vào hành vi vi phạm thực tế và quy định hiện hành.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:6dc5aa672c3d5592eb2c28ce"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.1.002"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:974b50006159653c235a3063"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.1.010"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:cd98fa6eefad27166872a44b"
+      }
+    ],
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl01-dien-thoai",
+    "query": "Quy định mang điện thoại và thiết bị vào phòng thi",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "metadata",
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.2.047] Điện thoại của tôi reo trong phòng thi có bị xử lý không?\n## Câu trả lời\n\nĐiện thoại và các thiết bị không được phép sử dụng trong phòng thi phải được thực hiện theo hướng dẫn của cán bộ coi thi. Nếu điện thoại reo hoặc người học sử dụng điện thoại trong phòng thi, việc xử lý sẽ căn cứ vào hành vi thực tế và Quy định về xử lý vi phạm thi. Người học phải tắt nguồn hoặc để điện thoại ở vị trí theo hướng dẫn trước khi bắt đầu thi.\n\n[TL01] Mang điện thoại vào phòng thi nhưng đã tắt nguồn, để trong túi quần/túi xách\n- Loại: common_error\n\n## Tình huống\n\nMang điện thoại vào phòng thi nhưng đã tắt nguồn, để trong túi quần/túi xách\n\n## Cách xử lý\n\nVẫn bị lập biên bản đình chỉ thi và nhận điểm 0. Cấm tuyệt đối mang thiết bị điện tử có khả năng thu phát sóng (điện thoại, đồng hồ thông minh…) vào vị trí ngồi thi, bất kể bật hay tắt nguồn. Để thiết bị ở nơi quy định ngoài phòng thi trước khi làm bài.\n\n[II.2.049] Tôi có được mang tài liệu vào phòng thi không?\n## Câu trả lời\n\nChỉ được mang những tài liệu được phép sử dụng nếu học phần cho phép nhưng vẫn cần tuân thủ hướng dẫn của kỳ thi và cán bộ coi thi.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.2.047"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b6f171c901935e3283e4ec4a"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f4ecc5fdbca7341563b23048"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.2.049"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:fffe6a1fb59f9431bad25791"
+      }
+    ],
+    "expected_document_codes": [
+      "TL01"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl02-thoi-han-dhcq",
+    "query": "Thời hạn đăng ký phúc khảo đối với đại học chính quy là 2 ngày làm việc",
+    "expected_substrings": [
+      "2 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.4.030] Thời hạn đăng ký phúc khảo\n## Câu trả lời\n\nĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm.\nSĐH: 07 ngày làm việc kể từ ngày công bố điểm.\nThời hạn công bố kết quả: ĐHCQ 06 ngày; SĐH 10 ngày kể từ ngày xác nhận/chốt danh sách.\n\n[TL02] Đăng ký phúc khảo điểm thi kết thúc học phần\n## Tóm tắt\n\nNgười học muốn kiểm tra, đánh giá lại bài thi kết thúc học phần đăng ký phúc khảo trực tuyến qua tài khoản cá nhân trên Portal UEL. ĐHCQ đăng ký trong 02 ngày làm việc, SĐH trong 07 ngày làm việc kể từ ngày Trường công bố điểm thi chính thức trên Portal.\nKết quả phúc khảo được công bố chậm nhất 06 ngày làm việc (ĐHCQ) hoặc 10 ngày làm việc (SĐH) kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.\nKhông áp dụng đối với khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức. Mã quy trình: KT-QT-PK-001.\n\n## Kết quả\n\nKết quả chấm phúc khảo bài thi chính thức được cập nhật theo kênh công bố của Trường (Portal UEL / Score).\n\n## Thời hạn xử lý\n\n10 ngày làm việc. Chỉ nhận đăng ký trong 02 ngày làm việc (ĐHCQ) hoặc 07 ngày làm việc (SĐH) kể từ ngày Trường công bố điểm thi chính thức trên Portal. Thời hạn công bố kết quả: ĐHCQ ch…\n\n[TL02] Thời hạn đăng ký và công bố kết quả phúc khảo\n## Thời hạn đăng ký và công bố kết quả phúc khảo\n\nNộp đơn phúc khảo ĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm. Nộp đơn phúc khảo Sau đại học: 07 ngày làm việc kể từ ngày công bố điểm.\nXử lý kết quả: ĐHCQ chậm nhất 06 ngày làm việc, SĐH chậm nhất 10 ngày làm việc kể từ ngày Phòng Bảo đảm chất lượng xác nhận danh sách.\nCăn cứ pháp lý: Khoản 2 Điều 14; Phụ lục 3 - Quy trình nhập và quản lý điểm thi; Phụ lục 11, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.4.030"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:37f13b0107081f94eda703b1"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:74960109f2605e80fc514869"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:1ca38278c27fda3bd151b764"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl02-thoi-han-sdh",
+    "query": "Thời hạn phúc khảo sau đại học 7 ngày làm việc",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.4.030] Thời hạn đăng ký phúc khảo\n## Câu trả lời\n\nĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm.\nSĐH: 07 ngày làm việc kể từ ngày công bố điểm.\nThời hạn công bố kết quả: ĐHCQ 06 ngày; SĐH 10 ngày kể từ ngày xác nhận/chốt danh sách.\n\n[TL02] Thời hạn đăng ký và công bố kết quả phúc khảo\n## Thời hạn đăng ký và công bố kết quả phúc khảo\n\nNộp đơn phúc khảo ĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm. Nộp đơn phúc khảo Sau đại học: 07 ngày làm việc kể từ ngày công bố điểm.\nXử lý kết quả: ĐHCQ chậm nhất 06 ngày làm việc, SĐH chậm nhất 10 ngày làm việc kể từ ngày Phòng Bảo đảm chất lượng xác nhận danh sách.\nCăn cứ pháp lý: Khoản 2 Điều 14; Phụ lục 3 - Quy trình nhập và quản lý điểm thi; Phụ lục 11, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ\n\n[TL02] Đăng ký phúc khảo điểm thi kết thúc học phần\n## Tóm tắt\n\nNgười học muốn kiểm tra, đánh giá lại bài thi kết thúc học phần đăng ký phúc khảo trực tuyến qua tài khoản cá nhân trên Portal UEL. ĐHCQ đăng ký trong 02 ngày làm việc, SĐH trong 07 ngày làm việc kể từ ngày Trường công bố điểm thi chính thức trên Portal.\nKết quả phúc khảo được công bố chậm nhất 06 ngày làm việc (ĐHCQ) hoặc 10 ngày làm việc (SĐH) kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.\nKhông áp dụng đối với khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức. Mã quy trình: KT-QT-PK-001.\n\n## Kết quả\n\nKết quả chấm phúc khảo bài thi chính thức được cập nhật theo kênh công bố của Trường (Portal UEL / Score).\n\n## Thời hạn xử lý\n\n10 ngày làm việc. Chỉ nhận đăng ký trong 02 ngày làm việc (ĐHCQ) hoặc 07 ngày làm việc (SĐH) kể từ ngày Trường công bố điểm thi chính thức trên Portal. Thời hạn công bố kết quả: ĐHCQ ch…",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.4.030"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:37f13b0107081f94eda703b1"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:1ca38278c27fda3bd151b764"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:74960109f2605e80fc514869"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl02-vb2",
+    "query": "Phúc khảo dành cho người học hệ VB2 hoặc VLVH khác ĐHCQ như thế nào?",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL01] Phúc khảo và xem lại bài thi\n## Phúc khảo và xem lại bài thi\n\nĐăng ký phúc khảo: ĐHCQ trong 02 ngày làm việc, SĐH trong 07 ngày làm việc kể từ ngày Trường công bố điểm thi chính thức trên Portal. Đăng ký trực tuyến 100% qua tài khoản cá nhân tại Portal UEL (https://portal.uel.edu.vn).\nCông bố kết quả phúc khảo: ĐHCQ chậm nhất 06 ngày làm việc; SĐH chậm nhất 10 ngày làm việc kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.\nXem bài thi trực tiếp: người học gửi đơn về Phòng Bảo đảm chất lượng trong 03 ngày làm việc kể từ ngày công bố điểm; Phòng Bảo đảm chất lượng tổ chức xem bài tại phòng chấm thi (có camera giám sát và cán bộ giám sát) trong 05 ngày làm việc kể từ khi nhận đơn. Người học chỉ được xem bài làm và đối chiếu đáp án, không được mang điện thoại/thiết bị ghi hình vào phòng xem bài và không được tự ý sửa chữa bài thi.\nThủ tục chi tiết: xem TL02.\nCăn cứ pháp lý: Khoản 2, Khoản 7 Điều 14; Phụ lục 2…\n\n[TL02] Điều kiện thực hiện\n## Điều kiện thực hiện\n\nNgười học có nhu cầu kiểm tra, đánh giá lại bài thi kết thúc học phần.\nĐHCQ: đăng ký trong 02 ngày làm việc kể từ ngày công bố điểm. SĐH: đăng ký trong 07 ngày làm việc kể từ ngày công bố điểm.\nKhông áp dụng đối với khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức.\nCăn cứ pháp lý: Điều 14; Phụ lục 2; Phụ lục 3 Bước 5; Phụ lục 11 mục III.7-III.9, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ\n\n[I.4.030] Thời hạn đăng ký phúc khảo\n## Câu trả lời\n\nĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm.\nSĐH: 07 ngày làm việc kể từ ngày công bố điểm.\nThời hạn công bố kết quả: ĐHCQ 06 ngày; SĐH 10 ngày kể từ ngày xác nhận/chốt danh sách.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:e3cccb1d61eb05f1c109a154"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:e1001c2703824cf26136c2c5"
+      },
+      {
+        "kind": "question_code",
+        "value": "I.4.030"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:37f13b0107081f94eda703b1"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl03-ba-ngay",
+    "query": "Hồ sơ nhận điểm I phải nộp trong 3 ngày làm việc sau ngày thi",
+    "expected_substrings": [
+      "3 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[II.1.036] Tôi phải đăng ký điểm I trong bao lâu và nộp hồ sơ bằng hình thức nào?\n## Câu trả lời\n\nChậm nhất 03 ngày làm việc sau ngày thi, người học phải đăng ký nhận điểm I (hoãn thi) và nộp hồ sơ minh chứng theo quy định. ĐHCQ và SĐH thực hiện đăng ký trực tuyến theo kênh Trường hướng dẫn; VB2/VLVH nộp đơn trực tiếp tại Phòng Đào tạo. Hồ sơ minh chứng được nộp về Phòng Bảo đảm chất lượng theo quy định.\n\n[II.1.038] Điểm I do lý do sức khỏe\n## Câu trả lời\n\nCó thể được xem xét nếu thuộc trường hợp sức khỏe được quy định và có minh chứng hợp lệ. Đối với lý do sức khỏe, minh chứng phải là giấy xác nhận của cơ sở y tế theo yêu cầu của Quy định. Hồ sơ nhận điểm I phải gửi chậm nhất 03 ngày làm việc sau ngày diễn ra thi.",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.1.036"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:e0f4df3370d5c7b0e2b24104"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.1.038"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:4609ff3590d0799dea17e891"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl03-mot-nam",
+    "query": "Quá 01 năm chưa thi trả điểm I thì hệ quả thế nào?",
+    "expected_substrings": [
+      "1 năm"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL01] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[TL03] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[II.1.037] Điểm I có giá trị trong bao lâu?\n## Câu trả lời\n\nTheo Phụ lục 16 Quyết định 3388/QĐ-ĐHKTL ngày 31/12/2024, Người học phải thi trả điểm I trong vòng 01 năm. Nếu người học không thực hiện trả điểm I trong thời gian quy định, thì điểm I tự động sẽ chuyển thành điểm 0 (điểm không)\n\nPhụ lục 16 Quyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f0bf57d5120ed1d4abc47cc7"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:0597017b7c9cef5df6d2710f"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.1.037"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b023cb5c6ec860fae74600d1"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl03-vb2",
+    "query": "Hoãn thi nhận điểm I với hệ vừa làm vừa học hoặc VB2",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL03] Người học hệ VB2/VLVH\n- Loại: exception\n\n## Tình huống\n\nNgười học hệ VB2/VLVH\n\n## Cách xử lý\n\nKhông đăng ký trực tuyến; nộp đơn trực tiếp tại Phòng Đào tạo.\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng)\n## Tóm tắt\n\nNgười học vắng thi kết thúc học phần có lý do chính đáng và minh chứng hợp lệ (nằm viện, tang gia, được Trường cử đi thi/công tác/trao đổi, bất khả kháng do thiên tai, dịch bệnh hoặc sự cố kỹ thuật thi trực tuyến) được xin hoãn thi và nhận điểm I.\nHồ sơ nộp chậm nhất 03 ngày làm việc sau ngày thi: ĐHCQ, SĐH đăng ký trực tuyến; VB2/VLVH nộp đơn trực tiếp tại Phòng Đào tạo.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; sau đó người học đăng ký thi trả điểm I (xem TL04). Mã quy trình: KT-QT-I-001.\n\n## Kết quả\n\nKết quả công nhận hoãn thi/nhận điểm I theo quy trình của Trường; học phần được ghi điểm I (hiệu lực 01 năm).\n\n## Thời hạn xử lý\n\nTùy trường hợp. Nộp hồ sơ chậm nhất 03 ngày làm việc sau ngày thi.\n\n## Nơi nộp / kênh\n\nĐHCQ, SĐH: trực tuyến qua Portal UEL. VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo.\nĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/n…\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng) — Bước 1\n- Bước: 1\n\n## Hướng dẫn\n\nĐăng nhập hệ thống Portal và chọn thủ tục hoãn thi/nhận điểm I (VB2/VLVH nộp đơn tại Phòng Đào tạo)\n\n## Thời hạn của bước\n\n03 ngày làm việc sau ngày thi\n\n## Địa điểm / đơn vị / kênh\n\nĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/nhandiemI-SDH (hoặc https://portal.uel.edu.vn/); VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo\nPhòng Bảo đảm chất lượng\nCổng thông tin MyUEL / Portal",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b478f99395ba635fa460a5b7"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b7241930225d28372f47994b"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:43ffecc47c7c56f8ed39d882"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl04-bay-ngay",
+    "query": "Đăng ký trả điểm I trước 7 ngày của đợt thi bổ sung",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL04] Đăng ký trả điểm I, thi bổ sung\n## Tóm tắt\n\nNgười học có học phần đang mang điểm I còn hiệu lực đăng ký thi trả điểm I (thi bổ sung) trực tuyến trên Portal UEL, chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung.\nKết quả nhận được là lịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; quá hạn chưa trả điểm I thì chuyển thành điểm 0. Mã quy trình: KT-QT-I-002.\n\n## Kết quả\n\nLịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\n\n## Thời hạn xử lý\n\nTùy trường hợp. Đăng ký trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung; lịch thi bổ sung theo lịch chung của Trường.\n\n## Nơi nộp / kênh\n\nTrực tuyến qua Portal UEL (VB2/VLVH thực hiện qua Phòng Đào tạo)\nhttps://portal.uel.edu.vn/\n\n## Lệ phí\n\nLệ phí trả điểm I/thi bổ sung: Chưa xác định trong nguồn được rà soát - Phòng Bảo đảm chất lượng cần xác nhận mức thu và hình thức nộp trước khi nạp. Khôn…\n\n[TL04] Đăng ký sau thời hạn 07 ngày trước đợt thi bổ sung\n- Loại: common_error\n\n## Tình huống\n\nĐăng ký sau thời hạn 07 ngày trước đợt thi bổ sung\n\n## Cách xử lý\n\nKhông được xếp lịch thi bổ sung đợt đó; theo dõi và đăng ký đúng hạn ở đợt tiếp theo (trong thời gian điểm I còn hiệu lực).\n\n[TL04] Điều kiện thực hiện\n## Điều kiện thực hiện\n\nHọc phần đang mang điểm I còn hiệu lực.\nĐăng ký đúng thời hạn: trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung.\nCăn cứ pháp lý: Phụ lục 16 mục III.2.2, V.B, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:aa7215e268902b55e55e66da"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:07850b42f850c9967d4a2044"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:899c81b4231d589436cd2cf9"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl04-hieu-luc",
+    "query": "Kiểm tra hiệu lực điểm I trước khi đăng ký thi bổ sung",
+    "expected_substrings": [],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL04] Hiệu lực điểm I\n## Hiệu lực điểm I\n\nThời gian hiệu lực của điểm I là 01 năm kể từ ngày được nhận. Người học phải thi trả điểm I trong vòng 01 năm; không thực hiện trong thời gian quy định thì điểm I tự động chuyển thành điểm 0.\nCăn cứ pháp lý: Phụ lục 16 mục I, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ\n\n### common_error\n\nKhông kiểm tra hiệu lực điểm I trước khi đăng ký\n\nKiểm tra điểm I còn trong thời hạn 01 năm kể từ ngày nhận; quá hạn điểm I đã chuyển thành điểm 0 và không còn đăng ký thi bổ sung được.\n\n[TL04] Đăng ký trả điểm I, thi bổ sung\n## Tóm tắt\n\nNgười học có học phần đang mang điểm I còn hiệu lực đăng ký thi trả điểm I (thi bổ sung) trực tuyến trên Portal UEL, chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung.\nKết quả nhận được là lịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; quá hạn chưa trả điểm I thì chuyển thành điểm 0. Mã quy trình: KT-QT-I-002.\n\n## Kết quả\n\nLịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\n\n## Thời hạn xử lý\n\nTùy trường hợp. Đăng ký trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung; lịch thi bổ sung theo lịch chung của Trường.\n\n## Nơi nộp / kênh\n\nTrực tuyến qua Portal UEL (VB2/VLVH thực hiện qua Phòng Đào tạo)\nhttps://portal.uel.edu.vn/\n\n## Lệ phí\n\nLệ phí trả điểm I/thi bổ sung: Chưa xác định trong nguồn được rà soát - Phòng Bảo đảm chất lượng cần xác nhận mức thu và hình thức nộp trước khi nạp. Khôn…\n\n[TL04] Điều kiện thực hiện\n## Điều kiện thực hiện\n\nHọc phần đang mang điểm I còn hiệu lực.\nĐăng ký đúng thời hạn: trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung.\nCăn cứ pháp lý: Phụ lục 16 mục III.2.2, V.B, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:3dbc81478d44221db789ed3a"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:aa7215e268902b55e55e66da"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:899c81b4231d589436cd2cf9"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "doc-tl04-vb2",
+    "query": "Trả điểm I cho người học VB2/VLVH",
+    "expected_substrings": [],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "**Trả điểm I cho người học VB2/VLVH**  \nTheo tài liệu TL04 (Đăng ký trả điểm I, thi bổ sung), người học có học phần mang điểm I có thể đăng ký thi trả điểm I (thi bổ sung) trực tuyến qua Portal UEL.  \n- Đăng ký trước 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung.  \n- Kết quả: lịch thi bổ sung và điểm sau khi hoàn thành thi.  \n- Điểm I có hiệu lực 01 năm kể từ ngày nhận; nếu quá hạn chưa trả điểm I thì chuyển thành điểm 0.  \n\n**Nguồn**: TL04.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": null
+  },
+  {
+    "id": "p8-nhan-i-ho-so",
+    "query": "Hồ sơ xin hoãn thi nhận điểm I cần nộp khi nào?",
+    "expected_substrings": [
+      "3 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng)\n## Tóm tắt\n\nNgười học vắng thi kết thúc học phần có lý do chính đáng và minh chứng hợp lệ (nằm viện, tang gia, được Trường cử đi thi/công tác/trao đổi, bất khả kháng do thiên tai, dịch bệnh hoặc sự cố kỹ thuật thi trực tuyến) được xin hoãn thi và nhận điểm I.\nHồ sơ nộp chậm nhất 03 ngày làm việc sau ngày thi: ĐHCQ, SĐH đăng ký trực tuyến; VB2/VLVH nộp đơn trực tiếp tại Phòng Đào tạo.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; sau đó người học đăng ký thi trả điểm I (xem TL04). Mã quy trình: KT-QT-I-001.\n\n## Kết quả\n\nKết quả công nhận hoãn thi/nhận điểm I theo quy trình của Trường; học phần được ghi điểm I (hiệu lực 01 năm).\n\n## Thời hạn xử lý\n\nTùy trường hợp. Nộp hồ sơ chậm nhất 03 ngày làm việc sau ngày thi.\n\n## Nơi nộp / kênh\n\nĐHCQ, SĐH: trực tuyến qua Portal UEL. VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo.\nĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/n…\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng) — Hồ sơ\n## Thành phần hồ sơ\n\n- Đơn đăng ký nhận điểm I/hoãn thi trực tuyến (bắt buộc); số lượng: 01; biểu mẫu: ĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/nhandiemI-SDH (hoặc https://portal.uel.edu.vn/); VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo\n- Minh chứng lý do vắng thi chính đáng (giấy xác nhận nhập viện/bệnh án của cơ sở y tế cấp quận, huyện trở lên; giấy tờ tang gia; quyết định cử đi công tác/thi đấu/trao đổi; minh chứng bất khả kháng) (bắt buộc); số lượng: 01 bản đính kèm; biểu mẫu: ĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/nhandiemI-SDH (hoặc https://portal.uel.edu.vn/); VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo\n\n[TL03] Xin hoãn thi, nhận điểm I (vắng thi kết thúc học phần có lý do chính đáng) — Bước 1\n- Bước: 1\n\n## Hướng dẫn\n\nĐăng nhập hệ thống Portal và chọn thủ tục hoãn thi/nhận điểm I (VB2/VLVH nộp đơn tại Phòng Đào tạo)\n\n## Thời hạn của bước\n\n03 ngày làm việc sau ngày thi\n\n## Địa điểm / đơn vị / kênh\n\nĐHCQ: https://link.uel.edu.vn/nhandiemI-DHCQ; SĐH: https://link.uel.edu.vn/nhandiemI-SDH (hoặc https://portal.uel.edu.vn/); VB2/VLVH: nộp đơn trực tiếp tại Phòng Đào tạo\nPhòng Bảo đảm chất lượng\nCổng thông tin MyUEL / Portal",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b7241930225d28372f47994b"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f8045a4cb81d9d8b77c516d5"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:43ffecc47c7c56f8ed39d882"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "p8-i-thoi-han",
+    "query": "Quá thời hạn một năm chưa trả điểm I thì sao?",
+    "expected_substrings": [
+      "1 năm"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL01] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[TL03] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[II.1.037] Điểm I có giá trị trong bao lâu?\n## Câu trả lời\n\nTheo Phụ lục 16 Quyết định 3388/QĐ-ĐHKTL ngày 31/12/2024, Người học phải thi trả điểm I trong vòng 01 năm. Nếu người học không thực hiện trả điểm I trong thời gian quy định, thì điểm I tự động sẽ chuyển thành điểm 0 (điểm không)\n\nPhụ lục 16 Quyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f0bf57d5120ed1d4abc47cc7"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:0597017b7c9cef5df6d2710f"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.1.037"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b023cb5c6ec860fae74600d1"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "p8-tra-i-dang-ky",
+    "query": "Hạn đăng ký dự thi bổ sung trả điểm I là khi nào?",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL04] Đăng ký trả điểm I, thi bổ sung\n## Tóm tắt\n\nNgười học có học phần đang mang điểm I còn hiệu lực đăng ký thi trả điểm I (thi bổ sung) trực tuyến trên Portal UEL, chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung.\nKết quả nhận được là lịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; quá hạn chưa trả điểm I thì chuyển thành điểm 0. Mã quy trình: KT-QT-I-002.\n\n## Kết quả\n\nLịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\n\n## Thời hạn xử lý\n\nTùy trường hợp. Đăng ký trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung; lịch thi bổ sung theo lịch chung của Trường.\n\n## Nơi nộp / kênh\n\nTrực tuyến qua Portal UEL (VB2/VLVH thực hiện qua Phòng Đào tạo)\nhttps://portal.uel.edu.vn/\n\n## Lệ phí\n\nLệ phí trả điểm I/thi bổ sung: Chưa xác định trong nguồn được rà soát - Phòng Bảo đảm chất lượng cần xác nhận mức thu và hình thức nộp trước khi nạp. Khôn…\n\n[TL04] Đăng ký trả điểm I, thi bổ sung — Bước 2\n- Bước: 2\n\n## Hướng dẫn\n\nĐăng ký trả điểm I trên Portal\n\n## Thời hạn của bước\n\nTrước 07 ngày của đợt thi bổ sung\n\n## Địa điểm / đơn vị / kênh\n\nhttps://portal.uel.edu.vn/\nPhòng Bảo đảm chất lượng\nCổng thông tin MyUEL / Portal\n\n[TL04] Đăng ký trả điểm I, thi bổ sung — Hồ sơ\n## Thành phần hồ sơ\n\n- Đơn đăng ký trả điểm I/thi bổ sung trực tuyến (bắt buộc); số lượng: 01; biểu mẫu: https://portal.uel.edu.vn/",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:aa7215e268902b55e55e66da"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b5f34d9fb41f232a8d22d17a"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:3e208e978fd4effd6b85f8cf"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  }
+]

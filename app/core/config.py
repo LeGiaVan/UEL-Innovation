@@ -1,9 +1,16 @@
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import AnyHttpUrl, Field, SecretStr
+from pydantic import AnyHttpUrl, BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
+
+
+class ApiClient(BaseModel):
+    id: str = Field(min_length=1)
+    department_id: str = Field(pattern=r"^[a-z0-9_]+$")
+    modules: list[str] = Field(min_length=1)
+    api_key: SecretStr = Field(min_length=16)
 
 
 class Settings(BaseSettings):
@@ -18,12 +25,21 @@ class Settings(BaseSettings):
 
     app_name: str = "UEL RAG Chatbot PoC"
     app_env: Literal["development", "test", "uat"] = "development"
-    app_api_key: SecretStr = Field(min_length=16)
+    app_api_key: SecretStr = Field(default=SecretStr(""))
     app_department_id: str = Field(
         default="bao_dam_chat_luong",
         pattern=r"^[a-z0-9_]+$",
     )
     app_module_code: str = Field(default="khao_khi", pattern=r"^[a-z0-9_]+$")
+    departments_config_path: str = "configs/departments.yaml"
+    app_admin_api_key: SecretStr = Field(default=SecretStr(""))
+    api_clients: list[ApiClient] = Field(default_factory=list)
+
+    cors_origins: list[str] = []
+    chat_timeout_seconds: float = Field(default=90, gt=0, le=300)
+    admin_timeout_seconds: float = Field(default=600, gt=0, le=1800)
+    request_max_bytes: int = Field(default=16384, ge=1024, le=1048576)
+    source_upload_max_bytes: int = Field(default=16777216, ge=1024, le=67108864)
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     request_id_header: str = "X-Request-ID"
@@ -56,6 +72,21 @@ class Settings(BaseSettings):
     minio_secret_key: SecretStr = Field(min_length=8)
     minio_bucket_bronze: str = Field(default="bronze", min_length=3)
     minio_bucket_attachments: str = Field(default="attachments", min_length=3)
+
+    @model_validator(mode="after")
+    def validate_credentials(self) -> Self:
+        if not self.api_clients and len(self.app_api_key.get_secret_value()) < 16:
+            raise ValueError("Configure API_CLIENTS or an APP_API_KEY of at least 16 characters")
+        if (
+            self.app_admin_api_key.get_secret_value()
+            and len(self.app_admin_api_key.get_secret_value()) < 16
+        ):
+            raise ValueError("Admin key must contain at least 16 characters")
+        if len({c.id for c in self.api_clients}) != len(self.api_clients):
+            raise ValueError("API client IDs must be unique")
+        if len({c.api_key.get_secret_value() for c in self.api_clients}) != len(self.api_clients):
+            raise ValueError("API keys must be unique")
+        return self
 
     @property
     def postgres_url(self) -> URL:

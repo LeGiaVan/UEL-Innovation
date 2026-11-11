@@ -102,8 +102,22 @@ def test_cli_dry_run_writes_reports(tmp_path: Path) -> None:
         ]
     )
     assert code == 0
-    assert (tmp_path / "out" / "mini-khao-khi-test" / "validation.json").is_file()
-    assert (tmp_path / "out" / "mini-khao-khi-test" / "validation.md").is_file()
+    assert (
+        tmp_path
+        / "out"
+        / "bao_dam_chat_luong"
+        / "khao_khi"
+        / "mini-khao-khi-test"
+        / "validation.json"
+    ).is_file()
+    assert (
+        tmp_path
+        / "out"
+        / "bao_dam_chat_luong"
+        / "khao_khi"
+        / "mini-khao-khi-test"
+        / "validation.md"
+    ).is_file()
 
 
 def test_cli_google_sheets_is_not_implemented() -> None:

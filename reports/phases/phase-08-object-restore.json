@@ -1,0 +1,12 @@
+{
+  "qdrant": {
+    "status": "passed",
+    "points": 130,
+    "snapshot_bytes": 2510848
+  },
+  "minio": {
+    "status": "passed",
+    "objects": 5,
+    "bytes": 426085
+  }
+}

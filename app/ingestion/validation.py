@@ -3,9 +3,6 @@ from __future__ import annotations
 from collections import Counter
 
 from app.ingestion.enums import (
-    CANONICAL_DEPARTMENT_NAME,
-    CANONICAL_MODULE_NAME,
-    MODULE_NAME_TOKEN,
     Severity,
 )
 from app.ingestion.manifest import ReleaseManifest
@@ -143,6 +140,11 @@ def _validate_faqs(bundle: ExtractionBundle) -> list[ValidationIssue]:
 
 def _validate_routing(bundle: ExtractionBundle) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
+    for key, count in Counter(rule.source_key for rule in bundle.routing_rules).items():
+        if count > 1:
+            issues.append(
+                _issue("error", "ROUTING_DUPLICATE_ID", "Duplicate rule ID", record_key=key)
+            )
     for rule in bundle.routing_rules:
         if not rule.scope_type:
             issues.append(
@@ -290,19 +292,17 @@ def _policy_findings(bundle: ExtractionBundle) -> list[PolicyFinding]:
         for document in bundle.documents
         if document.procedure is not None and document.procedure.fee_type == "unknown"
     ]
-    module_ok = bundle.module.name == CANONICAL_MODULE_NAME or (
-        bundle.module.name is not None and MODULE_NAME_TOKEN in bundle.module.name
-    )
+    module_ok = bundle.module.name == bundle.module_name
     return [
         PolicyFinding(
             id="DATA-01",
             severity="info" if module_ok else "error",
-            message="Tên mô-đun là Khảo khí; không tự sửa thành Khảo thí.",
+            message=f"Tên mô-đun theo release: {bundle.module_name}.",
         ),
         PolicyFinding(
             id="DATA-02",
             severity="info",
-            message=f"Tên phòng ban hiển thị chuẩn: {CANONICAL_DEPARTMENT_NAME}.",
+            message=f"Tên phòng ban theo release: {bundle.department_name}.",
         ),
         PolicyFinding(
             id="DATA-03",
@@ -363,14 +363,12 @@ def validate_bundle(
     issues.extend(_validate_faqs(bundle))
     issues.extend(_validate_documents(bundle))
 
-    if bundle.module.name != CANONICAL_MODULE_NAME and MODULE_NAME_TOKEN not in (
-        bundle.module.name or ""
-    ):
+    if bundle.module.name != manifest.module_name:
         issues.append(
             _issue(
                 "error",
                 "MODULE_NAME_MISMATCH",
-                f"Tên mô-đun không khớp Khảo khí/khao_khi: {bundle.module.name}",
+                f"Tên mô-đun không khớp manifest: {bundle.module.name}",
                 bundle.module.source,
             )
         )

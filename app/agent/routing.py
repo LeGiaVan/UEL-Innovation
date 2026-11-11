@@ -35,6 +35,8 @@ IN_SCOPE_KEYWORDS = (
     "diem i",
     "hoãn thi",
     "hoan thi",
+    "vắng thi không lý do",
+    "vang thi khong ly do",
     "phúc khảo",
     "phuc khao",
     "khảo thí",
@@ -121,6 +123,8 @@ def keyword_scope(text: str) -> RoutingScope | None:
         return "human_required"
     if _looks_personal_result(folded):
         return "human_required"
+    if _is_general_exam_channel_question(folded):
+        return "answer_allowed"
     if _contains_any(folded, IN_SCOPE_KEYWORDS):
         return "answer_allowed"
     return None
@@ -143,6 +147,27 @@ def _looks_personal_result(text: str) -> bool:
         if any(token in text for token in ("của tôi", "cua toi", "mssv", "mã số")):
             return True
     return False
+
+
+def _is_general_exam_channel_question(text: str) -> bool:
+    if not _contains_any(text, ("ở đâu", "o dau", "hệ thống nào", "he thong nao")):
+        return False
+    if _contains_any(
+        text,
+        ("của tôi", "cua toi", "của em", "cua em", "bị mất", "bi mat", "không thấy", "khong thay"),
+    ):
+        return False
+    return _contains_any(
+        text,
+        (
+            "tra cứu điểm học phần",
+            "tra cuu diem hoc phan",
+            "nộp tiểu luận",
+            "nop tieu luan",
+            "nộp báo cáo cuối kỳ",
+            "nop bao cao cuoi ky",
+        ),
+    )
 
 
 def _contains_any(text: str, needles: tuple[str, ...]) -> bool:

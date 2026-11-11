@@ -1,0 +1,7 @@
+{
+  "attempts": 10,
+  "categories": {
+    "429": 7,
+    "no_reported_error": 3
+  }
+}

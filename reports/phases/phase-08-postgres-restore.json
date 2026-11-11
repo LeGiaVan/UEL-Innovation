@@ -1,0 +1,9 @@
+{
+  "component": "postgres",
+  "dump_bytes": 121941,
+  "tables": 13,
+  "faqs": 71,
+  "documents": 4,
+  "table_content_hashes_checked": 13,
+  "status": "passed"
+}

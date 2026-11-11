@@ -1,4 +1,4 @@
-# Kế hoạch triển khai theo giai đoạn — UEL RAG Chatbot PoC
+﻿# Kế hoạch triển khai theo giai đoạn — UEL RAG Chatbot PoC
 
 Tài liệu này dùng để theo dõi tiến độ triển khai theo từng giai đoạn độc lập. `PLAN.md` mô tả kiến trúc và kế hoạch tổng thể; tài liệu này chuyển kế hoạch đó thành các phase có checklist, đầu ra và điều kiện nghiệm thu rõ ràng.
 
@@ -19,7 +19,7 @@ Tài liệu này dùng để theo dõi tiến độ triển khai theo từng gia
 | LLM | Cloud API, provider-agnostic |
 | Embedding | Local trên CPU |
 | Hạ tầng | Ubuntu Server, Docker Compose |
-| Trạng thái chung | Phase 0–6 đã hoàn thành; sẵn sàng bắt đầu Phase 7 |
+| Trạng thái chung | Phase 0–7 đã hoàn thành; sẵn sàng bắt đầu Phase 8 |
 
 ## 2. Cách sử dụng tài liệu
 
@@ -56,8 +56,8 @@ Mỗi phase chỉ sử dụng một trong các trạng thái:
 | 4 | STAIR, embedding và Gold Layer | 5 ngày | `ACCEPTED` | Phase 3 | Qdrant truy xuất đúng với hard filter |
 | 5 | Retrieval baseline và bộ đánh giá | 4 ngày | `ACCEPTED` | Phase 4 | Recall@5 sơ bộ đạt ngưỡng |
 | 6 | LangGraph RAG agent | 6 ngày | `ACCEPTED` | Phase 3–5 | Luồng FAQ/RAG/handoff hoạt động end-to-end |
-| 7 | FastAPI, API key và web chat | 4 ngày | `NOT_STARTED` | Phase 6 | API và UI vượt smoke test |
-| 8 | Hardening, kiểm thử và đánh giá | 4 ngày | `NOT_STARTED` | Phase 7 | Không còn lỗi P0/P1, KPI đạt hoặc có ngoại lệ |
+| 7 | FastAPI, API key và web chat | 4 ngày | `ACCEPTED` | Phase 6 | API và UI vượt smoke test |
+| 8 | Hardening, kiểm thử và đánh giá | 4 ngày | `IN_PROGRESS` | Phase 7 | Không còn lỗi P0/P1, KPI đạt hoặc có ngoại lệ |
 | 9 | Deploy, UAT và bàn giao PoC | 2 ngày | `NOT_STARTED` | Phase 8 | UAT được xác nhận, có runbook |
 
 Tổng dự kiến: 40 ngày làm việc.
@@ -165,7 +165,7 @@ TL01 là tài liệu quy định tổng hợp nên không có hồ sơ hoặc c�
 
 ## 5. Phase 0 — Baseline, kiểm kê và khóa dữ liệu PoC
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 2 ngày  
 **Mục tiêu:** Chuyển ba workbook thành một data contract có thể triển khai mà không suy đoán.
 
@@ -211,7 +211,7 @@ Phase 0 đã đạt `ACCEPTED` với các kết quả:
 
 ## 6. Phase 1 — Nền tảng repository và hạ tầng local
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 3 ngày  
 **Phụ thuộc:** Phase 0 đã khóa các quyết định ảnh hưởng schema.
 
@@ -254,7 +254,7 @@ Bằng chứng: `reports/phases/phase-01.md`.
 
 ## 7. Phase 2 — Bronze ingestion và validation
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 0 và Phase 1.
 
@@ -310,7 +310,7 @@ Bằng chứng: `reports/phases/phase-02.md`.
 
 ## 8. Phase 3 — Silver Layer và đồng bộ idempotent
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 2.
 
@@ -352,7 +352,7 @@ Bằng chứng: `reports/phases/phase-03.md`.
 
 ## 9. Phase 4 — STAIR, embedding và Gold Layer
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 5 ngày  
 **Phụ thuộc:** Phase 3.
 
@@ -389,7 +389,7 @@ Bằng chứng: `reports/phases/phase-04.md`, `reports/phases/phase-04-evidence.
 
 ## 10. Phase 5 — Retrieval baseline và bộ đánh giá
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 4 ngày  
 **Phụ thuộc:** Phase 4.  
 **Evidence:** `reports/phases/phase-05.md`; `reports/phases/phase-05-baseline.json`.
@@ -437,7 +437,7 @@ Bằng chứng: `reports/phases/phase-04.md`, `reports/phases/phase-04-evidence.
 
 ## 11. Phase 6 — LangGraph RAG agent
 
-**Trạng thái:** `ACCEPTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 6 ngày  
 **Phụ thuộc:** Phase 3–5.  
 **Evidence:** `reports/phases/phase-06.md`; `docs/decisions/phase-06-decisions.md`.
@@ -496,30 +496,30 @@ flowchart TB
 
 ## 12. Phase 7 — FastAPI, API key và web chat
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `ACCEPTED`
 **Thời lượng:** 4 ngày  
 **Phụ thuộc:** Phase 6.
 
 ### 12.1. Checklist
 
-- [ ] P7.01 — Tạo FastAPI app factory.
-- [ ] P7.02 — Tạo request/response schemas.
-- [ ] P7.03 — Tạo `X-API-Key` dependency.
-- [ ] P7.04 — So sánh API key bằng constant-time comparison.
-- [ ] P7.05 — Inject `department_id` cố định từ server config.
-- [ ] P7.06 — Không nhận tenant tùy ý từ client.
-- [ ] P7.07 — Tạo `POST /v1/chat`.
-- [ ] P7.08 — Tạo `/health/live` và `/health/ready`.
-- [ ] P7.09 — Tạo exception mapping.
-- [ ] P7.10 — Thêm request ID.
-- [ ] P7.11 — Thêm request size limit và timeout.
-- [ ] P7.12 — Cấu hình CORS cụ thể.
-- [ ] P7.13 — Tạo web chat tối thiểu.
-- [ ] P7.14 — Hiển thị answer status, citation và handoff.
-- [ ] P7.15 — Escape nội dung để chống XSS.
-- [ ] P7.16 — Viết OpenAPI examples.
-- [ ] P7.17 — Viết API integration tests.
-- [ ] P7.18 — Viết browser smoke test.
+- [x] P7.01 — Tạo FastAPI app factory.
+- [x] P7.02 — Tạo request/response schemas.
+- [x] P7.03 — Tạo `X-API-Key` dependency.
+- [x] P7.04 — So sánh API key bằng constant-time comparison.
+- [x] P7.05 — Inject `department_id` cố định từ server config.
+- [x] P7.06 — Không nhận tenant tùy ý từ client.
+- [x] P7.07 — Tạo `POST /v1/chat`.
+- [x] P7.08 — Tạo `/health/live` và `/health/ready`.
+- [x] P7.09 — Tạo exception mapping.
+- [x] P7.10 — Thêm request ID.
+- [x] P7.11 — Thêm request size limit và timeout.
+- [x] P7.12 — Cấu hình CORS cụ thể.
+- [x] P7.13 — Tạo web chat tối thiểu.
+- [x] P7.14 — Hiển thị answer status, citation và handoff.
+- [x] P7.15 — Escape nội dung để chống XSS.
+- [x] P7.16 — Viết OpenAPI examples.
+- [x] P7.17 — Viết API integration tests.
+- [x] P7.18 — Viết browser smoke test.
 
 ### 12.2. Exit gate
 
@@ -532,29 +532,29 @@ flowchart TB
 
 ## 13. Phase 8 — Hardening, kiểm thử và đánh giá
 
-**Trạng thái:** `NOT_STARTED`  
+**Trạng thái:** `IN_PROGRESS`
 **Thời lượng:** 4 ngày  
 **Phụ thuộc:** Phase 7.
 
 ### 13.1. Checklist
 
-- [ ] P8.01 — Mở rộng evaluation set lên ít nhất 120 câu.
-- [ ] P8.02 — Chạy retrieval metrics.
+- [x] P8.01 — Mở rộng evaluation set lên ít nhất 120 câu.
+- [x] P8.02 — Chạy retrieval metrics.
 - [ ] P8.03 — Đánh giá answer correctness.
 - [ ] P8.04 — Đánh giá groundedness.
 - [ ] P8.05 — Đánh giá citation validity.
 - [ ] P8.06 — Đánh giá correct abstention.
-- [ ] P8.07 — Test tenant leakage bằng department fixture thứ hai.
-- [ ] P8.08 — Test prompt injection.
-- [ ] P8.09 — Test dữ liệu hết hiệu lực/ngưng dùng.
-- [ ] P8.10 — Test provider timeout/quota.
-- [ ] P8.11 — Test input dài, rỗng và ký tự đặc biệt.
-- [ ] P8.12 — Test URL/citation độc hại.
-- [ ] P8.13 — Test API key leakage.
-- [ ] P8.14 — Load test 10 virtual users.
-- [ ] P8.15 — Kiểm tra backup/restore.
-- [ ] P8.16 — Phân loại defect P0/P1/P2.
-- [ ] P8.17 — Sửa toàn bộ P0/P1.
+- [x] P8.07 — Test tenant leakage bằng department fixture thứ hai.
+- [x] P8.08 — Test prompt injection.
+- [x] P8.09 — Test dữ liệu hết hiệu lực/ngưng dùng.
+- [x] P8.10 — Test provider timeout/quota.
+- [x] P8.11 — Test input dài, rỗng và ký tự đặc biệt.
+- [x] P8.12 — Test URL/citation độc hại.
+- [x] P8.13 — Test API key leakage.
+- [x] P8.14 — Load test 10 virtual users.
+- [x] P8.15 — Kiểm tra backup/restore.
+- [x] P8.16 — Phân loại defect P0/P1/P2.
+- [x] P8.17 — Sửa toàn bộ P0/P1.
 - [ ] P8.18 — Xuất evaluation report.
 
 ### 13.2. KPI mục tiêu
@@ -733,6 +733,11 @@ YYYY-MM-DD
 - Blocked: Không.
 - Evidence: `reports/phases/phase-06.md`; pytest unit 58 passed.
 - Bước tiếp theo: Bắt đầu Phase 7 — FastAPI, API key và web chat.
+
+### 2026-11-11 (Phase 7)
+
+- Phase 7: `ACCEPTED`; evidence: `reports/phases/phase-07.md`.
+- Next: Phase 8.
 
 ## 19. Go/No-Go checklist
 

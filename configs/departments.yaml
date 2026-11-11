@@ -12,6 +12,7 @@ departments:
       verified: false
     modules:
       - code: "khao_khi"
+        profile: "assessment"
         name: "Mô-đun Khảo khí"
         source_type: "xlsx"
         source_path: "data/P.BDCL"

@@ -90,10 +90,7 @@ def _write_reports(report: ValidationReport, output_dir: Path) -> tuple[Path, Pa
 def run_sync(request: SyncRequest) -> SyncOutcome:
     configs = load_department_configs(request.config_path)
     department, module = resolve_module(configs, request.department_id, request.module_code)
-    if request.source_path.exists():
-        source_path = request.source_path.resolve()
-    else:
-        source_path = (request.config_path.resolve().parent.parent / module.source_path).resolve()
+    source_path = request.source_path.resolve()
     if not source_path.exists():
         raise ManifestError(f"Source path not found: {source_path}")
     manifest = load_release_manifest(source_path / "release-manifest.yaml")
@@ -103,8 +100,10 @@ def run_sync(request: SyncRequest) -> SyncOutcome:
         or manifest.module_code != request.module_code
     ):
         raise ManifestError("Release manifest department/module does not match CLI arguments.")
-    if department.name != manifest.department_name and department.id != manifest.department_id:
+    if department.name != manifest.department_name or department.id != manifest.department_id:
         raise ManifestError("Department config does not match release manifest.")
+    if module.name != manifest.module_name:
+        raise ManifestError("Module config does not match release manifest.")
     if request.environment in manifest.prohibited_environments:
         raise ManifestError(
             f"Release {manifest.release_id} is not allowed in environment {request.environment}."
@@ -115,7 +114,7 @@ def run_sync(request: SyncRequest) -> SyncOutcome:
         )
     adapter = get_adapter(request.source_type)
     workbooks = adapter.identify(source_path, manifest)
-    output_dir = request.output_dir / manifest.release_id
+    output_dir = request.output_dir / department.id / module.code / manifest.release_id
     found_roles = {item.role for item in workbooks}
     missing_roles = [
         role

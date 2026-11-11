@@ -57,6 +57,7 @@ def _build_parser() -> argparse.ArgumentParser:
         default=Path("reports/phases/phase-04-evidence.json"),
     )
     evaluate = subparsers.add_parser("eval-retrieval", help="Phase 5 retrieval baseline")
+    evaluate.add_argument("--cases", type=Path, default=Path("evaluation/cases.yaml"))
     evaluate.add_argument("--department", required=True)
     evaluate.add_argument("--module", required=True)
     evaluate.add_argument("--env", default="development")
@@ -118,7 +119,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     source_type: SourceType = args.source
     source_path = args.source_path
     if source_path is None:
-        source_path = Path("data/P.BDCL") if args.department == "bao_dam_chat_luong" else Path()
+        from app.ingestion.manifest import load_department_configs, resolve_module
+        _, module = resolve_module(load_department_configs(args.config), args.department, args.module)
+        source_path = args.config.resolve().parent.parent / module.source_path
 
     bronze_store = None
     if not args.dry_run:
@@ -260,6 +263,7 @@ def _eval_retrieval(args: argparse.Namespace) -> int:
     from sqlalchemy.orm import sessionmaker
 
     from app.core.config import Settings
+    from app.evaluation.dataset import load_eval_cases
     from app.evaluation.runner import DEADLINE_CASE_IDS, run_evaluation, write_eval_markdown
     from app.repositories.silver import create_sync_engine
 
@@ -277,6 +281,9 @@ def _eval_retrieval(args: argparse.Namespace) -> int:
             score_threshold=args.score_threshold,
             mode=args.mode,
             compare_dense=not args.skip_dense,
+            cases=load_eval_cases(
+                session, args.cases, department_id=args.department, module_code=args.module
+            ),
         )
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(report.model_dump_json(indent=2), encoding="utf-8")
@@ -369,9 +376,7 @@ def _print_chat_result(result: object) -> None:
     print(f"routing: {chat.routing_scope} ({chat.routing_source})")
     if chat.citations:
         visible = [
-            f"{item.kind}:{item.value}"
-            for item in chat.citations
-            if item.kind != "chunk_id"
+            f"{item.kind}:{item.value}" for item in chat.citations if item.kind != "chunk_id"
         ]
         if visible:
             print(f"citations: {', '.join(visible)}")

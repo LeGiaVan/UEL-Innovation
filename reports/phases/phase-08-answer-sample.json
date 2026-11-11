@@ -1,0 +1,324 @@
+[
+  {
+    "id": "para-phuc-khao-dhcq",
+    "query": "Sinh viên đại học chính quy được phúc khảo bài thi trong mấy ngày làm việc?",
+    "expected_substrings": [
+      "2 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Sinh viên đại học chính quy được phúc khảo bài thi trong **02 ngày làm việc** kể từ ngày Trường công bố điểm thi chính thức trên Portal UEL.  \n\n**Mã tài liệu tham khảo:** TL02 (định nghĩa thời hạn đăng ký phúc khảo).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-phuc-khao-sdh",
+    "query": "Học viên cao học phúc khảo thì thời hạn là bao lâu so với đại học chính quy?",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Học viên cao học phúc khảo có thời hạn đăng ký và công bố kết quả khác với học viên đại học chính quy:\n\n- **Đăng ký phúc khảo**  \n  - Đại học chính quy (ĐHCQ): **02 ngày làm việc** kể từ ngày Trường công bố điểm thi chính thức.  \n  - Sau đại học (SĐH): **07 ngày làm việc** kể từ ngày Trường công bố điểm thi chính thức.  \n\n- **Công bố kết quả phúc khảo**  \n  - ĐHCQ: **chậm nhất 06 ngày làm việc** kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.  \n  - SĐH: **chậm nhất 10 ngày làm việc** kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.  \n\nTham khảo: TL02 – “Đăng ký phúc khảo điểm thi kết thúc học phần”.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-diem-i-nop",
+    "query": "Tôi ốm không dự thi, phải nộp đơn nhận điểm I trước hạn nào?",
+    "expected_substrings": [
+      "3 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Bạn phải nộp đơn xin nhận điểm I **chậm nhất 03 ngày làm việc** sau ngày thi.  \nTheo quy định trong tài liệu TL03: “Hồ sơ nộp chậm nhất 03 ngày làm việc sau ngày thi” (đối với ĐHCQ, SĐH đăng ký trực tuyến; VB2/VLVH nộp trực tiếp tại Phòng Đào tạo).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.036"
+    ],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-diem-i-hieu-luc",
+    "query": "Điểm I còn hiệu lực bao lâu và quá hạn thì sao?",
+    "expected_substrings": [
+      "1 năm"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Điểm I có hiệu lực **01 năm** kể từ ngày được nhận.  \n- Nếu trong vòng 01 năm người học không thi trả điểm I, điểm I **tự động chuyển thành 0**.  \n- Khi điểm I đã hết hạn, người học không còn quyền đăng ký thi bổ sung.\n\n**Căn cứ**: Phụ lục 16 mục I, Quy định kèm theo Quyết định số 3388/QĐ‑ĐHKTL.  \n\nMã tài liệu tham khảo: **TL03** (định nghĩa hiệu lực điểm I) và **TL04** (đăng ký trả điểm I).",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [
+      "II.1.037"
+    ],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "para-tra-diem-i",
+    "query": "Muốn thi trả điểm I thì phải đăng ký trước đợt thi bổ sung bao nhiêu ngày?",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Theo quy định của Trường Đại học Kinh tế – Luật (UEL), để đăng ký thi trả điểm I (thi bổ sung) người học phải đăng ký **chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung**.  \n\nMã tài liệu tham khảo: **TL04**.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl02-thoi-han-dhcq",
+    "query": "Thời hạn đăng ký phúc khảo đối với đại học chính quy là 2 ngày làm việc",
+    "expected_substrings": [
+      "2 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.4.030] Thời hạn đăng ký phúc khảo\n## Câu trả lời\n\nĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm.\nSĐH: 07 ngày làm việc kể từ ngày công bố điểm.\nThời hạn công bố kết quả: ĐHCQ 06 ngày; SĐH 10 ngày kể từ ngày xác nhận/chốt danh sách.\n\n[TL02] Đăng ký phúc khảo điểm thi kết thúc học phần\n## Tóm tắt\n\nNgười học muốn kiểm tra, đánh giá lại bài thi kết thúc học phần đăng ký phúc khảo trực tuyến qua tài khoản cá nhân trên Portal UEL. ĐHCQ đăng ký trong 02 ngày làm việc, SĐH trong 07 ngày làm việc kể từ ngày Trường công bố điểm thi chính thức trên Portal.\nKết quả phúc khảo được công bố chậm nhất 06 ngày làm việc (ĐHCQ) hoặc 10 ngày làm việc (SĐH) kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.\nKhông áp dụng đối với khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức. Mã quy trình: KT-QT-PK-001.\n\n## Kết quả\n\nKết quả chấm phúc khảo bài thi chính thức được cập nhật theo kênh công bố của Trường (Portal UEL / Score).\n\n## Thời hạn xử lý\n\n10 ngày làm việc. Chỉ nhận đăng ký trong 02 ngày làm việc (ĐHCQ) hoặc 07 ngày làm việc (SĐH) kể từ ngày Trường công bố điểm thi chính thức trên Portal. Thời hạn công bố kết quả: ĐHCQ ch…\n\n[TL02] Thời hạn đăng ký và công bố kết quả phúc khảo\n## Thời hạn đăng ký và công bố kết quả phúc khảo\n\nNộp đơn phúc khảo ĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm. Nộp đơn phúc khảo Sau đại học: 07 ngày làm việc kể từ ngày công bố điểm.\nXử lý kết quả: ĐHCQ chậm nhất 06 ngày làm việc, SĐH chậm nhất 10 ngày làm việc kể từ ngày Phòng Bảo đảm chất lượng xác nhận danh sách.\nCăn cứ pháp lý: Khoản 2 Điều 14; Phụ lục 3 - Quy trình nhập và quản lý điểm thi; Phụ lục 11, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.4.030"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:37f13b0107081f94eda703b1"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:74960109f2605e80fc514869"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:1ca38278c27fda3bd151b764"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl02-thoi-han-sdh",
+    "query": "Thời hạn phúc khảo sau đại học 7 ngày làm việc",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "answered",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[I.4.030] Thời hạn đăng ký phúc khảo\n## Câu trả lời\n\nĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm.\nSĐH: 07 ngày làm việc kể từ ngày công bố điểm.\nThời hạn công bố kết quả: ĐHCQ 06 ngày; SĐH 10 ngày kể từ ngày xác nhận/chốt danh sách.\n\n[TL02] Thời hạn đăng ký và công bố kết quả phúc khảo\n## Thời hạn đăng ký và công bố kết quả phúc khảo\n\nNộp đơn phúc khảo ĐHCQ: 02 ngày làm việc kể từ ngày công bố điểm. Nộp đơn phúc khảo Sau đại học: 07 ngày làm việc kể từ ngày công bố điểm.\nXử lý kết quả: ĐHCQ chậm nhất 06 ngày làm việc, SĐH chậm nhất 10 ngày làm việc kể từ ngày Phòng Bảo đảm chất lượng xác nhận danh sách.\nCăn cứ pháp lý: Khoản 2 Điều 14; Phụ lục 3 - Quy trình nhập và quản lý điểm thi; Phụ lục 11, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ\n\n[TL02] Đăng ký phúc khảo điểm thi kết thúc học phần\n## Tóm tắt\n\nNgười học muốn kiểm tra, đánh giá lại bài thi kết thúc học phần đăng ký phúc khảo trực tuyến qua tài khoản cá nhân trên Portal UEL. ĐHCQ đăng ký trong 02 ngày làm việc, SĐH trong 07 ngày làm việc kể từ ngày Trường công bố điểm thi chính thức trên Portal.\nKết quả phúc khảo được công bố chậm nhất 06 ngày làm việc (ĐHCQ) hoặc 10 ngày làm việc (SĐH) kể từ ngày Phòng Bảo đảm chất lượng xác nhận/chốt danh sách.\nKhông áp dụng đối với khóa luận tốt nghiệp, luận văn thạc sĩ, luận án tiến sĩ đã qua Hội đồng đánh giá chuyên môn chính thức. Mã quy trình: KT-QT-PK-001.\n\n## Kết quả\n\nKết quả chấm phúc khảo bài thi chính thức được cập nhật theo kênh công bố của Trường (Portal UEL / Score).\n\n## Thời hạn xử lý\n\n10 ngày làm việc. Chỉ nhận đăng ký trong 02 ngày làm việc (ĐHCQ) hoặc 07 ngày làm việc (SĐH) kể từ ngày Trường công bố điểm thi chính thức trên Portal. Thời hạn công bố kết quả: ĐHCQ ch…",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "I.4.030"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:37f13b0107081f94eda703b1"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL02"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:1ca38278c27fda3bd151b764"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:74960109f2605e80fc514869"
+      }
+    ],
+    "expected_document_codes": [
+      "TL02"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl03-ba-ngay",
+    "query": "Hồ sơ nhận điểm I phải nộp trong 3 ngày làm việc sau ngày thi",
+    "expected_substrings": [
+      "3 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": false,
+    "status": "answered",
+    "answer": "Hồ sơ nhận điểm I phải nộp **chậm nhất 03 ngày làm việc sau ngày thi**.  \nTheo quy định trong **II.1.036**: “Chậm nhất 03 ngày làm việc sau ngày thi, người học phải đăng ký nhận điểm I (hoãn thi) và nộp hồ sơ minh chứng theo quy định.”",
+    "citations": [
+      {
+        "kind": "question_code",
+        "value": "II.1.036"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl03-mot-nam",
+    "query": "Quá 01 năm chưa thi trả điểm I thì hệ quả thế nào?",
+    "expected_substrings": [
+      "1 năm"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL03] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[TL01] Quá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n- Loại: note\n\n## Tình huống\n\nQuá 01 năm kể từ ngày nhận điểm I mà chưa thi trả điểm I\n\n## Cách xử lý\n\nĐiểm I tự động chuyển thành điểm 0.\n\n[II.1.037] Điểm I có giá trị trong bao lâu?\n## Câu trả lời\n\nTheo Phụ lục 16 Quyết định 3388/QĐ-ĐHKTL ngày 31/12/2024, Người học phải thi trả điểm I trong vòng 01 năm. Nếu người học không thực hiện trả điểm I trong thời gian quy định, thì điểm I tự động sẽ chuyển thành điểm 0 (điểm không)\n\nPhụ lục 16 Quyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:0597017b7c9cef5df6d2710f"
+      },
+      {
+        "kind": "document_code",
+        "value": "TL01"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:f0bf57d5120ed1d4abc47cc7"
+      },
+      {
+        "kind": "question_code",
+        "value": "II.1.037"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b023cb5c6ec860fae74600d1"
+      }
+    ],
+    "expected_document_codes": [
+      "TL03"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  },
+  {
+    "id": "doc-tl04-bay-ngay",
+    "query": "Đăng ký trả điểm I trước 7 ngày của đợt thi bổ sung",
+    "expected_substrings": [
+      "7 ngày"
+    ],
+    "initial_status": "clarification_required",
+    "llm_calls": [
+      "generate"
+    ],
+    "provider_error": true,
+    "status": "answered",
+    "answer": "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).\n\n[TL04] Đăng ký trả điểm I, thi bổ sung\n## Tóm tắt\n\nNgười học có học phần đang mang điểm I còn hiệu lực đăng ký thi trả điểm I (thi bổ sung) trực tuyến trên Portal UEL, chậm nhất 07 ngày trước ngày thi đầu tiên của đợt thi bổ sung.\nKết quả nhận được là lịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\nĐiểm I có hiệu lực 01 năm kể từ ngày nhận; quá hạn chưa trả điểm I thì chuyển thành điểm 0. Mã quy trình: KT-QT-I-002.\n\n## Kết quả\n\nLịch thi đợt bổ sung và điểm sau khi hoàn thành thi trả điểm I.\n\n## Thời hạn xử lý\n\nTùy trường hợp. Đăng ký trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung; lịch thi bổ sung theo lịch chung của Trường.\n\n## Nơi nộp / kênh\n\nTrực tuyến qua Portal UEL (VB2/VLVH thực hiện qua Phòng Đào tạo)\nhttps://portal.uel.edu.vn/\n\n## Lệ phí\n\nLệ phí trả điểm I/thi bổ sung: Chưa xác định trong nguồn được rà soát - Phòng Bảo đảm chất lượng cần xác nhận mức thu và hình thức nộp trước khi nạp. Khôn…\n\n[TL04] Đăng ký sau thời hạn 07 ngày trước đợt thi bổ sung\n- Loại: common_error\n\n## Tình huống\n\nĐăng ký sau thời hạn 07 ngày trước đợt thi bổ sung\n\n## Cách xử lý\n\nKhông được xếp lịch thi bổ sung đợt đó; theo dõi và đăng ký đúng hạn ở đợt tiếp theo (trong thời gian điểm I còn hiệu lực).\n\n[TL04] Điều kiện thực hiện\n## Điều kiện thực hiện\n\nHọc phần đang mang điểm I còn hiệu lực.\nĐăng ký đúng thời hạn: trước 07 ngày diễn ra môn thi đầu tiên của đợt thi bổ sung.\nCăn cứ pháp lý: Phụ lục 16 mục III.2.2, V.B, Quy định ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL.\n\n## Điều kiện và ngoại lệ",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:aa7215e268902b55e55e66da"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:07850b42f850c9967d4a2044"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:899c81b4231d589436cd2cf9"
+      }
+    ],
+    "expected_document_codes": [
+      "TL04"
+    ],
+    "expected_question_codes": [],
+    "substring_proxy_pass": true
+  }
+]

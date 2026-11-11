@@ -1,0 +1,38 @@
+[
+  {
+    "id": "doc-tl02-vb2",
+    "status": "insufficient_evidence",
+    "answer": "Chưa có dữ liệu đã duyệt về quy trình phúc khảo riêng cho hệ VB2/VLVH. Bạn vui lòng liên hệ Phòng Bảo đảm chất lượng để được hướng dẫn.",
+    "citations": []
+  },
+  {
+    "id": "doc-tl03-vb2",
+    "status": "answered",
+    "answer": "Người học hệ VB2/VLVH nộp đơn xin hoãn thi, nhận điểm I trực tiếp tại Phòng Đào tạo. Nguồn: TL03.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL03"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:b478f99395ba635fa460a5b7"
+      }
+    ]
+  },
+  {
+    "id": "doc-tl04-vb2",
+    "status": "answered",
+    "answer": "Người học hệ VB2/VLVH thực hiện thủ tục trả điểm I qua Phòng Đào tạo. Nguồn: TL04.",
+    "citations": [
+      {
+        "kind": "document_code",
+        "value": "TL04"
+      },
+      {
+        "kind": "chunk_id",
+        "value": "gold:670ae35335482be4f0ddeacf"
+      }
+    ]
+  }
+]

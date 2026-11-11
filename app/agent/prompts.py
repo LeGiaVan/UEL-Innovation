@@ -140,12 +140,16 @@ def readable_stair_excerpt(markdown: str, *, max_chars: int = 900) -> str:
     return title or body
 
 
+def fallback_evidence(evidence: list[RetrievedEvidence]) -> list[RetrievedEvidence]:
+    return [item for item in evidence[:3] if readable_stair_excerpt(item.stair_markdown)]
+
+
 def extractive_fallback(evidence: list[RetrievedEvidence]) -> str:
     lines = [
-        "Mô hình đang quá tải nên tôi trích đúng đoạn đã duyệt (chưa tóm tắt bằng LLM).",
+        "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).",
         "",
     ]
-    for item in evidence[:3]:
+    for item in fallback_evidence(evidence):
         label = item.document_code or item.question_code or "nguồn"
         excerpt = readable_stair_excerpt(item.stair_markdown)
         if not excerpt:

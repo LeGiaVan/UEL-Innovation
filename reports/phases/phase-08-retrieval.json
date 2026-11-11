@@ -1,0 +1,1831 @@
+{
+  "dataset_sha256": "ca4d4b0e17f6a638253d3ca9fbae0ccaa3efde564cbdc62b13f441dd7e7021aa",
+  "mode": "hybrid",
+  "top_k": 5,
+  "score_threshold": 0.4167,
+  "faq_boost": 0.12,
+  "retrieval": {
+    "test": {
+      "cases": 42,
+      "recall_at_1": 0.8809523809523809,
+      "recall_at_5": 1.0,
+      "mrr": 0.9325396825396824
+    },
+    "all": {
+      "cases": 100,
+      "recall_at_1": 0.92,
+      "recall_at_5": 1.0,
+      "mrr": 0.9566666666666667
+    },
+    "calibration": {
+      "cases": 58,
+      "recall_at_1": 0.9482758620689655,
+      "recall_at_5": 1.0,
+      "mrr": 0.9741379310344828
+    }
+  },
+  "dense_recall_at_5": {},
+  "tenant_leak_failures": 0,
+  "policy_cases": 12,
+  "adversarial_cases": 6,
+  "recommended_top_k": 5,
+  "recommended_threshold": 0.4167,
+  "scores": [
+    {
+      "case_id": "adv-ignore-rules",
+      "kind": "adversarial",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.62,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "adv-jailbreak",
+      "kind": "adversarial",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 5,
+      "top_score": 0.650303,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "adv-other-dept",
+      "kind": "adversarial",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.87,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "adv-prompt-leak",
+      "kind": "adversarial",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.82,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "adv-sql",
+      "kind": "adversarial",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 2,
+      "top_score": 0.82,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl01-dien-thoai",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 4,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl01-hinh-thuc",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl02-thoi-han-dhcq",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 3,
+      "top_score": 0.7866666999999999,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl02-thoi-han-sdh",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 3,
+      "top_score": 0.7866666999999999,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl02-vb2",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 4,
+      "top_score": 0.7,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl03-ba-ngay",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 3,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.3333333333333333,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl03-mot-nam",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 3,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl03-vb2",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl04-bay-ngay",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl04-hieu-luc",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "doc-tl04-vb2",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.001",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.002",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.003",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.004",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.005",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.006",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.007",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.008",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.009",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.010",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.1.011",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.012",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.013",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.014",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.015",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.016",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.017",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.018",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.2.019",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.020",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.021",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.022",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.023",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.024",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.025",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.026",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.027",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.028",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 2,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.3.029",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.4.030",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 0.87,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.4.031",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 2,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.4.032",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-I.4.033",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.034",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.035",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.036",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.037",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.038",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.039",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.1.040",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.041",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 2,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.042",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.043",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.044",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.045",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.046",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.047",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.048",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.2.049",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.3.050",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-II.3.051",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.052",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.053",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.054",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.055",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.056",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.057",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.1.058",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 2,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.2.060",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.2.061",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.2.062",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.2.063",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.2.064",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.066",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.067",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.068",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.069",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.070",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.071",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.072",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "faq-verbatim-III.3.073",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "leak-diem-i",
+      "kind": "tenant_leak",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 0,
+      "top_score": null,
+      "empty_ok": true,
+      "departments": []
+    },
+    {
+      "case_id": "leak-phuc-khao",
+      "kind": "tenant_leak",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 0,
+      "top_score": null,
+      "empty_ok": true,
+      "departments": []
+    },
+    {
+      "case_id": "p8-fee-hoan-thi",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "p8-i-thoi-han",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "p8-nhan-i-ho-so",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "p8-prompt-key",
+      "kind": "adversarial",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 3,
+      "top_score": 0.62,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "p8-tra-i-dang-ky",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-diem-i-hieu-luc",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-diem-i-nop",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-dien-thoai",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-hinh-thuc-thi",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-hoan-thi-gia-dinh",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-khong-phuc-khao-luan-van",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-lich-thi",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-nop-tieu-luan-sdh",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-phuc-khao-dhcq",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-phuc-khao-sdh",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 4,
+      "top_score": 0.75,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-quyen-3388",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 5,
+      "top_score": 0.87,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-seb-su-co",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.5,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-tra-diem-i",
+      "kind": "retrieval",
+      "split": "calibration",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-vang-thi-diem",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "mrr": 1.0,
+      "hit_count": 3,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "para-xem-diem",
+      "kind": "retrieval",
+      "split": "test",
+      "rank": 3,
+      "recall_at_1": 0.0,
+      "recall_at_5": 1.0,
+      "mrr": 0.3333333333333333,
+      "hit_count": 4,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-cam-thi",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 2,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-hoc-phi",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 3,
+      "top_score": 0.9533334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-ket-qua-ca-nhan",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 3,
+      "top_score": 0.65333336,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-khieu-nai-ca-nhan",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.87,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-khong-co-ten",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 5,
+      "top_score": 1.12,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-le-phi-diem-i",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.8333334,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-le-phi-pk",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-lms-login",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 4,
+      "top_score": 0.87,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-seb-cai",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 5,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-seb-huong-dan",
+      "kind": "policy",
+      "split": "calibration",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 3,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    },
+    {
+      "case_id": "pol-tkb",
+      "kind": "policy",
+      "split": "test",
+      "rank": null,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "mrr": 0.0,
+      "hit_count": 2,
+      "top_score": 1.0,
+      "empty_ok": null,
+      "departments": [
+        "bao_dam_chat_luong"
+      ]
+    }
+  ]
+}

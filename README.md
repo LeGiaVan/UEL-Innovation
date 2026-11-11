@@ -1,10 +1,10 @@
-# UEL Virtual Assistant — RAG Chatbot PoC
+﻿# UEL Virtual Assistant — RAG Chatbot PoC
 
 Hệ thống chatbot trợ lý ảo sử dụng Retrieval-Augmented Generation (RAG), phục vụ tra cứu quy định, chính sách và thủ tục tại Trường Đại học Kinh tế - Luật (UEL).
 
 ## Trạng thái dự án
 
-> Trạng thái: Phase 0–6 đã hoàn thành (`reports/phases/phase-06.md`); sẵn sàng bắt đầu Phase 7 (FastAPI, API key và web chat).
+> Trạng thái: Phase 0–7 đã hoàn thành (`reports/phases/phase-07.md`). Phase 8 đánh giá còn IN_PROGRESS (`reports/phases/phase-08.md`). Routing Template 1 đa tenant đang vận hành bằng YAML registry và API quản trị trên PoC; chưa production-ready. Vận hành: `docs/operations-multi-tenant.md`. Kết quả lượt chuẩn hóa: `reports/phases/standardization.md`.
 
 PoC được triển khai cho:
 
@@ -754,8 +754,9 @@ Không log:
 
 ## 20. Hạn chế của PoC
 
-- Chỉ có một phòng ban nên chưa chứng minh đầy đủ isolation ở production.
-- API key không thay thế hệ thống quản lý danh tính.
+- YAML registry là nguồn cấu hình hiện tại; chưa có database registry, job queue hay rollback nguyên tử nhiều kho.
+- API key là service identity, không thay thế xác thực người học.
+- `bot_behavior` của Template 1 là mô tả cho classifier, chưa phải DSL workflow.
 - Chất lượng phụ thuộc trực tiếp vào dữ liệu được duyệt.
 - Cloud LLM có thể bị giới hạn quota hoặc tăng độ trễ.
 - Local embedding trên CPU làm thời gian đồng bộ dài hơn.
@@ -764,12 +765,22 @@ Không log:
 
 ## 21. Tài liệu liên quan
 
+- `HUONG_DAN_ONBOARDING.md`: quy trình thêm phòng ban hoặc mô-đun mới (template → API → Qdrant).
 - `Proposal.md`: đề xuất ban đầu.
 - `PLAN.md`: kế hoạch thực hiện PoC.
 - `PHASE_PLAN.md`: checklist triển khai và theo dõi tiến độ theo từng phase.
 - `reports/phases/`: báo cáo nghiệm thu sau mỗi phase.
-- `docs/`: data contract, mapping, enum, ERD (`docs/erd.md`) và decision records (`docs/decisions/phase-04-decisions.md`, `phase-06-decisions.md`).
+- `docs/`: data contract, mapping, enum, ERD (`docs/erd.md`), decision records, kế hoạch routing (`docs/plan-multi-tenant-routing.md`) và vận hành tenant (`docs/operations-multi-tenant.md`).
 - `evaluation/cases.yaml`: bộ câu paraphrase / TL / policy / adversarial Phase 5.
 - `data/P.BDCL/`: dữ liệu thực tế dùng cho PoC Phòng Bảo đảm chất lượng.
 - `template/`: ba biểu mẫu dữ liệu chuẩn.
 - `danh_sach_phong_ban.txt`: danh sách phòng ban định hướng mở rộng.
+
+
+### Web chat và API (Phase 7)
+
+Chạy `python -m uvicorn app.main:app --host 127.0.0.1 --port 8000`, mở `http://127.0.0.1:8000/` và nhập API key dịch vụ. Nút **Tải mô-đun** gọi `GET /v1/modules`; client chỉ chọn module đã được cấp. `POST /v1/chat` yêu cầu header `X-API-Key`; body gồm `message`, `module_code` khi key có nhiều module, và `conversation_id` tùy chọn. Tenant do server suy ra từ key, không nhận `department_id` từ client. Lưu `conversation_id` từ response để tiếp tục hội thoại. Tài liệu API ở `/docs` (Authorize: `X-API-Key` / `X-Admin-Key`). Nạp phòng mới: ba file `template/` → `POST /v1/admin/packages/inspect` → `POST /v1/admin/releases` (`dry_run=false` ghi MinIO, PostgreSQL, Qdrant). Đổi key hoặc module sẽ reset hội thoại trên web. Key trên browser là service identity; giao diện công khai cần BFF. Chi tiết: `docs/operations-multi-tenant.md`.
+
+Cấu hình tùy chọn: `CORS_ORIGINS` là JSON array các origin được phép (mặc định rỗng), `REQUEST_MAX_BYTES` (mặc định 16384), `CHAT_TIMEOUT_SECONDS` (mặc định 90). Bộ nhớ hội thoại nằm trong tiến trình; restart hoặc chạy nhiều worker sẽ không chia sẻ lịch sử. Khi timeout, xử lý trong thread có thể vẫn tiếp tục chạy.
+
+Browser smoke test: cài `pip install -e ".[browser]"` và `python -m playwright install chromium`, rồi chạy `python -m pytest tests/smoke/test_browser_chat.py -q`. Có thể đặt `BROWSER_EXECUTABLE` trỏ tới Chrome/Chromium trên máy. Test sử dụng response giả, không gọi agent thật.

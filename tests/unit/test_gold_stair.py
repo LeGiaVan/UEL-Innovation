@@ -1,6 +1,7 @@
 from app.gold.ids import gold_chunk_id, point_uuid
 from app.gold.policy import boosted_score, is_effective, is_indexable
 from app.gold.stair import (
+    audience_label,
     headings_related,
     serialize_condition,
     serialize_dossier,
@@ -13,6 +14,8 @@ from app.gold.stair import (
 
 def test_faq_stair_keeps_question_and_marks_missing_basis() -> None:
     markdown = serialize_faq(
+        department_name="Ph\u00f2ng B\u1ea3o \u0111\u1ea3m ch\u1ea5t l\u01b0\u1ee3ng",
+        module_name="Test module",
         question="Thời hạn phúc khảo ĐHCQ?",
         question_code="I.1.001",
         answer="Trong 2 ngày làm việc.",
@@ -27,7 +30,10 @@ def test_faq_stair_keeps_question_and_marks_missing_basis() -> None:
     assert "# Thời hạn phúc khảo ĐHCQ?" in markdown
     assert "I.1.001" in markdown
     assert "Phòng Bảo đảm chất lượng" in markdown
-    assert "Khảo khí" in markdown
+    assert "Test module" in markdown
+    assert "Người học" in markdown
+    assert audience_label("nguoi_hoc") == "Người học"
+    assert audience_label("Cán bộ") == "Cán bộ"
     assert "Chưa có văn bản căn cứ" in markdown
     assert "hotline" not in markdown.casefold()
     assert "phongbdcl@" not in markdown

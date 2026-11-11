@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 import uuid
 from collections.abc import Callable, Hashable
@@ -33,6 +35,13 @@ from app.agent.models import (
     RoutingScope,
     TrainingSystem,
 )
+from app.agent.policy import (
+    RULE_CLASSIFIER_SYSTEM,
+    RULE_SCHEMA,
+    RuleStore,
+    SilverRuleStore,
+    module_generate_system,
+)
 from app.agent.prompts import (
     METADATA_SCHEMA,
     METADATA_SYSTEM,
@@ -40,6 +49,7 @@ from app.agent.prompts import (
     ROUTING_SYSTEM,
     SYSTEM_GENERATE,
     extractive_fallback,
+    fallback_evidence,
     generate_user_prompt,
 )
 from app.agent.routing import is_greeting, keyword_scope
@@ -60,6 +70,14 @@ from app.ingestion.normalize import normalize_question
 
 
 class AgentState(TypedDict, total=False):
+    rule_release_id: str
+    routing_aliases: dict[str, list[str]]
+    module_name: str
+    department_name: str
+    profile: str
+    rule_id: str
+    rule_version: str
+    rule_contact: dict[str, Any]
     request_id: str
     department_id: str
     module_code: str
@@ -98,6 +116,9 @@ class AgentDeps:
     retriever: Retriever
     top_k: int = 5
     score_threshold: float = 0.4167
+    rules: RuleStore | None = None
+    config_path: str = "configs/departments.yaml"
+    legacy_mode: bool = False
 
 
 @dataclass
@@ -135,6 +156,8 @@ class AgentRuntime:
                 retriever=retriever or GoldIndexer.from_settings(resolved),
                 top_k=resolved.rag_top_k,
                 score_threshold=resolved.rag_score_threshold,
+                rules=SilverRuleStore(factory),
+                config_path=resolved.departments_config_path,
             )
         )
 
@@ -146,14 +169,41 @@ class AgentRuntime:
         module_code: str,
         environment: str,
         conversation_id: str | None = None,
+        principal_id: str = "cli",
     ) -> ChatResult:
-        thread_id = conversation_id or str(uuid4())
+        thread_id = hashlib.sha256(
+            json.dumps(
+                [
+                    department_id,
+                    module_code,
+                    environment,
+                    principal_id,
+                    conversation_id or str(uuid4()),
+                ]
+            ).encode()
+        ).hexdigest()
+        context: dict[str, Any] = {}
+        if not self.deps.legacy_mode:
+            from pathlib import Path
+
+            from app.ingestion.manifest import load_department_configs, resolve_module
+
+            department, module = resolve_module(
+                load_department_configs(Path(self.deps.config_path)), department_id, module_code
+            )
+            context = {
+                "department_name": department.name,
+                "module_name": module.name,
+                "profile": module.profile,
+                "routing_aliases": module.routing_aliases,
+            }
         state = self._app.invoke(
             {
                 "message": message,
                 "department_id": department_id,
                 "module_code": module_code,
                 "environment": environment,
+                **context,
             },
             config={"configurable": {"thread_id": thread_id}},
         )
@@ -232,6 +282,10 @@ class _Nodes:
             "effective_query": effective,
             "routing_scope": "",
             "routing_source": "",
+            "rule_id": "",
+            "rule_version": "",
+            "rule_release_id": "",
+            "rule_contact": {},
             "faq_question_code": "",
             "faq_answer": "",
             "training_system": "unknown",
@@ -263,6 +317,10 @@ class _Nodes:
         ):
             state["status"] = "error"
             state["answer"] = ADVERSARIAL_ANSWER
+            if not self.deps.legacy_mode:
+                state["answer"] = (
+                    "Yêu cầu này không được hỗ trợ. Vui lòng hỏi thông tin trong phạm vi mô-đun."
+                )
             state["error_message"] = "adversarial"
             state["next_node"] = "format_response"
             return state
@@ -270,6 +328,11 @@ class _Nodes:
         if not state.get("pending_clarification") and is_greeting(query):
             state["status"] = "greeting"
             state["answer"] = GREETING_ANSWER
+            if not self.deps.legacy_mode:
+                state["answer"] = (
+                    f"Xin chào. Tôi là trợ lý {state.get('module_name')} "
+                    f"— {state.get('department_name')}. Bạn cần hỗ trợ nội dung nào?"
+                )
             state["routing_scope"] = "answer_allowed"
             state["routing_source"] = "greeting"
             state["next_node"] = "format_response"
@@ -278,6 +341,8 @@ class _Nodes:
         return state
 
     def routing_check(self, state: AgentState) -> AgentState:
+        if not self.deps.legacy_mode:
+            return self._policy_route(state)
         query = state.get("effective_query") or ""
         scope = keyword_scope(query)
         source = "keyword"
@@ -289,6 +354,73 @@ class _Nodes:
             state["next_node"] = "out_of_scope"
             return state
         state["next_node"] = "faq_match"
+        return state
+
+    def _policy_route(self, state: AgentState) -> AgentState:
+        rules = (
+            self.deps.rules.load(state["department_id"], state["module_code"], state["environment"])
+            if self.deps.rules is not None
+            else []
+        )
+        aliases = state.get("routing_aliases", {})
+        query = normalize_question(state.get("effective_query") or "")
+        exact = [
+            r
+            for r in rules
+            if query in {normalize_question(text) for text in [r.topic, *aliases.get(r.id, [])]}
+        ]
+        selected = exact[0] if len(exact) == 1 else None
+        if rules and not exact:
+            try:
+                response = self.deps.llm.complete(
+                    LlmRequest(
+                        purpose="routing",
+                        json_schema=RULE_SCHEMA,
+                        messages=[
+                            LlmMessage(role="system", content=RULE_CLASSIFIER_SYSTEM),
+                            LlmMessage(
+                                role="user",
+                                content=json.dumps(
+                                    {
+                                        "module": state.get("module_name"),
+                                        "rules": [
+                                            {
+                                                "id": r.id,
+                                                "scope": r.scope,
+                                                "topic": r.topic,
+                                                "behavior": r.behavior,
+                                            }
+                                            for r in rules
+                                        ],
+                                        "question": state.get("effective_query"),
+                                    },
+                                    ensure_ascii=False,
+                                ),
+                            ),
+                        ],
+                    )
+                )
+                _note_llm(state, "routing")
+                selected = next(
+                    (r for r in rules if r.id == (response.parsed or {}).get("rule_id")), None
+                )
+            except LlmError:
+                _note_llm(state, "routing")
+        if selected is None:
+            state["status"] = "clarification_required" if rules else "human_handoff"
+            state["answer"] = (
+                "Chưa xác định chắc chắn phạm vi hỗ trợ. "
+                "Vui lòng mô tả rõ yêu cầu hoặc liên hệ đơn vị phụ trách."
+            )
+            state["routing_source"] = "policy_unresolved"
+            state["next_node"] = "format_response"
+            return state
+        state["rule_id"], state["rule_version"] = selected.id, selected.version
+        state["rule_release_id"] = selected.release_id
+        state["routing_scope"], state["routing_source"] = selected.scope, "template_policy"
+        if selected.contact_verified or state["environment"] in {"development", "test"}:
+            state["rule_contact"] = selected.model_dump()
+        state["next_node"] = "out_of_scope" if selected.scope == "out_of_scope" else "faq_match"
         return state
 
     def _llm_route(self, state: AgentState, query: str) -> tuple[RoutingScope, str]:
@@ -357,10 +489,21 @@ class _Nodes:
     def out_of_scope(self, state: AgentState) -> AgentState:
         state["status"] = "out_of_scope"
         state["answer"] = OUT_OF_SCOPE_ANSWER
+        if not self.deps.legacy_mode:
+            contact = self._contact(state)
+            _apply_contact(state, contact)
+            state["answer"] = with_contact(
+                f"Yêu cầu nằm ngoài phạm vi {state.get('module_name')}. "
+                "Vui lòng liên hệ đơn vị phụ trách.",
+                contact,
+            )
         state["next_node"] = "format_response"
         return state
 
     def clarification_check(self, state: AgentState) -> AgentState:
+        if not self.deps.legacy_mode and state.get("profile") != "assessment":
+            state["next_node"] = "retrieve"
+            return state
         query = state.get("effective_query") or ""
         if needs_training_system_clarification(query):
             state["pending_clarification"] = True
@@ -436,6 +579,10 @@ class _Nodes:
             evidence_from_hit(hit)
             for hit in hits
             if hit.boosted_score >= self.deps.score_threshold
+            and (
+                not state.get("rule_release_id")
+                or hit.payload.get("release_id") == state["rule_release_id"]
+            )
         ][: self.deps.top_k]
         state["retrieved"] = [item.model_dump() for item in kept]
         state["next_node"] = "evidence_gate"
@@ -443,6 +590,11 @@ class _Nodes:
 
     def evidence_gate(self, state: AgentState) -> AgentState:
         evidence = _load_evidence(state)
+        if state.get("profile", "assessment") == "assessment":
+            from app.agent.assessment import apply_evidence_policy
+
+            if apply_evidence_policy(state, evidence):
+                return state
         if any(item.fee_type == "unknown" for item in evidence) and (
             state.get("is_fee_question") or state.get("topic") == "fee"
         ):
@@ -465,7 +617,16 @@ class _Nodes:
                 LlmRequest(
                     purpose="generate",
                     messages=[
-                        LlmMessage(role="system", content=SYSTEM_GENERATE),
+                        LlmMessage(
+                            role="system",
+                            content=(
+                                SYSTEM_GENERATE
+                                if self.deps.legacy_mode
+                                else module_generate_system(
+                                    state.get("module_name", ""), state.get("department_name", "")
+                                )
+                            ),
+                        ),
                         LlmMessage(
                             role="user",
                             content=generate_user_prompt(
@@ -487,10 +648,11 @@ class _Nodes:
             _note_llm(state, "generate")
             state["generate_called"] = True
             state["error_message"] = str(exc)
-            if evidence:
+            if fallback_evidence(evidence):
                 state["answer"] = extractive_fallback(evidence)
                 state["citations"] = [
-                    item.model_dump() for item in citations_from_evidence(evidence)
+                    item.model_dump()
+                    for item in citations_from_evidence(fallback_evidence(evidence))
                 ]
                 state["status"] = "answered"
                 state["next_node"] = "format_response"
@@ -505,22 +667,22 @@ class _Nodes:
     def citation_verify(self, state: AgentState) -> AgentState:
         evidence = _load_evidence(state)
         answer = state.get("answer") or ""
-        extracted = extract_citations(answer)
-        if not extracted and evidence:
+        extracted = extract_citations(answer, evidence)
+        if citations_are_valid(answer, evidence):
             state["status"] = "answered"
-            state["citations"] = [
-                item.model_dump() for item in citations_from_evidence(evidence)
-            ]
+            state["citations"] = [item.model_dump() for item in extracted]
             state["next_node"] = "format_response"
             return state
-        if not citations_are_valid(answer, evidence):
-            state["status"] = "insufficient_evidence"
-            state["answer"] = INSUFFICIENT_ANSWER
-            state["citations"] = []
+        readable = fallback_evidence(evidence)
+        if readable:
+            state["answer"] = extractive_fallback(evidence)
+            state["status"] = "answered"
+            state["citations"] = [item.model_dump() for item in citations_from_evidence(readable)]
             state["next_node"] = "format_response"
             return state
-        state["status"] = "answered"
-        state["citations"] = [item.model_dump() for item in extracted]
+        state["status"] = "insufficient_evidence"
+        state["answer"] = INSUFFICIENT_ANSWER
+        state["citations"] = []
         state["next_node"] = "format_response"
         return state
 
@@ -529,6 +691,18 @@ class _Nodes:
         return state
 
     def _contact(self, state: AgentState) -> ResolvedContact:
+        if state.get("rule_contact"):
+            contact = state["rule_contact"]
+            if any(
+                contact.get(k) for k in ("support_contact", "contact_information", "online_channel")
+            ):
+                return ResolvedContact(
+                    support_contact=contact.get("support_contact"),
+                    contact_information=contact.get("contact_information"),
+                    online_channel=contact.get("online_channel"),
+                    source="record",
+                    verified=bool(contact.get("contact_verified")),
+                )
         return self.deps.faqs.load_contact(
             department_id=state["department_id"],
             module_code=state["module_code"],
@@ -582,6 +756,8 @@ def _result_from_state(state: AgentState) -> ChatResult:
         citations=citations,
         routing_scope=state.get("routing_scope") or None,
         routing_source=state.get("routing_source") or None,
+        rule_id=state.get("rule_id") or None,
+        rule_version=state.get("rule_version") or None,
         support_contact=state.get("support_contact") or None,
         contact_information=state.get("contact_information") or None,
         online_channel=state.get("online_channel") or None,

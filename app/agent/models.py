@@ -39,6 +39,8 @@ class ChatResult(BaseModel):
     citations: list[Citation] = Field(default_factory=list)
     routing_scope: str | None = None
     routing_source: str | None = None
+    rule_id: str | None = None
+    rule_version: str | None = None
     support_contact: str | None = None
     contact_information: str | None = None
     online_channel: str | None = None

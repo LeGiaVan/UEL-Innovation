@@ -1,0 +1,38 @@
+{
+  "faq": {
+    "requests": 10,
+    "http_errors": 0,
+    "p95_seconds": 1.121,
+    "median_seconds": 0.983,
+    "statuses": [
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered",
+      "faq_answered"
+    ]
+  },
+  "rag": {
+    "requests": 10,
+    "http_errors": 0,
+    "p95_seconds": 5.065,
+    "median_seconds": 4.9125,
+    "statuses": [
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered",
+      "answered"
+    ]
+  }
+}

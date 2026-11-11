@@ -58,6 +58,9 @@ def build_gold_chunks(
         ):
             continue
         markdown = serialize_faq(
+            department_name=module.department.name,
+            module_name=module.name,
+            audience=module.department.audience,
             question=faq.question,
             question_code=faq.question_code,
             answer=faq.answer,
@@ -85,6 +88,7 @@ def build_gold_chunks(
                     "source_sheet": faq.source_sheet,
                     "source_row": faq.source_row,
                     "release_status": faq.release_status,
+                    "release_id": module.release_id,
                     "effective_from": None,
                     "effective_to": None,
                     "citation_url": None,
@@ -99,11 +103,27 @@ def build_gold_chunks(
             environment=environment,
         ):
             continue
-        chunks.extend(_document_chunks(department_id, module_code, document))
+        chunks.extend(
+            _document_chunks(
+                department_id,
+                module_code,
+                document,
+                module.department.name,
+                module.name,
+                module.department.audience,
+            )
+        )
     return chunks
 
 
-def _document_chunks(department_id: str, module_code: str, document: Document) -> list[GoldChunk]:
+def _document_chunks(
+    department_id: str,
+    module_code: str,
+    document: Document,
+    department_name: str,
+    module_name: str,
+    audience: str = "",
+) -> list[GoldChunk]:
     regulations = [
         item for item in document.sections if item.is_active and item.section_type == "regulation"
     ]
@@ -119,6 +139,9 @@ def _document_chunks(department_id: str, module_code: str, document: Document) -
         for item in related:
             assigned.add(item.section_key)
         markdown = serialize_regulation(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             document_title=document.title,
             document_code=document.document_code,
             heading=section.heading,
@@ -148,6 +171,9 @@ def _document_chunks(department_id: str, module_code: str, document: Document) -
         if section.section_key in assigned:
             continue
         markdown = serialize_condition(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             document_title=document.title,
             document_code=document.document_code,
             condition_type=section.section_type,
@@ -175,6 +201,9 @@ def _document_chunks(department_id: str, module_code: str, document: Document) -
         leftover = [item for item in conditions if item.section_key not in assigned]
         related = leftover if not regulations else leftover
         markdown = serialize_procedure(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             document_title=document.title,
             document_code=document.document_code,
             summary=document.summary,
@@ -211,6 +240,9 @@ def _document_chunks(department_id: str, module_code: str, document: Document) -
     if active_items:
         first = active_items[0]
         markdown = serialize_dossier(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             document_title=document.title,
             document_code=document.document_code,
             items=[
@@ -238,6 +270,9 @@ def _document_chunks(department_id: str, module_code: str, document: Document) -
         key=lambda row: row.step_number,
     ):
         markdown = serialize_step(
+            department_name=department_name,
+            module_name=module_name,
+            audience=audience,
             document_title=document.title,
             document_code=document.document_code,
             step_number=step.step_number,
@@ -303,6 +338,7 @@ def _document_payload(
         "document_id": str(document.id),
         "section_id": section_id,
         "release_status": document.release_status,
+        "release_id": document.release_id,
         "effective_from": document.effective_from.isoformat() if document.effective_from else None,
         "effective_to": document.effective_to.isoformat() if document.effective_to else None,
         "citation_url": citation,
@@ -323,7 +359,7 @@ def _chunk(
 ) -> GoldChunk:
     chunk_id = gold_chunk_id(department_id, module_code, entity_type, business_key)
     markdown = redact_contact_text(markdown)
-    digest = content_hash(markdown)
+    digest = content_hash(markdown, payload.get("release_id"))
     return GoldChunk(
         chunk_id=chunk_id,
         point_id=str(point_uuid(chunk_id)),

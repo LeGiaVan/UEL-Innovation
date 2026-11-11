@@ -1,0 +1,12 @@
+{
+  "status": "answered",
+  "routing_scope": "answer_allowed",
+  "routing_source": "keyword",
+  "answer": "Điểm học phần được tính là **không đạt**.  \nMã nguồn: **I.3.023**",
+  "citations": [
+    {
+      "kind": "question_code",
+      "value": "I.3.023"
+    }
+  ]
+}
