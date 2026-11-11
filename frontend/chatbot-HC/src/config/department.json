@@ -1,0 +1,31 @@
+{
+  "short": "HC",
+  "name": "Phòng Hành chính",
+  "topics": [
+    [
+      "Văn bản & công văn",
+      "Tra cứu và hướng dẫn xử lý văn bản",
+      "Tôi muốn tra cứu một công văn",
+      "Bạn vui lòng cho biết chủ đề, số hiệu hoặc thời gian ban hành dự kiến của văn bản. Khi triển khai chính thức, mục này sẽ kết nối kho văn bản của phòng. Bản mẫu hiện chưa tra cứu công văn thực tế."
+    ],
+    [
+      "Văn thư & con dấu",
+      "Hướng dẫn trình ký và đóng dấu",
+      "Tôi muốn tìm hiểu quy trình đóng dấu văn bản",
+      "Bạn có thể mô tả loại văn bản và mục đích sử dụng để được hướng dẫn xác định quy trình phù hợp. Hồ sơ, thẩm quyền ký và cách tiếp nhận cần được Phòng Hành chính xác nhận. Bản mẫu chưa tiếp nhận văn bản hay yêu cầu đóng dấu."
+    ],
+    [
+      "Lịch công tác & hội họp",
+      "Thông tin lịch và hỗ trợ tổ chức cuộc họp",
+      "Tôi muốn đăng ký lịch họp",
+      "Bạn có thể chuẩn bị nội dung cuộc họp, thời gian dự kiến, thành phần tham dự và nhu cầu hỗ trợ. Việc sắp xếp lịch cần được đơn vị phụ trách xác nhận. Hội thoại mô phỏng này chưa tạo lịch họp."
+    ],
+    [
+      "Thủ tục & biểu mẫu",
+      "Hướng dẫn các yêu cầu hành chính",
+      "Tôi muốn tìm biểu mẫu hành chính",
+      "Bạn vui lòng nêu thủ tục hoặc loại biểu mẫu cần tìm. Danh mục, phiên bản và hướng dẫn sử dụng cần được đối chiếu với tài liệu chính thức của phòng. Bản mẫu hiện chưa kết nối kho biểu mẫu."
+    ]
+  ],
+  "id": "hc"
+}

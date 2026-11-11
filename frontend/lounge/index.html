@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sảnh chatbot UEL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;800&display=swap" />
+  <style>
+    :root {
+      --uel: #144e8c;
+      --uel-dark: #0f3a6b;
+      --accent: #e65100;
+      --bg: #f7f9fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Roboto, sans-serif;
+      background: var(--bg);
+      color: #1f497d;
+    }
+    header {
+      background: linear-gradient(135deg, var(--uel-dark), var(--uel) 48%, #1f6bb8);
+      border-bottom: 4px solid var(--accent);
+      color: #fff;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header img { height: 64px; }
+    header h1 { margin: 0; font-size: 1.35rem; }
+    header p { margin: 0.2rem 0 0; opacity: 0.9; font-weight: 500; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .lead { text-align: center; margin: 0 0 1.75rem; color: #52667c; line-height: 1.55; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    a.card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 1.25rem 1.2rem;
+      background: #fff;
+      border: 1px solid #d6e1ed;
+      border-radius: 16px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    a.card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(20, 78, 140, 0.45);
+      box-shadow: 0 8px 20px rgba(20, 78, 140, 0.12);
+    }
+    .code { font-weight: 800; color: var(--uel); letter-spacing: 0.04em; }
+    .name { font-size: 1.05rem; font-weight: 700; }
+    .hint { font-size: 0.85rem; color: #64748b; line-height: 1.4; }
+    .badge {
+      align-self: flex-start;
+      margin-top: 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+    .badge-rag { background: #e8f0f8; color: var(--uel); }
+    .badge-stub { background: #fff4e8; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo-2026-06.png" alt="UEL" />
+    <div>
+      <h1>Sảnh chatbot các phòng</h1>
+      <p>Trường Đại học Kinh tế - Luật (ĐHQG-HCM)</p>
+    </div>
+  </header>
+  <main>
+    <p class="lead">Chọn phòng để mở chatbot. Chỉ <strong>ĐBCL / Khảo khí</strong> nối RAG; các phòng còn lại dùng FE + BFF mô phỏng.</p>
+    <div class="grid">
+      <a class="card" href="http://127.0.0.1:5173">
+        <span class="code">ĐBCL</span>
+        <span class="name">Phòng Bảo đảm chất lượng</span>
+        <span class="hint">Khảo khí — phúc khảo, điểm I, hình thức thi</span>
+        <span class="badge badge-rag">RAG</span>
+      </a>
+      <a class="card" href="http://127.0.0.1:5174">
+        <span class="code">QTTS</span>
+        <span class="name">Phòng Quản trị tài sản</span>
+        <span class="hint">Cơ sở vật chất, báo hỏng, tài sản</span>
+        <span class="badge badge-stub">FE + BFF</span>
+      </a>
+      <a class="card" href="http://127.0.0.1:5175">
+        <span class="code">PĐT</span>
+        <span class="name">Phòng Đào tạo</span>
+        <span class="hint">Chương trình, đăng ký học phần, điểm</span>
+        <span class="badge badge-stub">FE + BFF</span>
+      </a>
+      <a class="card" href="http://127.0.0.1:5176">
+        <span class="code">PNS</span>
+        <span class="name">Phòng Nhân sự</span>
+        <span class="hint">Hồ sơ, chế độ, quy trình nhân sự</span>
+        <span class="badge badge-stub">FE + BFF</span>
+      </a>
+      <a class="card" href="http://127.0.0.1:5177">
+        <span class="code">HC</span>
+        <span class="name">Phòng Hành chính</span>
+        <span class="hint">Văn bản, công văn, hành chính</span>
+        <span class="badge badge-stub">FE + BFF</span>
+      </a>
+      <a class="card" href="http://127.0.0.1:5178">
+        <span class="code">CTSV</span>
+        <span class="name">Phòng Công tác sinh viên</span>
+        <span class="hint">Hồ sơ SV, học bổng, rèn luyện</span>
+        <span class="badge badge-stub">FE + BFF</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

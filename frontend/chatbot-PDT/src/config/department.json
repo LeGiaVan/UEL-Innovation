@@ -1,0 +1,31 @@
+{
+  "short": "PĐT",
+  "name": "Phòng Đào tạo",
+  "topics": [
+    [
+      "Kế hoạch học tập",
+      "Chương trình và kế hoạch đào tạo",
+      "Tôi muốn tra cứu chương trình đào tạo",
+      "Bạn vui lòng cung cấp ngành, khóa tuyển sinh và chương trình học. Bản mẫu chưa kết nối dữ liệu đào tạo để tra cứu thông tin chính thức."
+    ],
+    [
+      "Đăng ký học phần",
+      "Học phần, lớp học và thời khóa biểu",
+      "Tôi cần hỗ trợ đăng ký học phần",
+      "Bạn có thể nêu mã học phần, học kỳ và vấn đề gặp phải. Lịch đăng ký, điều kiện tiên quyết và số lượng chỗ cần được kiểm tra trên hệ thống đào tạo chính thức."
+    ],
+    [
+      "Thi & kết quả học tập",
+      "Lịch thi, điểm và phúc khảo",
+      "Tôi muốn tìm hiểu thủ tục phúc khảo",
+      "Bạn nên chuẩn bị mã học phần, lớp học phần, học kỳ và thông tin bài thi. Thời hạn, lệ phí và cách nộp đơn cần đối chiếu thông báo chính thức của phòng."
+    ],
+    [
+      "Thủ tục học vụ",
+      "Bảo lưu, học lại và tốt nghiệp",
+      "Tôi muốn tìm hiểu điều kiện xét tốt nghiệp",
+      "Điều kiện xét tốt nghiệp phụ thuộc chương trình và khóa học. Hãy cung cấp ngành, khóa và nội dung cần hỗ trợ để được hướng dẫn tra cứu quy định phù hợp."
+    ]
+  ],
+  "id": "pdt"
+}

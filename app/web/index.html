@@ -1,16 +1,375 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trợ lý UEL</title><style>body{margin:0;background:#f1f5f9;color:#17304c;font:16px system-ui}main{max-width:760px;margin:2rem auto;padding:1.5rem}header{border-bottom:1px solid #cbd5e1}#messages{min-height:40vh;display:flex;flex-direction:column;gap:1rem;padding:1.5rem 0}.bubble{background:white;border-radius:12px;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere}.user{background:#dbeafe;align-self:flex-end}small{display:block;color:#52667c;margin-top:.6rem}form{display:flex;gap:.5rem}input,textarea,button{font:inherit;padding:.7rem;border:1px solid #a8b9cc;border-radius:8px}textarea{flex:1}button{background:#164e80;color:white}label{display:block;margin-top:1rem}</style></head><body><main><header><h1>Trợ lý UEL</h1><p>Chọn mô-đun được cấp quyền để bắt đầu.</p></header><label for="key">API key</label><input id="key" type="password" autocomplete="off" placeholder="Nhập API key"><label for="module">Module</label><select id="module" aria-label="Module"></select><button type="button" id="loadModules">Tải mô-đun</button><div id="messages" aria-live="polite"><div class="bubble">Xin chào! Bạn cần hỗ trợ nội dung nào?</div></div><form id="form"><textarea id="message" aria-label="Câu hỏi" placeholder="Nhập câu hỏi của bạn" required maxlength="4000" rows="2"></textarea><button id="send">Gửi</button></form></main><script>
-const form=document.querySelector('#form'), messages=document.querySelector('#messages'), input=document.querySelector('#message'), button=document.querySelector('#send'); let conversation=null;
-function add(text, cls, detail=''){const node=document.createElement('div');node.className='bubble '+cls;node.textContent=text;if(detail){const meta=document.createElement('small');meta.textContent=detail;node.append(meta)}messages.append(node);node.scrollIntoView({block:'nearest'})}
-form.addEventListener('submit',async e=>{e.preventDefault();const message=input.value.trim(),key=document.querySelector('#key').value;if(!message||!key){add('Vui lòng nhập API key và câu hỏi.','');return}add(message,'user');input.value='';button.disabled=true;try{const response=await fetch('/v1/chat',{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':key},body:JSON.stringify({message,conversation_id:conversation,...(document.querySelector("#module").value?{module_code:document.querySelector("#module").value}:{})})});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();conversation=data.conversation_id;const source=data.citations.map(c=>c.kind+': '+c.value).join(', ');add(data.answer,'', ['Trạng thái: '+data.status,source&&'Nguồn: '+source,data.support_contact,data.contact_information,data.online_channel].filter(Boolean).join(' | '))}catch(err){add('Không thể gửi câu hỏi: '+err.message,'')}finally{button.disabled=false;input.focus()}});
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trợ lý UEL</title>
+  <style>
+    body { margin: 0; background: #f1f5f9; color: #17304c; font: 16px/1.5 system-ui, sans-serif; }
+    main { max-width: 760px; margin: 2rem auto; padding: 1.5rem; }
+    header { border-bottom: 1px solid #cbd5e1; padding-bottom: .75rem; }
+    #messages { min-height: 40vh; display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem 0; }
+    .bubble { background: white; border-radius: 12px; padding: 1rem; overflow-wrap: anywhere; }
+    .user { background: #dbeafe; align-self: flex-end; white-space: pre-wrap; }
+    .waiting { color: #52667c; display: flex; align-items: center; gap: .6rem; }
+    .dots span { display: inline-block; width: .4rem; height: .4rem; margin-right: .15rem; border-radius: 50%; background: #164e80; opacity: .2; animation: blink 1.4s infinite; }
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 50% { opacity: 1; } }
+    .md p, .md ul, .md ol, .md h1, .md h2, .md h3, .md blockquote, .md table { margin: .4rem 0; }
+    .md ul, .md ol { padding-left: 1.2rem; }
+    .md code { background: #e2e8f0; padding: .1rem .35rem; border-radius: 4px; font-size: .92em; }
+    .md pre { background: #e2e8f0; padding: .75rem; border-radius: 8px; overflow: auto; }
+    .md a { color: #164e80; }
+    .md .table-wrap { overflow-x: auto; margin: .6rem 0; }
+    .md table { border-collapse: collapse; width: 100%; font-size: .92em; }
+    .md th, .md td { border: 1px solid #cbd5e1; padding: .4rem .55rem; text-align: left; vertical-align: top; }
+    .md th { background: #e8eef5; font-weight: 600; }
+    .md blockquote { border-left: 3px solid #94a3b8; padding: .15rem .8rem; color: #334155; }
+    small { display: block; color: #52667c; margin-top: .6rem; }
+    form { display: flex; gap: .5rem; }
+    input, textarea, button, select { font: inherit; padding: .7rem; border: 1px solid #a8b9cc; border-radius: 8px; }
+    textarea { flex: 1; }
+    button { background: #164e80; color: white; }
+    button:disabled { opacity: .6; }
+    label { display: block; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Trợ lý UEL</h1>
+      <p>Chọn mô-đun được cấp quyền để bắt đầu.</p>
+      <p><a href="/admin">Quản lý bot</a> · <a href="/docs">API docs</a></p>
+    </header>
+    <label for="key">API key</label>
+    <input id="key" type="password" autocomplete="off" placeholder="Nhập API key">
+    <label for="module">Module</label>
+    <select id="module" aria-label="Module"></select>
+    <button type="button" id="loadModules">Tải mô-đun</button>
+    <div id="messages" aria-live="polite">
+      <div class="bubble">Xin chào! Bạn cần hỗ trợ nội dung nào?</div>
+    </div>
+    <form id="form">
+      <textarea id="message" aria-label="Câu hỏi" placeholder="Nhập câu hỏi của bạn" required maxlength="4000" rows="2"></textarea>
+      <button id="send">Gửi</button>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector('#form');
+    const messages = document.querySelector('#messages');
+    const input = document.querySelector('#message');
+    const button = document.querySelector('#send');
+    const moduleSelect = document.querySelector('#module');
+    let conversation = null;
 
-const moduleSelect=document.querySelector('#module');
-moduleSelect.addEventListener('change',()=>{conversation=null;messages.replaceChildren()});
-document.querySelector('#key').addEventListener('input',()=>{conversation=null;moduleSelect.replaceChildren();messages.replaceChildren()});
-document.querySelector('#loadModules').addEventListener('click',async()=>{
-  conversation=null;moduleSelect.replaceChildren();messages.replaceChildren();
-  try { const r=await fetch('/v1/modules',{headers:{'X-API-Key':document.querySelector('#key').value}});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const data=await r.json();for(const item of data.modules){const o=document.createElement('option');o.value=item.code;o.textContent=item.name;moduleSelect.append(o)}
-  } catch(e){add('Cannot load modules: '+e.message,'')}
-});
-</script></body></html>
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function formatLink(href, label) {
+      return '<a href="' + href + '" rel="noopener noreferrer" target="_blank">' + (label || href) + '</a>';
+    }
+
+    function autolinkBareUrls(text) {
+      return text.replace(
+        /(<a\b[^>]*>[\s\S]*?<\/a>)|(https?:\/\/[^\s<]+)/g,
+        (full, anchor, url) => {
+          if (anchor) return anchor;
+          const trimmed = url.replace(/[),.;:]+$/, '');
+          return formatLink(trimmed) + url.slice(trimmed.length);
+        }
+      );
+    }
+
+    function inlineMarkdown(text) {
+      const withLinks = text
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(
+          /\[([^\]]+)\]\((https?:[^)\s]+)\)/g,
+          (_, label, href) => formatLink(href, label)
+        );
+      return autolinkBareUrls(withLinks);
+    }
+
+    function isTableRow(line) {
+      const trimmed = line.trim();
+      return trimmed.startsWith('|') && trimmed.includes('|', 1);
+    }
+
+    function isTableSep(line) {
+      return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(line.trim());
+    }
+
+    function splitCells(line) {
+      return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+    }
+
+    function renderTable(rows) {
+      if (!rows.length) return '';
+      let header = [];
+      let body = rows;
+      if (rows.length >= 2 && isTableSep(rows[1])) {
+        header = splitCells(rows[0]);
+        body = rows.slice(2);
+      }
+      const thead = header.length
+        ? '<thead><tr>' + header.map((cell) => '<th>' + inlineMarkdown(cell) + '</th>').join('') + '</tr></thead>'
+        : '';
+      const tbody = '<tbody>' + body.filter((row) => !isTableSep(row)).map((row) => {
+        const cells = splitCells(row);
+        return '<tr>' + cells.map((cell) => '<td>' + inlineMarkdown(cell) + '</td>').join('') + '</tr>';
+      }).join('') + '</tbody>';
+      return '<div class="table-wrap"><table>' + thead + tbody + '</table></div>';
+    }
+
+    function renderMarkdown(source) {
+      const escaped = escapeHtml(source).replace(/\r\n/g, '\n');
+      const lines = escaped.split('\n');
+      const html = [];
+      let list = [];
+      let listTag = 'ul';
+      let table = [];
+      let para = [];
+      const flushList = () => {
+        if (!list.length) return;
+        html.push('<' + listTag + '>' + list.map((item) => '<li>' + inlineMarkdown(item) + '</li>').join('') + '</' + listTag + '>');
+        list = [];
+      };
+      const flushTable = () => {
+        if (!table.length) return;
+        html.push(renderTable(table));
+        table = [];
+      };
+      const flushPara = () => {
+        if (!para.length) return;
+        html.push('<p>' + para.map(inlineMarkdown).join('<br>') + '</p>');
+        para = [];
+      };
+      const flushBlocks = () => {
+        flushPara();
+        flushList();
+        flushTable();
+      };
+      for (const line of lines) {
+        if (isTableRow(line)) {
+          flushPara();
+          flushList();
+          table.push(line);
+          continue;
+        }
+        flushTable();
+        const bullet = line.match(/^[-*] (.+)/);
+        if (bullet) {
+          flushPara();
+          if (list.length && listTag !== 'ul') flushList();
+          listTag = 'ul';
+          list.push(bullet[1]);
+          continue;
+        }
+        const numbered = line.match(/^\d+\. (.+)/);
+        if (numbered) {
+          flushPara();
+          if (list.length && listTag !== 'ol') flushList();
+          listTag = 'ol';
+          list.push(numbered[1]);
+          continue;
+        }
+        flushList();
+        if (/^#{1,3} /.test(line)) {
+          flushPara();
+          const level = line.match(/^#{1,3}/)[0].length;
+          html.push('<h' + level + '>' + inlineMarkdown(line.replace(/^#{1,3} /, '')) + '</h' + level + '>');
+          continue;
+        }
+        const quote = line.match(/^(&gt;|>) (.*)/);
+        if (quote) {
+          flushPara();
+          html.push('<blockquote>' + inlineMarkdown(quote[2]) + '</blockquote>');
+          continue;
+        }
+        if (!line.trim()) {
+          flushPara();
+          continue;
+        }
+        para.push(line);
+      }
+      flushBlocks();
+      return html.join('');
+    }
+
+    function addUser(text) {
+      const node = document.createElement('div');
+      node.className = 'bubble user';
+      node.textContent = text;
+      messages.append(node);
+      node.scrollIntoView({ block: 'nearest' });
+    }
+
+    function addBot() {
+      const node = document.createElement('div');
+      node.className = 'bubble';
+      messages.append(node);
+      node.scrollIntoView({ block: 'nearest' });
+      return node;
+    }
+
+    function showWaiting(node, label) {
+      node.classList.add('waiting');
+      node.replaceChildren();
+      const dots = document.createElement('span');
+      dots.className = 'dots';
+      dots.innerHTML = '<span></span><span></span><span></span>';
+      const text = document.createElement('span');
+      text.textContent = label || 'Đang xử lý…';
+      node.append(dots, text);
+    }
+
+    function showAnswer(node, answer, detail) {
+      node.classList.remove('waiting');
+      const body = document.createElement('div');
+      body.className = 'md';
+      body.innerHTML = renderMarkdown(answer || '');
+      node.replaceChildren(body);
+      if (detail) {
+        const meta = document.createElement('small');
+        meta.textContent = detail;
+        node.append(meta);
+      }
+    }
+
+    function metaLine(data) {
+      const source = (data.citations || [])
+        .filter((item) => item.kind !== 'chunk_id')
+        .map((item) => item.value)
+        .filter(Boolean);
+      const unique = [...new Set(source)];
+      return [
+        unique.length && ('Nguồn: ' + unique.join(', ')),
+        data.support_contact,
+        data.contact_information,
+        data.online_channel
+      ].filter(Boolean).join(' · ');
+    }
+
+    async function readSse(response, onEvent) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop();
+        for (const part of parts) {
+          let event = 'message';
+          const data = [];
+          for (const line of part.split('\n')) {
+            if (line.startsWith('event:')) event = line.slice(6).trim();
+            else if (line.startsWith('data:')) data.push(line.slice(5).trim());
+          }
+          if (data.length) onEvent(event, JSON.parse(data.join('\n')));
+        }
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const message = input.value.trim();
+      const key = document.querySelector('#key').value;
+      if (!message || !key) {
+        showAnswer(addBot(), 'Vui lòng nhập API key và câu hỏi.');
+        return;
+      }
+      addUser(message);
+      input.value = '';
+      button.disabled = true;
+      const bot = addBot();
+      showWaiting(bot, 'Đang gửi câu hỏi…');
+      let answer = '';
+      try {
+        const response = await fetch('/v1/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+          body: JSON.stringify({
+            message,
+            conversation_id: conversation,
+            ...(moduleSelect.value ? { module_code: moduleSelect.value } : {})
+          })
+        });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        let finalData = null;
+        await readSse(response, (eventName, data) => {
+          if (eventName === 'status') {
+            showWaiting(bot, data.label || 'Đang xử lý…');
+          } else if (eventName === 'token') {
+            answer += data.text || '';
+            showAnswer(bot, answer);
+          } else if (eventName === 'done') {
+            finalData = data;
+            conversation = data.conversation_id;
+            showAnswer(bot, data.answer || answer, metaLine(data));
+          } else if (eventName === 'error') {
+            throw new Error(data.detail || 'Lỗi luồng chat');
+          }
+        });
+        if (!finalData && !answer) throw new Error('Không nhận được câu trả lời');
+      } catch (err) {
+        showAnswer(bot, 'Không thể gửi câu hỏi: ' + err.message);
+      } finally {
+        button.disabled = false;
+        input.focus();
+      }
+    });
+
+    const KEY_STORE = 'uel-chat-key';
+    let keyTimer = null;
+
+    async function loadModules() {
+      conversation = null;
+      moduleSelect.replaceChildren();
+      messages.replaceChildren();
+      const key = document.querySelector('#key').value.trim();
+      if (!key) return;
+      try {
+        const response = await fetch('/v1/modules', {
+          headers: { 'X-API-Key': key }
+        });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        sessionStorage.setItem(KEY_STORE, key);
+        const data = await response.json();
+        for (const item of data.modules) {
+          const option = document.createElement('option');
+          option.value = item.code;
+          option.textContent = item.name;
+          moduleSelect.append(option);
+        }
+      } catch (err) {
+        sessionStorage.removeItem(KEY_STORE);
+        showAnswer(addBot(), 'Cannot load modules: ' + err.message);
+      }
+    }
+
+    moduleSelect.addEventListener('change', () => {
+      conversation = null;
+      messages.replaceChildren();
+    });
+    document.querySelector('#key').addEventListener('input', () => {
+      conversation = null;
+      clearTimeout(keyTimer);
+      keyTimer = setTimeout(loadModules, 400);
+    });
+    document.querySelector('#loadModules').addEventListener('click', loadModules);
+    const savedKey = sessionStorage.getItem(KEY_STORE);
+    if (savedKey) {
+      document.querySelector('#key').value = savedKey;
+      loadModules();
+    }
+  </script>
+</body>
+</html>

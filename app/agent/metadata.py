@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from app.agent.models import AgentTopic, TrainingSystem
 
 _DHCQ = ("đại học chính quy", "dai hoc chinh quy", "đhcq", "dhcq", "chính quy")
@@ -51,15 +53,53 @@ _DEADLINE = (
 )
 
 
-def detect_training_system(text: str) -> TrainingSystem:
+def detect_training_systems(text: str) -> list[TrainingSystem]:
     folded = text.casefold()
+    found: list[TrainingSystem] = []
     if any(token in folded for token in _VB2):
-        return "vb2_vlvh"
+        found.append("vb2_vlvh")
     if any(token in folded for token in _SDH):
-        return "sdh"
+        found.append("sdh")
     if any(token in folded for token in _DHCQ):
-        return "dhcq"
+        found.append("dhcq")
+    return found
+
+
+def detect_training_system(text: str) -> TrainingSystem:
+    found = detect_training_systems(text)
+    if len(found) == 1:
+        return found[0]
     return "unknown"
+
+
+def is_training_system_reply(text: str) -> bool:
+    if not detect_training_systems(text):
+        return False
+    leftover = text.casefold()
+    for token in _VB2 + _SDH + _DHCQ:
+        leftover = leftover.replace(token, " ")
+    leftover = re.sub(r"[^a-zà-ỹ0-9]+", " ", leftover)
+    noise = {
+        "va",
+        "và",
+        "and",
+        "or",
+        "he",
+        "hệ",
+        "dao",
+        "đao",
+        "tao",
+        "tạo",
+        "dao tao",
+        "voi",
+        "với",
+        "cho",
+        "ca",
+        "cả",
+        "hai",
+    }
+    words = [word for word in leftover.split() if word not in noise]
+    return len(words) <= 1
 
 
 def detect_topic(text: str) -> AgentTopic:
@@ -92,6 +132,6 @@ def is_deadline_question(text: str) -> bool:
 
 
 def needs_training_system_clarification(text: str) -> bool:
-    if detect_training_system(text) != "unknown":
+    if detect_training_systems(text):
         return False
     return is_deadline_question(text)

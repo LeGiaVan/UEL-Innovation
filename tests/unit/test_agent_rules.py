@@ -1,7 +1,19 @@
 from app.agent.adversarial import is_adversarial
-from app.agent.citation import citations_are_valid, citations_from_evidence, extract_citations
+from app.agent.citation import (
+    answer_overlaps_evidence,
+    citations_are_valid,
+    citations_from_evidence,
+    extract_citations,
+    student_facing_answer,
+    with_human_source_footer,
+)
 from app.agent.llm import FakeLlm, LlmRequest, LlmServerError, LlmTimeoutError, RetryingLlm
-from app.agent.metadata import detect_training_system, needs_training_system_clarification
+from app.agent.metadata import (
+    detect_training_system,
+    detect_training_systems,
+    is_training_system_reply,
+    needs_training_system_clarification,
+)
 from app.agent.models import RetrievedEvidence
 from app.agent.prompts import readable_stair_excerpt
 from app.agent.routing import is_greeting, keyword_scope
@@ -44,6 +56,12 @@ def test_deadline_clarification() -> None:
     assert not needs_training_system_clarification("Thời hạn phúc khảo đại học chính quy mấy ngày")
     assert detect_training_system("học viên cao học") == "sdh"
     assert detect_training_system("VB2 vừa làm vừa học") == "vb2_vlvh"
+    assert detect_training_systems("quy trình phúc khảo sdh và dhcq") == ["sdh", "dhcq"]
+    assert detect_training_system("quy trình phúc khảo sdh và dhcq") == "unknown"
+    assert not needs_training_system_clarification("quy trình phúc khảo sdh và dhcq")
+    assert is_training_system_reply("sdh và dhcq")
+    assert is_training_system_reply("Đại học chính quy")
+    assert not is_training_system_reply("quy trình phúc khảo sdh")
 
 
 def test_citation_rule_requires_retrieved_codes() -> None:
@@ -74,6 +92,30 @@ def test_citation_rule_requires_retrieved_codes() -> None:
     assert not citations_are_valid("Theo FIN-99.", generic)
     from_hits = citations_from_evidence(evidence)
     assert [item.value for item in from_hits if item.kind == "document_code"] == ["TL02"]
+
+
+def test_student_facing_answer_strips_gold_and_adds_human_footer() -> None:
+    evidence = [
+        RetrievedEvidence(
+            chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+            entity_type="regulation",
+            document_code="TL02",
+            boosted_score=0.9,
+            stair_markdown="Thời hạn phúc khảo đại học chính quy là 2 ngày làm việc.",
+        )
+    ]
+    dumped = (
+        "Bạn nộp đơn trong 2 ngày làm việc.\n\n"
+        "**Mã nguồn tham khảo**\n"
+        "- Mã: gold:aaaaaaaaaaaaaaaaaaaaaaaa – hạn phúc khảo\n"
+    )
+    cleaned = student_facing_answer(dumped)
+    assert "gold:" not in cleaned
+    assert "Mã nguồn" not in cleaned
+    assert "2 ngày" in cleaned
+    assert with_human_source_footer(cleaned, evidence).endswith("Nguồn: TL02")
+    assert answer_overlaps_evidence("Hạn phúc khảo là 2 ngày làm việc.", evidence)
+    assert not answer_overlaps_evidence("Theo Wikipedia.", evidence)
 
 
 def test_retrying_llm_retries_server_error_not_timeout() -> None:

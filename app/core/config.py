@@ -78,7 +78,8 @@ class Settings(BaseSettings):
         if not self.api_clients and len(self.app_api_key.get_secret_value()) < 16:
             raise ValueError("Configure API_CLIENTS or an APP_API_KEY of at least 16 characters")
         if (
-            self.app_admin_api_key.get_secret_value()
+            self.app_env != "development"
+            and self.app_admin_api_key.get_secret_value()
             and len(self.app_admin_api_key.get_secret_value()) < 16
         ):
             raise ValueError("Admin key must contain at least 16 characters")

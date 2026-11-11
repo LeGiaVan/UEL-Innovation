@@ -4,7 +4,7 @@ import hashlib
 import json
 import time
 import uuid
-from collections.abc import Callable, Hashable
+from collections.abc import Callable, Hashable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, TypedDict, cast
 from uuid import uuid4
@@ -14,17 +14,23 @@ from langgraph.graph import END, START, StateGraph
 
 from app.agent.adversarial import is_adversarial
 from app.agent.citation import (
-    citations_are_valid,
+    answer_distorts_training_labels,
+    answer_overlaps_evidence,
     citations_from_evidence,
     evidence_from_hit,
     extract_citations,
+    has_invented_citations,
+    student_facing_answer,
+    with_human_source_footer,
 )
 from app.agent.knowledge import FaqStore, Retriever
 from app.agent.llm import LlmClient, LlmError, LlmMessage, LlmRequest, LlmTimeoutError
 from app.agent.metadata import (
     detect_topic,
     detect_training_system,
+    detect_training_systems,
     is_fee_question,
+    is_training_system_reply,
     needs_training_system_clarification,
 )
 from app.agent.models import (
@@ -39,6 +45,7 @@ from app.agent.policy import (
     RULE_CLASSIFIER_SYSTEM,
     RULE_SCHEMA,
     RuleStore,
+    ScopeRule,
     SilverRuleStore,
     module_generate_system,
 )
@@ -63,6 +70,7 @@ from app.agent.templates import (
     OUT_OF_SCOPE_ANSWER,
     PROVIDER_ERROR_ANSWER,
     TIMEOUT_ANSWER,
+    scope_clarification_answer,
     with_contact,
 )
 from app.ingestion.contact import ResolvedContact
@@ -75,6 +83,16 @@ class AgentState(TypedDict, total=False):
     module_name: str
     department_name: str
     profile: str
+    bot_role: str
+    bot_constraints: str
+    bot_glossary_json: str
+    bot_answer_style: str
+    bot_metadata_system: str
+    bot_greeting: str
+    bot_out_of_scope: str
+    bot_clarification: str
+    rag_top_k: int
+    rag_score_threshold: float
     rule_id: str
     rule_version: str
     rule_contact: dict[str, Any]
@@ -92,6 +110,7 @@ class AgentState(TypedDict, total=False):
     faq_question_code: str
     faq_answer: str
     training_system: str
+    training_systems: str
     topic: str
     is_fee_question: bool
     retrieved: list[dict[str, Any]]
@@ -125,6 +144,7 @@ class AgentDeps:
 class AgentRuntime:
     deps: AgentDeps
     checkpointer: MemorySaver = field(default_factory=MemorySaver)
+    _turns: dict[str, dict[str, Any]] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
         self._app = build_graph(self.deps).compile(checkpointer=self.checkpointer)
@@ -171,6 +191,62 @@ class AgentRuntime:
         conversation_id: str | None = None,
         principal_id: str = "cli",
     ) -> ChatResult:
+        initial, thread_id = self._prepare(
+            message,
+            department_id=department_id,
+            module_code=module_code,
+            environment=environment,
+            conversation_id=conversation_id,
+            principal_id=principal_id,
+        )
+        state = cast(
+            AgentState,
+            self._app.invoke(initial, config={"configurable": {"thread_id": thread_id}}),
+        )
+        self._store_turn(thread_id, state)
+        return _result_from_state(state)
+
+    def iter_progress(
+        self,
+        message: str,
+        *,
+        department_id: str,
+        module_code: str,
+        environment: str,
+        conversation_id: str | None = None,
+        principal_id: str = "cli",
+    ) -> Iterator[tuple[str, ChatResult | None]]:
+        initial, thread_id = self._prepare(
+            message,
+            department_id=department_id,
+            module_code=module_code,
+            environment=environment,
+            conversation_id=conversation_id,
+            principal_id=principal_id,
+        )
+        last: dict[str, Any] = dict(initial)
+        for update in self._app.stream(
+            initial,
+            config={"configurable": {"thread_id": thread_id}},
+            stream_mode="updates",
+        ):
+            for name, payload in update.items():
+                if isinstance(payload, dict):
+                    last.update(payload)
+                yield name, None
+        self._store_turn(thread_id, last)
+        yield "__result__", _result_from_state(cast(AgentState, last))
+
+    def _prepare(
+        self,
+        message: str,
+        *,
+        department_id: str,
+        module_code: str,
+        environment: str,
+        conversation_id: str | None,
+        principal_id: str,
+    ) -> tuple[AgentState, str]:
         thread_id = hashlib.sha256(
             json.dumps(
                 [
@@ -196,18 +272,43 @@ class AgentRuntime:
                 "module_name": module.name,
                 "profile": module.profile,
                 "routing_aliases": module.routing_aliases,
+                "bot_role": module.prompt_pack.role,
+                "bot_constraints": module.prompt_pack.constraints,
+                "bot_glossary_json": json.dumps(module.prompt_pack.glossary, ensure_ascii=False),
+                "bot_answer_style": module.prompt_pack.answer_style,
+                "bot_metadata_system": module.prompt_pack.metadata_system,
+                "bot_greeting": module.messages.greeting,
+                "bot_out_of_scope": module.messages.out_of_scope,
+                "bot_clarification": module.messages.clarification,
             }
-        state = self._app.invoke(
+            if module.retrieval.top_k is not None:
+                context["rag_top_k"] = module.retrieval.top_k
+            if module.retrieval.score_threshold is not None:
+                context["rag_score_threshold"] = module.retrieval.score_threshold
+        prior = self._turns.get(thread_id) or {}
+        initial = cast(
+            AgentState,
             {
                 "message": message,
                 "department_id": department_id,
                 "module_code": module_code,
                 "environment": environment,
+                "pending_clarification": bool(prior.get("pending_clarification")),
+                "clarification_base_query": prior.get("clarification_base_query") or "",
+                "effective_query": prior.get("effective_query") or "",
                 **context,
             },
-            config={"configurable": {"thread_id": thread_id}},
         )
-        return _result_from_state(cast(AgentState, state))
+        return initial, thread_id
+
+    def _store_turn(self, thread_id: str, state: dict[str, Any]) -> None:
+        self._turns[thread_id] = {
+            "pending_clarification": bool(state.get("pending_clarification")),
+            "clarification_base_query": state.get("clarification_base_query") or "",
+            "effective_query": state.get("effective_query") or "",
+        }
+        if len(self._turns) > 256:
+            self._turns.pop(next(iter(self._turns)), None)
 
 
 def build_graph(deps: AgentDeps) -> StateGraph[AgentState]:
@@ -270,9 +371,18 @@ class _Nodes:
     def normalize_input(self, state: AgentState) -> AgentState:
         message = (state.get("message") or "").strip()
         pending = bool(state.get("pending_clarification"))
-        base = state.get("clarification_base_query") or ""
-        if pending and base and message:
-            effective = f"{base} {message}".strip()
+        base = (state.get("clarification_base_query") or "").strip()
+        previous = (base or state.get("effective_query") or "").strip()
+        followup = bool(message and previous and message.casefold() != previous.casefold())
+        short_reply = len(message.split()) <= 4
+        if pending and followup and (is_training_system_reply(message) or short_reply):
+            effective = f"{previous} {message}".strip()
+        elif (
+            followup
+            and is_training_system_reply(message)
+            and not is_training_system_reply(previous)
+        ):
+            effective = f"{previous} {message}".strip()
         else:
             effective = message
         out: AgentState = {
@@ -289,6 +399,7 @@ class _Nodes:
             "faq_question_code": "",
             "faq_answer": "",
             "training_system": "unknown",
+            "training_systems": "",
             "topic": "other",
             "is_fee_question": False,
             "retrieved": [],
@@ -329,7 +440,8 @@ class _Nodes:
             state["status"] = "greeting"
             state["answer"] = GREETING_ANSWER
             if not self.deps.legacy_mode:
-                state["answer"] = (
+                custom = (state.get("bot_greeting") or "").strip()
+                state["answer"] = custom or (
                     f"Xin chào. Tôi là trợ lý {state.get('module_name')} "
                     f"— {state.get('department_name')}. Bạn cần hỗ trợ nội dung nào?"
                 )
@@ -362,6 +474,29 @@ class _Nodes:
             if self.deps.rules is not None
             else []
         )
+        faq_hit = self.deps.faqs.match_normalized(
+            department_id=state["department_id"],
+            module_code=state["module_code"],
+            normalized_question=state.get("normalized_message") or "",
+            environment=state["environment"],
+        )
+        if faq_hit is not None:
+            state["routing_scope"] = "answer_allowed"
+            state["routing_source"] = "faq_exact"
+            state["next_node"] = "faq_match"
+            return state
+        query_text = state.get("effective_query") or ""
+        if is_fee_question(query_text):
+            contact = self._contact(state)
+            _apply_contact(state, contact)
+            state["status"] = "insufficient_evidence"
+            state["answer"] = with_contact(FEE_UNKNOWN_ANSWER, contact)
+            state["routing_scope"] = "answer_allowed"
+            state["routing_source"] = "fee_keyword"
+            state["is_fee_question"] = True
+            state["topic"] = "fee"
+            state["next_node"] = "format_response"
+            return state
         aliases = state.get("routing_aliases", {})
         query = normalize_question(state.get("effective_query") or "")
         exact = [
@@ -407,11 +542,22 @@ class _Nodes:
             except LlmError:
                 _note_llm(state, "routing")
         if selected is None:
+            selected = _rule_by_topic_overlap(query, rules)
+        if selected is None:
+            query_text = state.get("effective_query") or ""
+            if state.get("profile") == "assessment" and not needs_training_system_clarification(
+                query_text
+            ):
+                state["routing_scope"] = "answer_allowed"
+                state["routing_source"] = "policy_fallback_retrieve"
+                state["next_node"] = "faq_match"
+                return state
+            contact = self._contact(state)
+            _apply_contact(state, contact)
+            state["pending_clarification"] = True
+            state["clarification_base_query"] = query_text
             state["status"] = "clarification_required" if rules else "human_handoff"
-            state["answer"] = (
-                "Chưa xác định chắc chắn phạm vi hỗ trợ. "
-                "Vui lòng mô tả rõ yêu cầu hoặc liên hệ đơn vị phụ trách."
-            )
+            state["answer"] = with_contact(_unresolved_guidance(self.deps, state, rules), contact)
             state["routing_source"] = "policy_unresolved"
             state["next_node"] = "format_response"
             return state
@@ -492,9 +638,13 @@ class _Nodes:
         if not self.deps.legacy_mode:
             contact = self._contact(state)
             _apply_contact(state, contact)
+            custom = (state.get("bot_out_of_scope") or "").strip()
             state["answer"] = with_contact(
-                f"Yêu cầu nằm ngoài phạm vi {state.get('module_name')}. "
-                "Vui lòng liên hệ đơn vị phụ trách.",
+                custom
+                or (
+                    f"Yêu cầu nằm ngoài phạm vi {state.get('module_name')}. "
+                    "Vui lòng liên hệ đơn vị phụ trách."
+                ),
                 contact,
             )
         state["next_node"] = "format_response"
@@ -509,7 +659,8 @@ class _Nodes:
             state["pending_clarification"] = True
             state["clarification_base_query"] = query
             state["status"] = "clarification_required"
-            state["answer"] = CLARIFICATION_ANSWER
+            custom = (state.get("bot_clarification") or "").strip()
+            state["answer"] = custom or CLARIFICATION_ANSWER
             state["next_node"] = "format_response"
             return state
         state["pending_clarification"] = False
@@ -519,16 +670,27 @@ class _Nodes:
 
     def metadata_extract(self, state: AgentState) -> AgentState:
         query = state.get("effective_query") or ""
-        training = detect_training_system(query)
+        found_systems = detect_training_systems(query)
+        if "vb2_vlvh" in found_systems:
+            training = "vb2_vlvh"
+        elif len(found_systems) == 1:
+            training = found_systems[0]
+        else:
+            training = detect_training_system(query)
         topic = detect_topic(query)
         fee = is_fee_question(query)
-        if topic == "other":
+        metadata_system = (state.get("bot_metadata_system") or "").strip()
+        if not metadata_system and (
+            state.get("profile") == "assessment" or self.deps.legacy_mode
+        ):
+            metadata_system = METADATA_SYSTEM
+        if topic == "other" and metadata_system:
             try:
                 response = self.deps.llm.complete(
                     LlmRequest(
                         purpose="metadata",
                         messages=[
-                            LlmMessage(role="system", content=METADATA_SYSTEM),
+                            LlmMessage(role="system", content=metadata_system),
                             LlmMessage(role="user", content=query),
                         ],
                         json_schema=METADATA_SCHEMA,
@@ -538,8 +700,15 @@ class _Nodes:
                 parsed = response.parsed or {}
                 llm_training = str(parsed.get("training_system") or training)
                 llm_topic = str(parsed.get("topic") or topic)
-                if llm_training in {"dhcq", "sdh", "vb2_vlvh", "unknown"}:
+                if not found_systems and llm_training in {
+                    "dhcq",
+                    "sdh",
+                    "vb2_vlvh",
+                    "unknown",
+                }:
                     training = llm_training  # type: ignore[assignment]
+                    if llm_training in {"dhcq", "sdh", "vb2_vlvh"}:
+                        found_systems = [llm_training]
                 if llm_topic in {
                     "phuc_khao",
                     "diem_i_nhan",
@@ -555,6 +724,7 @@ class _Nodes:
             except LlmError:
                 _note_llm(state, "metadata")
         state["training_system"] = training
+        state["training_systems"] = ",".join(found_systems)
         state["topic"] = topic
         state["is_fee_question"] = fee
         if fee or topic == "fee":
@@ -567,23 +737,29 @@ class _Nodes:
 
     def retrieve(self, state: AgentState) -> AgentState:
         state["search_called"] = True
+        limit = int(state["rag_top_k"]) if state.get("rag_top_k") else self.deps.top_k
+        threshold = (
+            float(state["rag_score_threshold"])
+            if "rag_score_threshold" in state
+            else self.deps.score_threshold
+        )
         hits = self.deps.retriever.search(
-            state.get("effective_query") or "",
+            _retrieval_query(state),
             department_id=state["department_id"],
             module_code=state["module_code"],
             environment=state["environment"],
-            limit=self.deps.top_k,
+            limit=limit,
             mode="hybrid",
         )
         kept = [
             evidence_from_hit(hit)
             for hit in hits
-            if hit.boosted_score >= self.deps.score_threshold
+            if hit.boosted_score >= threshold
             and (
                 not state.get("rule_release_id")
                 or hit.payload.get("release_id") == state["rule_release_id"]
             )
-        ][: self.deps.top_k]
+        ][:limit]
         state["retrieved"] = [item.model_dump() for item in kept]
         state["next_node"] = "evidence_gate"
         return state
@@ -623,7 +799,11 @@ class _Nodes:
                                 SYSTEM_GENERATE
                                 if self.deps.legacy_mode
                                 else module_generate_system(
-                                    state.get("module_name", ""), state.get("department_name", "")
+                                    state.get("module_name", ""),
+                                    state.get("department_name", ""),
+                                    role=state.get("bot_role") or "",
+                                    constraints=state.get("bot_constraints") or "",
+                                    glossary=_glossary_from_state(state),
                                 )
                             ),
                         ),
@@ -633,6 +813,9 @@ class _Nodes:
                                 state.get("effective_query") or "",
                                 evidence,
                                 _as_training(state.get("training_system")),
+                                training_systems=_systems_from_state(state),
+                                writing_notes=state.get("bot_answer_style") or "",
+                                glossary=_glossary_from_state(state),
                             ),
                         ),
                     ],
@@ -668,9 +851,34 @@ class _Nodes:
         evidence = _load_evidence(state)
         answer = state.get("answer") or ""
         extracted = extract_citations(answer, evidence)
-        if citations_are_valid(answer, evidence):
+        invented = has_invented_citations(extracted, evidence)
+        grounded = (bool(extracted) and not invented) or answer_overlaps_evidence(
+            answer, evidence
+        )
+        if (
+            not answer_distorts_training_labels(
+                answer, evidence, training_systems=_systems_from_state(state)
+            )
+            and not invented
+            and grounded
+        ):
+            allowed = [
+                item
+                for item in extracted
+                if not has_invented_citations([item], evidence)
+            ]
+            readable = fallback_evidence(evidence)
+            human = [item for item in allowed if item.kind != "chunk_id"]
             state["status"] = "answered"
-            state["citations"] = [item.model_dump() for item in extracted]
+            state["answer"] = with_human_source_footer(
+                student_facing_answer(answer), readable or evidence
+            )
+            state["citations"] = [
+                item.model_dump()
+                for item in (
+                    human or citations_from_evidence(readable or evidence) or allowed
+                )
+            ]
             state["next_node"] = "format_response"
             return state
         readable = fallback_evidence(evidence)
@@ -722,14 +930,146 @@ def _apply_contact(state: AgentState, contact: ResolvedContact) -> None:
     state["online_channel"] = contact.online_channel or ""
 
 
+_OVERLAP_STOP = frozenset(
+    {
+        "cua",
+        "cac",
+        "va",
+        "voi",
+        "cho",
+        "trong",
+        "theo",
+        "mot",
+        "nhung",
+        "la",
+        "duoc",
+        "hoac",
+        "ve",
+        "tai",
+        "den",
+        "khi",
+        "neu",
+        "nay",
+        "do",
+        "to",
+        "the",
+        "toi",
+        "ban",
+        "hoi",
+        "quy",
+        "dinh",
+        "quy dinh",
+    }
+)
+
+
+def _tokens(text: str) -> set[str]:
+    return {
+        token
+        for token in normalize_question(text).split()
+        if len(token) > 2 and token not in _OVERLAP_STOP
+    }
+
+
+def _rule_by_topic_overlap(query: str, rules: list[ScopeRule]) -> ScopeRule | None:
+    query_tokens = _tokens(query)
+    if not query_tokens or not rules:
+        return None
+    scored: list[tuple[int, ScopeRule]] = []
+    for rule in rules:
+        overlap = len(query_tokens & _tokens(rule.topic))
+        if overlap:
+            scored.append((overlap, rule))
+    if not scored:
+        return None
+    best = max(item[0] for item in scored)
+    winners = [rule for overlap, rule in scored if overlap == best]
+    if len(winners) != 1:
+        return None
+    return winners[0]
+
+
+def _related_faqs(deps: AgentDeps, state: AgentState, query: str) -> list[str]:
+    samples = deps.faqs.sample_questions(
+        department_id=state["department_id"],
+        module_code=state["module_code"],
+        environment=state["environment"],
+        limit=40,
+    )
+    query_tokens = _tokens(query)
+    ranked: list[tuple[int, str]] = []
+    for question in samples:
+        overlap = len(query_tokens & _tokens(question))
+        if overlap:
+            ranked.append((overlap, question))
+    ranked.sort(key=lambda item: -item[0])
+    return [question for _, question in ranked[:3]]
+
+
+def _unresolved_guidance(deps: AgentDeps, state: AgentState, rules: list[ScopeRule]) -> str:
+    module_name = str(state.get("module_name") or "mô-đun này")
+    if not rules:
+        return (
+            f"Mô-đun **{module_name}** chưa có phạm vi đã duyệt để định tuyến. "
+            "Vui lòng liên hệ đơn vị phụ trách."
+        )
+    query = state.get("effective_query") or ""
+    if needs_training_system_clarification(query):
+        custom = (state.get("bot_clarification") or "").strip()
+        return custom or CLARIFICATION_ANSWER
+    return scope_clarification_answer(
+        module_name=module_name,
+        related_faqs=_related_faqs(deps, state, query),
+    )
+
+
 def _load_evidence(state: AgentState) -> list[RetrievedEvidence]:
     return [RetrievedEvidence.model_validate(item) for item in state.get("retrieved") or []]
+
+
+def _glossary_from_state(state: AgentState) -> dict[str, str]:
+    raw = state.get("bot_glossary_json") or ""
+    if not raw:
+        return {}
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return {str(key): str(value) for key, value in payload.items()}
 
 
 def _as_training(value: str | None) -> TrainingSystem:
     if value in {"dhcq", "sdh", "vb2_vlvh", "unknown"}:
         return value  # type: ignore[return-value]
     return "unknown"
+
+
+def _systems_from_state(state: AgentState) -> list[str]:
+    raw = state.get("training_systems") or ""
+    found = [item for item in raw.split(",") if item in {"dhcq", "sdh", "vb2_vlvh"}]
+    if found:
+        return found
+    single = state.get("training_system") or ""
+    return [single] if single in {"dhcq", "sdh", "vb2_vlvh"} else []
+
+
+def _retrieval_query(state: AgentState) -> str:
+    query = state.get("effective_query") or ""
+    topic = state.get("topic") or ""
+    folded = query.casefold()
+    if topic != "phuc_khao" and "phúc khảo" not in folded and "phuc khao" not in folded:
+        return query
+    labels = {
+        "dhcq": "ĐHCQ đại học chính quy",
+        "sdh": "SĐH sau đại học",
+        "vb2_vlvh": "VB2 VLVH",
+    }
+    extras = [labels[item] for item in _systems_from_state(state) if item in labels]
+    if not extras:
+        extras = ["ĐHCQ SĐH"]
+    return f"{query} phúc khảo {' '.join(extras)} Portal UEL"
 
 
 def _result_from_state(state: AgentState) -> ChatResult:

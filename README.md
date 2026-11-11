@@ -17,11 +17,36 @@ PoC được triển khai cho:
 | Đối tượng sử dụng | Người học |
 | Thời gian dự kiến | 8 tuần |
 | Nhân sự phát triển | 1 người |
-| Kênh sử dụng | REST API và web chat tối thiểu |
+| Kênh sử dụng | REST API, web chat tối thiểu, sảnh 6 phòng (`frontend/`, ĐBCL nối RAG) |
 | Cơ chế xác thực | API key qua FastAPI dependency injection |
 | Hạ tầng | Ubuntu Server, Docker Compose, CPU-only |
 | LLM | Cloud API, cấu hình được nhà cung cấp |
 | Embedding | Chạy local trên CPU |
+
+## Chạy demo chatbot (sảnh + 6 phòng)
+
+Đây là cách mở giao diện đang dùng. Chi tiết cổng, biến môi trường và sự cố: `frontend/README.md`. **Chưa production-ready.** Chỉ ĐBCL / Khảo khí gọi RAG; năm phòng còn lại là FE + BFF mô phỏng.
+
+```powershell
+cd D:\ITAC\UEL-Innovation
+docker compose up -d
+curl.exe -fsS http://127.0.0.1:8000/health/ready
+
+cd frontend
+.\run-cluster.ps1
+```
+
+Mở http://127.0.0.1:5170 — chọn phòng.
+
+| Cổng | Thành phần |
+|---:|---|
+| 5170 | Sảnh (nút từng phòng) |
+| 5173 | ĐBCL / Khảo khí → RAG `:8000` |
+| 5174–5178 | QTTS, PĐT, PNS, HC, CTSV → BFF stub |
+| 30957 | BFF GitHub |
+| 8000 | FastAPI RAG |
+
+Chỉ ĐBCL: `frontend\run-bff.ps1` rồi `frontend\run-fe.ps1`. Admin RAG: http://127.0.0.1:8000/admin (`X-Admin-Key`).
 
 ## 1. Mục tiêu
 
@@ -765,7 +790,8 @@ Không log:
 
 ## 21. Tài liệu liên quan
 
-- `HUONG_DAN_ONBOARDING.md`: quy trình thêm phòng ban hoặc mô-đun mới (template → API → Qdrant).
+- `HUONG_DAN_ONBOARDING.md`: dữ liệu template lưu ở đâu, upload file trên `/docs`, thêm phòng/mô-đun (template → API → Qdrant).
+- `HDSD_QUAN_LY_BOT.md`: prompt pack, trang `/admin`, routing vs config, thử chat.
 - `Proposal.md`: đề xuất ban đầu.
 - `PLAN.md`: kế hoạch thực hiện PoC.
 - `PHASE_PLAN.md`: checklist triển khai và theo dõi tiến độ theo từng phase.
@@ -775,11 +801,12 @@ Không log:
 - `data/P.BDCL/`: dữ liệu thực tế dùng cho PoC Phòng Bảo đảm chất lượng.
 - `template/`: ba biểu mẫu dữ liệu chuẩn.
 - `danh_sach_phong_ban.txt`: danh sách phòng ban định hướng mở rộng.
+- `frontend/README.md`: sảnh 6 phòng, BFF, cổng, lệnh chạy và sự cố.
 
 
 ### Web chat và API (Phase 7)
 
-Chạy `python -m uvicorn app.main:app --host 127.0.0.1 --port 8000`, mở `http://127.0.0.1:8000/` và nhập API key dịch vụ. Nút **Tải mô-đun** gọi `GET /v1/modules`; client chỉ chọn module đã được cấp. `POST /v1/chat` yêu cầu header `X-API-Key`; body gồm `message`, `module_code` khi key có nhiều module, và `conversation_id` tùy chọn. Tenant do server suy ra từ key, không nhận `department_id` từ client. Lưu `conversation_id` từ response để tiếp tục hội thoại. Tài liệu API ở `/docs` (Authorize: `X-API-Key` / `X-Admin-Key`). Nạp phòng mới: ba file `template/` → `POST /v1/admin/packages/inspect` → `POST /v1/admin/releases` (`dry_run=false` ghi MinIO, PostgreSQL, Qdrant). Đổi key hoặc module sẽ reset hội thoại trên web. Key trên browser là service identity; giao diện công khai cần BFF. Chi tiết: `docs/operations-multi-tenant.md`.
+Chạy `python -m uvicorn app.main:app --host 127.0.0.1 --port 8000`, mở `http://127.0.0.1:8000/` và nhập API key dịch vụ. Nút **Tải mô-đun** gọi `GET /v1/modules`; client chỉ chọn module đã được cấp. `POST /v1/chat` yêu cầu header `X-API-Key`; body gồm `message`, `module_code` khi key có nhiều module, và `conversation_id` tùy chọn. Tenant do server suy ra từ key, không nhận `department_id` từ client. Lưu `conversation_id` từ response để tiếp tục hội thoại. Tài liệu API ở `/docs` (Authorize: `X-API-Key` / `X-Admin-Key`). Nạp phòng mới: ba file `template/` → `POST /v1/admin/packages/inspect` → `POST /v1/admin/releases` (`dry_run=false` ghi MinIO, PostgreSQL, Qdrant). Đổi key hoặc module sẽ reset hội thoại trên web. Key trên browser là service identity; giao diện công khai cần BFF. Sảnh 6 phòng: `frontend/README.md` (lounge `:5170`; ĐBCL `:5173` → BFF `:30957` → RAG `:8000`; phòng khác stub). Vận hành RAG: `docs/operations-multi-tenant.md`.
 
 Cấu hình tùy chọn: `CORS_ORIGINS` là JSON array các origin được phép (mặc định rỗng), `REQUEST_MAX_BYTES` (mặc định 16384), `CHAT_TIMEOUT_SECONDS` (mặc định 90). Bộ nhớ hội thoại nằm trong tiến trình; restart hoặc chạy nhiều worker sẽ không chia sẻ lịch sử. Khi timeout, xử lý trong thread có thể vẫn tiếp tục chạy.
 

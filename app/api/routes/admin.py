@@ -2,43 +2,91 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import binascii
 import hashlib
 import os
 import secrets
 import tempfile
+import threading
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 from uuid import uuid4
 
 import portalocker
 import yaml
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, Security
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    UploadFile,
+)
 from fastapi.security import APIKeyHeader
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
+from starlette.concurrency import run_in_threadpool
 
+from app.agent.graph import AgentRuntime
+from app.agent.models import ChatResult, Citation
 from app.gold.indexer import GoldIndexer
 from app.ingestion.contact import ContactConfig
 from app.ingestion.exceptions import IngestionError, SchemaDriftError
 from app.ingestion.manifest import (
+    BotMessages,
     DepartmentConfig,
     DepartmentModuleConfig,
+    PromptPack,
+    RetrievalSettings,
     load_department_configs,
     resolve_module,
 )
 from app.ingestion.models import SyncOutcome
-from app.ingestion.package import inspect_directory, write_manifest
+from app.ingestion.package import PackageInspect, inspect_directory, write_manifest
 from app.ingestion.pipeline import SyncRequest, run_sync
 
 router = APIRouter(prefix="/v1/admin", tags=["administration"])
 _ADMIN_KEY = APIKeyHeader(name="X-Admin-Key", auto_error=False)
+_runtime_lock = threading.Lock()
+
+
+def _key_matches(provided: str, expected: str) -> bool:
+    if not provided or not expected:
+        return False
+    left, right = provided.encode("utf-8"), expected.encode("utf-8")
+    if len(left) != len(right):
+        return False
+    return secrets.compare_digest(left, right)
+
+
+def accepted_admin_keys(settings: object) -> list[str]:
+    admin = settings.app_admin_api_key.get_secret_value()  # type: ignore[attr-defined]
+    keys: list[str] = []
+    if admin:
+        keys.append(admin)
+    env = getattr(settings, "app_env", "")
+    if env in {"development", "test"}:
+        chat = settings.app_api_key.get_secret_value()  # type: ignore[attr-defined]
+        if chat:
+            keys.append(chat)
+    unique: list[str] = []
+    seen: set[str] = set()
+    for item in keys:
+        if item not in seen:
+            seen.add(item)
+            unique.append(item)
+    return unique
 
 
 async def admin_auth(request: Request, x_admin_key: str = Security(_ADMIN_KEY)) -> None:
-    expected = request.app.state.settings.app_admin_api_key.get_secret_value()
     provided = x_admin_key or ""
-    if len(expected) < 16 or not secrets.compare_digest(provided.encode(), expected.encode()):
+    accepted = accepted_admin_keys(request.app.state.settings)
+    if not any(_key_matches(provided, item) for item in accepted):
         raise HTTPException(401, "Invalid admin credential")
 
 
@@ -93,6 +141,35 @@ class TenantModuleStatus(BaseModel):
     source_present: bool
     last_release_id: str | None = None
     last_sync_status: str | None = None
+    has_prompt_pack: bool = False
+
+
+class BotConfigBody(BaseModel):
+    prompt_pack: PromptPack = Field(default_factory=PromptPack)
+    messages: BotMessages = Field(default_factory=BotMessages)
+    retrieval: RetrievalSettings = Field(default_factory=RetrievalSettings)
+    routing_aliases: dict[str, list[str]] = Field(default_factory=dict)
+    profile: Literal["generic", "assessment"] | None = None
+
+
+class PreviewChatBody(BaseModel):
+    department_id: str = Field(pattern=r"^[a-z0-9_]+$")
+    module_code: str = Field(pattern=r"^[a-z0-9_]+$")
+    message: str = Field(min_length=1, max_length=4000, pattern=r".*\S.*")
+    conversation_id: str | None = None
+
+
+class PreviewChatResponse(BaseModel):
+    request_id: str
+    conversation_id: str
+    status: str
+    answer: str
+    citations: list[Citation]
+    rule_id: str | None = None
+    routing_source: str | None = None
+    support_contact: str | None = None
+    contact_information: str | None = None
+    online_channel: str | None = None
 
 
 def config_path(request: Request) -> Path:
@@ -122,6 +199,65 @@ def _decode_files(files: dict[str, str], *, allow_manifest: bool) -> dict[str, b
         except (ValueError, binascii.Error):
             raise HTTPException(422, "Invalid base64") from None
     return decoded
+
+
+def _xlsx_only(decoded: dict[str, bytes]) -> dict[str, bytes]:
+    xlsx = {name: data for name, data in decoded.items() if name.endswith(".xlsx")}
+    if len(xlsx) != 3:
+        raise HTTPException(422, "Send exactly three template XLSX files")
+    return xlsx
+
+
+async def _xlsx_from_uploads(
+    workbook_module: UploadFile,
+    workbook_faq: UploadFile,
+    workbook_documents: UploadFile,
+) -> dict[str, bytes]:
+    decoded: dict[str, bytes] = {}
+    for item in (workbook_module, workbook_faq, workbook_documents):
+        name = Path(item.filename or "workbook.xlsx").name
+        if Path(name).name != name or "\\" in name or ":" in name or not name.endswith(".xlsx"):
+            raise HTTPException(422, "Invalid source filename")
+        data = await item.read()
+        if not data:
+            raise HTTPException(422, "Empty workbook")
+        if name in decoded:
+            raise HTTPException(422, "Duplicate workbook filename")
+        decoded[name] = data
+    return _xlsx_only(decoded)
+
+
+def _blank(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
+def _inspect_xlsx(
+    xlsx: dict[str, bytes],
+    *,
+    department_id: str,
+    department_name: str,
+    module_code: str,
+    module_name: str,
+    release_id: str,
+) -> PackageInspect:
+    with tempfile.TemporaryDirectory() as folder:
+        directory = Path(folder)
+        for name, data in xlsx.items():
+            (directory / name).write_bytes(data)
+        try:
+            return inspect_directory(
+                directory,
+                department_id=department_id,
+                department_name=department_name,
+                module_code=module_code,
+                module_name=module_name,
+                release_id=release_id,
+            )
+        except (IngestionError, SchemaDriftError) as exc:
+            raise HTTPException(422, str(exc)) from None
 
 
 def _write_package(target: Path, decoded: dict[str, bytes]) -> None:
@@ -223,6 +359,10 @@ def _upsert_registry(
             existing.profile = module.profile
             existing.contact = module.contact
             existing.enabled = True
+    _persist_departments(path, departments)
+
+
+def _persist_departments(path: Path, departments: list[DepartmentConfig]) -> None:
     if path.exists():
         history = path.parent / ".registry-history"
         history.mkdir(exist_ok=True)
@@ -243,6 +383,24 @@ def _upsert_registry(
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def _pack_configured(module: DepartmentModuleConfig) -> bool:
+    pack = module.prompt_pack
+    messages = module.messages
+    return bool(
+        pack.role
+        or pack.constraints
+        or pack.glossary
+        or pack.answer_style
+        or pack.metadata_system
+        or messages.greeting
+        or messages.out_of_scope
+        or messages.clarification
+        or module.routing_aliases
+        or module.retrieval.top_k is not None
+        or module.retrieval.score_threshold is not None
+    )
 
 
 def _report_status(report: dict[str, Any] | None) -> str | None:
@@ -360,9 +518,117 @@ def tenants(request: Request) -> list[TenantModuleStatus]:
                         None if report is None else (str(report.get("release_id") or "") or None)
                     ),
                     last_sync_status=_report_status(report),
+                    has_prompt_pack=_pack_configured(module),
                 )
             )
     return rows
+
+
+@router.get(
+    "/modules/{department_id}/{module_code}/bot",
+    dependencies=[Depends(admin_auth)],
+)
+def get_bot_config(
+    department_id: str, module_code: str, request: Request, response: Response
+) -> BotConfigBody:
+    path = config_path(request)
+    with portalocker.Lock(str(path) + ".lock", timeout=10):
+        try:
+            _, module = resolve_module(load_department_configs(path), department_id, module_code)
+        except IngestionError:
+            raise HTTPException(404, "Unknown module") from None
+        response.headers["ETag"] = revision(path)
+    return BotConfigBody(
+        prompt_pack=module.prompt_pack,
+        messages=module.messages,
+        retrieval=module.retrieval,
+        routing_aliases=module.routing_aliases,
+        profile=module.profile,
+    )
+
+
+@router.put(
+    "/modules/{department_id}/{module_code}/bot",
+    dependencies=[Depends(admin_auth)],
+)
+def put_bot_config(
+    department_id: str,
+    module_code: str,
+    body: BotConfigBody,
+    request: Request,
+    response: Response,
+    if_match: str = Header(),
+) -> BotConfigBody:
+    path = config_path(request)
+    with portalocker.Lock(str(path) + ".lock", timeout=10):
+        if if_match != revision(path):
+            raise HTTPException(409, "Configuration changed; reload before updating")
+        try:
+            departments = load_department_configs(path)
+            _, module = resolve_module(departments, department_id, module_code)
+        except IngestionError:
+            raise HTTPException(404, "Unknown module") from None
+        module.prompt_pack = body.prompt_pack
+        module.messages = body.messages
+        module.retrieval = body.retrieval
+        module.routing_aliases = body.routing_aliases
+        if body.profile is not None:
+            module.profile = body.profile
+        _persist_departments(path, departments)
+        response.headers["ETag"] = revision(path)
+    return body
+
+
+def _preview_invoke(
+    request: Request, body: PreviewChatBody, conversation_id: str
+) -> ChatResult:
+    settings = request.app.state.settings
+    with _runtime_lock:
+        if not hasattr(request.app.state, "agent_runtime"):
+            request.app.state.agent_runtime = AgentRuntime.from_settings(settings)
+        runtime: AgentRuntime = request.app.state.agent_runtime
+    return runtime.invoke(
+        body.message,
+        department_id=body.department_id,
+        module_code=body.module_code,
+        environment=settings.app_env,
+        conversation_id=conversation_id,
+        principal_id="admin-preview",
+    )
+
+
+@router.post(
+    "/chat-preview",
+    dependencies=[Depends(admin_auth)],
+    response_model=PreviewChatResponse,
+)
+async def chat_preview(body: PreviewChatBody, request: Request) -> PreviewChatResponse:
+    path = config_path(request)
+    try:
+        resolve_module(load_department_configs(path), body.department_id, body.module_code)
+    except IngestionError:
+        raise HTTPException(404, "Unknown module") from None
+    conversation_id = body.conversation_id or str(uuid4())
+    settings = request.app.state.settings
+    try:
+        async with asyncio.timeout(settings.chat_timeout_seconds):
+            result = await run_in_threadpool(_preview_invoke, request, body, conversation_id)
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Chat request timed out") from None
+    except Exception:
+        raise HTTPException(status_code=503, detail="Chat service unavailable") from None
+    return PreviewChatResponse(
+        request_id=request.state.request_id,
+        conversation_id=conversation_id,
+        status=result.status,
+        answer=result.answer,
+        citations=result.citations,
+        rule_id=result.rule_id,
+        routing_source=result.routing_source,
+        support_contact=result.support_contact,
+        contact_information=result.contact_information,
+        online_channel=result.online_channel,
+    )
 
 
 @router.get(
@@ -381,24 +647,48 @@ def latest_report(department_id: str, module_code: str, request: Request) -> dic
 
 @router.post("/packages/inspect", dependencies=[Depends(admin_auth)])
 def inspect_package(body: InspectBody) -> dict[str, Any]:
-    decoded = _decode_files(body.files, allow_manifest=False)
-    if len(decoded) != 3:
-        raise HTTPException(422, "Send exactly three template XLSX files")
-    with tempfile.TemporaryDirectory() as folder:
-        directory = Path(folder)
-        for name, data in decoded.items():
-            (directory / name).write_bytes(data)
-        try:
-            result = inspect_directory(
-                directory,
-                department_id=body.department_id,
-                department_name=body.department_name,
-                module_code=body.module_code,
-                module_name=body.module_name,
-                release_id=body.release_id,
-            )
-        except (IngestionError, SchemaDriftError) as exc:
-            raise HTTPException(422, str(exc)) from None
+    result = _inspect_xlsx(
+        _xlsx_only(_decode_files(body.files, allow_manifest=False)),
+        department_id=body.department_id,
+        department_name=body.department_name,
+        module_code=body.module_code,
+        module_name=body.module_name,
+        release_id=body.release_id,
+    )
+    return result.model_dump(mode="json")
+
+
+@router.post("/packages/inspect-upload", dependencies=[Depends(admin_auth)])
+async def inspect_package_upload(
+    workbook_module: Annotated[UploadFile, File(description="Template 1 — thông tin mô-đun")],
+    workbook_faq: Annotated[UploadFile, File(description="Template 2 — FAQ")],
+    workbook_documents: Annotated[UploadFile, File(description="Template 3 — tài liệu nghiệp vụ")],
+    department_id: Annotated[str, Form()] = "preview",
+    department_name: Annotated[str, Form()] = "Preview",
+    module_code: Annotated[str, Form()] = "preview",
+    module_name: Annotated[str, Form()] = "Preview",
+    release_id: Annotated[str, Form()] = "preview",
+) -> dict[str, Any]:
+    try:
+        body = InspectBody(
+            department_id=department_id,
+            department_name=department_name,
+            module_code=module_code,
+            module_name=module_name,
+            release_id=release_id,
+            files={},
+        )
+    except ValidationError as exc:
+        raise HTTPException(422, exc.errors()) from None
+    xlsx = await _xlsx_from_uploads(workbook_module, workbook_faq, workbook_documents)
+    result = _inspect_xlsx(
+        xlsx,
+        department_id=body.department_id,
+        department_name=body.department_name,
+        module_code=body.module_code,
+        module_name=body.module_name,
+        release_id=body.release_id,
+    )
     return result.model_dump(mode="json")
 
 
@@ -444,8 +734,11 @@ def sync(body: SyncBody, request: Request) -> SyncOutcome:
         ) from None
 
 
-@router.post("/releases", dependencies=[Depends(admin_auth)])
-def ingest_release(body: ReleaseIngest, request: Request) -> dict[str, Any]:
+def _ingest_release(
+    request: Request,
+    body: ReleaseIngest,
+    decoded: dict[str, bytes],
+) -> dict[str, Any]:
     """Register a tenant/module if needed, store the three templates, then ETL to Qdrant.
 
     dry_run=true validates only. dry_run=false writes Bronze, Silver and Gold.
@@ -454,30 +747,21 @@ def ingest_release(body: ReleaseIngest, request: Request) -> dict[str, Any]:
     relative = body.source_path or (
         f"data/{body.department_id}/{body.module_code}/{body.release_id}"
     )
-    decoded = _decode_files(body.files, allow_manifest=True)
-    xlsx = {name: data for name, data in decoded.items() if name.endswith(".xlsx")}
-    if len(xlsx) != 3:
-        raise HTTPException(422, "Send exactly three template XLSX files")
-    with tempfile.TemporaryDirectory() as folder:
-        directory = Path(folder)
-        for name, data in xlsx.items():
-            (directory / name).write_bytes(data)
-        try:
-            inspected = inspect_directory(
-                directory,
-                department_id=body.department_id,
-                department_name=body.department_name,
-                module_code=body.module_code,
-                module_name=body.module_name,
-                release_id=body.release_id,
-            )
-        except (IngestionError, SchemaDriftError) as exc:
-            raise HTTPException(422, str(exc)) from None
-        manifest_bytes = decoded.get("release-manifest.yaml")
-        if manifest_bytes is None:
-            write_manifest(directory, inspected.manifest)
-            manifest_bytes = (directory / "release-manifest.yaml").read_bytes()
-        package = {**xlsx, "release-manifest.yaml": manifest_bytes}
+    xlsx = _xlsx_only(decoded)
+    inspected = _inspect_xlsx(
+        xlsx,
+        department_id=body.department_id,
+        department_name=body.department_name,
+        module_code=body.module_code,
+        module_name=body.module_name,
+        release_id=body.release_id,
+    )
+    manifest_bytes = decoded.get("release-manifest.yaml")
+    if manifest_bytes is None:
+        with tempfile.TemporaryDirectory() as folder:
+            write_manifest(Path(folder), inspected.manifest)
+            manifest_bytes = (Path(folder) / "release-manifest.yaml").read_bytes()
+    package = {**xlsx, "release-manifest.yaml": manifest_bytes}
     module = DepartmentModuleConfig(
         code=body.module_code,
         name=body.module_name,
@@ -523,3 +807,53 @@ def ingest_release(body: ReleaseIngest, request: Request) -> dict[str, Any]:
         "manifest": inspected.manifest,
         "sync": outcome.model_dump(mode="json"),
     }
+
+
+@router.post("/releases", dependencies=[Depends(admin_auth)])
+def ingest_release(body: ReleaseIngest, request: Request) -> dict[str, Any]:
+    return _ingest_release(request, body, _decode_files(body.files, allow_manifest=True))
+
+
+@router.post("/releases/upload", dependencies=[Depends(admin_auth)])
+async def ingest_release_upload(
+    request: Request,
+    workbook_module: Annotated[UploadFile, File(description="Template 1 — thông tin mô-đun")],
+    workbook_faq: Annotated[UploadFile, File(description="Template 2 — FAQ")],
+    workbook_documents: Annotated[UploadFile, File(description="Template 3 — tài liệu nghiệp vụ")],
+    department_id: Annotated[str, Form()],
+    department_name: Annotated[str, Form()],
+    module_code: Annotated[str, Form()],
+    module_name: Annotated[str, Form()],
+    release_id: Annotated[str, Form()],
+    audience: Annotated[str, Form()] = "nguoi_hoc",
+    profile: Annotated[str, Form()] = "generic",
+    source_path: Annotated[str | None, Form()] = None,
+    dry_run: Annotated[bool, Form()] = True,
+    support_contact: Annotated[str | None, Form()] = None,
+    contact_information: Annotated[str | None, Form()] = None,
+    online_channel: Annotated[str | None, Form()] = None,
+    contact_verified: Annotated[bool, Form()] = False,
+) -> dict[str, Any]:
+    xlsx = await _xlsx_from_uploads(workbook_module, workbook_faq, workbook_documents)
+    try:
+        body = ReleaseIngest(
+            department_id=department_id,
+            department_name=department_name,
+            audience=audience,
+            module_code=module_code,
+            module_name=module_name,
+            profile=profile,  # type: ignore[arg-type]
+            source_path=_blank(source_path),
+            release_id=release_id,
+            contact=ContactConfig(
+                support_contact=_blank(support_contact),
+                contact_information=_blank(contact_information),
+                online_channel=_blank(online_channel),
+                verified=contact_verified,
+            ),
+            files={},
+            dry_run=dry_run,
+        )
+    except ValidationError as exc:
+        raise HTTPException(422, exc.errors()) from None
+    return _ingest_release(request, body, xlsx)

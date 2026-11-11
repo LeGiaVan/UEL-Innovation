@@ -1,0 +1,191 @@
+.message-input-container {
+  flex-shrink: 0;
+  padding: 1.25rem 1.5rem;
+  /* iOS home bar: tránh bị che bởi thanh điều hướng */
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  background-color: var(--uel-bg-white);
+  border-top: 1px solid var(--uel-border);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.message-input-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.message-input-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--uel-bg-light);
+  border: 2px solid var(--uel-border);
+  border-radius: 16px;
+  padding: 0.65rem 1rem;
+  transition: all 0.2s;
+  min-height: var(--uel-touch-min, 52px);
+}
+
+.message-input-form:focus-within {
+  border-color: var(--uel-submit-bg, #e65100);
+  box-shadow: 0 0 0 3px var(--uel-submit-ring, rgba(230, 81, 0, 0.14));
+}
+
+.message-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: clamp(1.02rem, 2.7vw, 1.09rem);
+  font-family: inherit;
+  color: var(--uel-text-primary);
+  background: transparent;
+  max-height: 180px;
+  overflow-y: auto;
+  line-height: var(--uel-readable-line, 1.55);
+  padding: 0.5rem 0;
+  min-height: 28px;
+}
+
+.message-input::placeholder {
+  color: var(--uel-text-light);
+}
+
+.message-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message-input-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.clear-button,
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--uel-touch-min, 48px);
+  height: var(--uel-touch-min, 48px);
+  min-width: var(--uel-touch-min, 48px);
+  min-height: var(--uel-touch-min, 48px);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: transparent;
+  color: var(--uel-text-secondary);
+  flex-shrink: 0;
+}
+
+.clear-button:hover:not(:disabled) {
+  background-color: var(--uel-bg-gray);
+  color: #C00;
+}
+
+.send-button {
+  background: linear-gradient(
+    160deg,
+    var(--uel-submit-bg-light, #ef6c00) 0%,
+    var(--uel-submit-bg, #e65100) 48%,
+    var(--uel-submit-bg-hover, #bf360c) 100%
+  );
+  color: #ffffff;
+  border-radius: 12px;
+}
+
+.send-button:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--uel-submit-shadow, rgba(230, 81, 0, 0.32));
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.clear-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive cho MessageInput */
+
+/* Mobile — giữ chữ và nút đủ lớn (không thu nhỏ như trước) */
+@media (max-width: 480px) {
+  .message-input-container {
+    padding: 0.85rem 1rem;
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .message-input-form {
+    padding: 0.55rem 0.85rem;
+    min-height: var(--uel-touch-min, 52px);
+    border-radius: 14px;
+  }
+
+  .message-input {
+    font-size: clamp(1.0625rem, 3.2vw, 1.125rem);
+    padding: 0.4rem 0;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .message-input-container {
+    padding: 1rem 1.15rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .message-input-form {
+    padding: 0.6rem 1rem;
+    min-height: 54px;
+  }
+}
+
+/* Tablet (iPad) - 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .message-input-container {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .message-input-form {
+    padding: 0.625rem 1rem;
+    min-height: 52px;
+  }
+}
+
+/* Desktop nhỏ (19 inch) - 1025px đến 1280px */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .message-input-wrapper {
+    max-width: 900px;
+  }
+}
+
+/* Desktop lớn - trên 1280px */
+@media (min-width: 1281px) {
+  .message-input-wrapper {
+    max-width: 1000px;
+  }
+}
+
+/* Cooldown banner — hiển thị khi BE trả type=rate_limited. */
+.message-input-cooldown {
+  max-width: 1000px;
+  margin: 0 auto 0.5rem;
+  padding: 0.6rem 0.95rem;
+  border-radius: 12px;
+  background: rgba(217, 119, 6, 0.10);
+  border: 1px solid rgba(217, 119, 6, 0.32);
+  color: #92400e;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+}
+.message-input-cooldown strong {
+  color: #b45309;
+  font-weight: 700;
+}

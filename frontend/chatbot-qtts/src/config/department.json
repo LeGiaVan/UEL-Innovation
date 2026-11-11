@@ -1,0 +1,31 @@
+{
+  "short": "QTTS",
+  "name": "Phòng Quản trị tài sản",
+  "topics": [
+    [
+      "Cơ sở vật chất",
+      "Phòng học, không gian và trang thiết bị",
+      "Tôi muốn đăng ký sử dụng phòng học",
+      "Bạn có thể chuẩn bị mục đích sử dụng, thời gian, số người và yêu cầu thiết bị. Việc đặt phòng cần được đơn vị phụ trách xác nhận; bản mẫu chưa tạo lịch đặt phòng."
+    ],
+    [
+      "Báo hỏng & sửa chữa",
+      "Tiếp nhận thông tin sự cố thiết bị",
+      "Máy chiếu trong phòng học bị hỏng",
+      "Bạn vui lòng mô tả vị trí phòng, mã thiết bị nếu có, biểu hiện sự cố và thời điểm phát hiện. Đây là hội thoại mô phỏng, chưa gửi yêu cầu sửa chữa."
+    ],
+    [
+      "Quản lý tài sản",
+      "Bàn giao, điều chuyển và kiểm kê",
+      "Cần thông tin gì khi bàn giao tài sản?",
+      "Thông tin tham khảo gồm tên tài sản, mã tài sản, số lượng, tình trạng, bên giao, bên nhận và ngày bàn giao. Biểu mẫu áp dụng cần được phòng xác nhận."
+    ],
+    [
+      "Biểu mẫu & hướng dẫn",
+      "Hướng dẫn yêu cầu hỗ trợ",
+      "Tôi muốn đề nghị bảo trì thiết bị",
+      "Hãy chuẩn bị danh sách thiết bị, vị trí, hiện trạng và nhu cầu bảo trì. Khi kết nối hệ thống chính thức, bạn có thể gửi và theo dõi yêu cầu tại đây."
+    ]
+  ],
+  "id": "qtts"
+}

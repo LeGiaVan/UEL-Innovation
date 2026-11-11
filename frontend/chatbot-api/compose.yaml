@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:8
+    volumes:
+      - chatbot-mongodb:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:30957:30957"
+    environment:
+      CHATBOT_DATABASE_BACKEND: mongodb
+      CHATBOT_MONGODB_URI: mongodb://mongo:27017
+      CHATBOT_MONGODB_DATABASE: uel_chatbot
+      CHATBOT_ENVIRONMENT: development
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  chatbot-mongodb:

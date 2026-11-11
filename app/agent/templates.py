@@ -18,6 +18,27 @@ CLARIFICATION_ANSWER = (
     "đại học chính quy (ĐHCQ), sau đại học (SĐH), hoặc VB2/vừa làm vừa học (VLVH)."
 )
 
+
+def scope_clarification_answer(
+    *,
+    module_name: str,
+    related_faqs: list[str] | None = None,
+) -> str:
+    lines = [
+        f"Tôi chưa đủ căn cứ để trả lời chắc câu hỏi này trong **{module_name}**.",
+        "",
+        "Bạn hãy bổ sung **một** ý cụ thể:",
+        "- Thủ tục bạn cần (phúc khảo, điểm I, hình thức thi, …)",
+        "- Hệ đào tạo nếu hỏi thời hạn: **ĐHCQ** (đại học chính quy), "
+        "**SĐH** (sau đại học), hoặc **VB2/VLVH**",
+        "- Hoặc đây là hồ sơ/điểm của một người — khi đó cần cán bộ hỗ trợ",
+    ]
+    faqs = [item.strip() for item in (related_faqs or []) if item.strip()][:3]
+    if faqs:
+        lines += ["", "Nếu đúng một trong các câu này, gửi lại nguyên câu:"]
+        lines += [f"- {question}" for question in faqs]
+    return "\n".join(lines)
+
 INSUFFICIENT_ANSWER = (
     "Chưa đủ dữ liệu đã được duyệt để trả lời chắc chắn. "
     "Tôi không nêu mức lệ phí hoặc kết luận ngoài nguồn."

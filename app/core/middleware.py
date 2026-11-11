@@ -76,7 +76,15 @@ class RequestSizeLimitMiddleware:
         path = scope.get("path", "")
         limit = (
             self.upload_max_bytes
-            if path in {"/v1/admin/sources", "/v1/admin/packages/inspect", "/v1/admin/releases"}
+            if path in {
+                "/v1/admin/sources",
+                "/v1/admin/packages/inspect",
+                "/v1/admin/packages/inspect-upload",
+                "/v1/admin/releases",
+                "/v1/admin/releases/upload",
+                "/v1/admin/chat-preview",
+            }
+            or path.startswith("/v1/admin/modules/")
             else self.max_bytes
         )
         while True:

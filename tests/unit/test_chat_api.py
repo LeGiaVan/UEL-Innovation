@@ -44,7 +44,34 @@ def test_chat_auth_tenant_and_response(settings):
         )
         page = client.get("/")
         assert page.status_code == 200
-        assert "textContent" in page.text
+        assert "escapeHtml" in page.text
+        assert "isTableRow" in page.text
+        assert "autolinkBareUrls" in page.text
+        assert "/v1/chat/stream" in page.text
+
+
+def test_admin_accepts_app_api_key_when_admin_key_unset(settings):
+    app = create_app(settings)
+    with TestClient(app) as client:
+        denied = client.get("/v1/admin/tenants")
+        assert denied.status_code == 401
+        allowed = client.get(
+            "/v1/admin/tenants",
+            headers={"X-Admin-Key": settings.app_api_key.get_secret_value()},
+        )
+        assert allowed.status_code == 200
+        page = client.get("/admin")
+        assert page.status_code == 200
+        assert "APP_ADMIN_API_KEY" in page.text
+        assert "APP_API_KEY" in page.text
+        assert "loadBotConfig" in page.text
+        assert "uel-admin-key" in page.text
+        assert "answerStyle" in page.text
+        assert "metadataSystem" in page.text
+        assert "onboardWizard" in page.text
+        assert "inspectTemplates" in page.text
+        assert "/v1/admin/packages/inspect-upload" in page.text
+        assert "/v1/admin/releases/upload" in page.text
 
 
 def test_wrong_key_and_cors(settings, capsys):
@@ -152,3 +179,47 @@ def test_provider_fallback_is_visible_without_exposing_error(settings):
         )
         assert result.json()["provider_fallback"] is True
         assert "secret provider error details" not in result.text
+
+
+def test_chat_stream_emits_status_tokens_and_done(settings):
+    app = create_app(settings)
+    runtime = FakeRuntime()
+    with TestClient(app) as client:
+        app.state.agent_runtime = runtime
+        headers = {"X-API-Key": settings.app_api_key.get_secret_value()}
+        with client.stream(
+            "POST", "/v1/chat/stream", headers=headers, json={"message": "hello"}
+        ) as response:
+            assert response.status_code == 200
+            assert "text/event-stream" in response.headers["content-type"]
+            body = "".join(response.iter_text())
+        assert "event: status" in body
+        assert "event: token" in body
+        assert "event: done" in body
+        assert "<script>alert(1)</script>" in body
+        assert runtime.calls[0][0] == "hello"
+
+
+def test_chat_stream_timeout_is_sse_error(settings):
+    import time
+
+    class SlowRuntime:
+        def invoke(self, *args, **kwargs):
+            time.sleep(0.2)
+            return ChatResult(request_id="agent", status="answered", answer="late")
+
+    settings.chat_timeout_seconds = 0.02
+    app = create_app(settings)
+    with TestClient(app) as client:
+        app.state.agent_runtime = SlowRuntime()
+        with client.stream(
+            "POST",
+            "/v1/chat/stream",
+            headers={"X-API-Key": settings.app_api_key.get_secret_value()},
+            json={"message": "hello"},
+        ) as response:
+            assert response.status_code == 200
+            body = "".join(response.iter_text())
+        assert "event: error" in body
+        assert "timed out" in body
+        assert "late" not in body

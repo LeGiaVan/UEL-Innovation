@@ -24,6 +24,15 @@ class FaqStore(Protocol):
         environment: str,
     ) -> FaqMatch | None: ...
 
+    def sample_questions(
+        self,
+        *,
+        department_id: str,
+        module_code: str,
+        environment: str,
+        limit: int = 6,
+    ) -> list[str]: ...
+
     def load_contact(
         self,
         *,
@@ -84,6 +93,35 @@ class SilverFaqStore:
                 answer=row.answer,
                 legal_basis=row.legal_basis,
             )
+
+    def sample_questions(
+        self,
+        *,
+        department_id: str,
+        module_code: str,
+        environment: str,
+        limit: int = 6,
+    ) -> list[str]:
+        allowed = allowed_release_statuses(environment)
+        with self._session_factory() as session:
+            rows = session.scalars(
+                select(Faq.question)
+                .join(Department, Faq.department_id == Department.id)
+                .join(Module, Faq.module_id == Module.id)
+                .where(
+                    Department.code == department_id,
+                    Module.code == module_code,
+                    Faq.is_active.is_(True),
+                    Module.is_active.is_(True),
+                    Department.is_active.is_(True),
+                    Module.release_status.in_(allowed),
+                    Faq.release_id == Module.release_id,
+                    Faq.release_status.in_(allowed),
+                )
+                .order_by(Faq.source_order, Faq.question_code)
+                .limit(limit)
+            ).all()
+        return [str(item) for item in rows]
 
     def load_contact(
         self,
@@ -148,6 +186,17 @@ class MemoryFaqStore:
             if normalize_question(item.question) == normalized_question:
                 return item
         return None
+
+    def sample_questions(
+        self,
+        *,
+        department_id: str,
+        module_code: str,
+        environment: str,
+        limit: int = 6,
+    ) -> list[str]:
+        del department_id, module_code, environment
+        return [item.question for item in self._faqs[:limit]]
 
     def load_contact(
         self,

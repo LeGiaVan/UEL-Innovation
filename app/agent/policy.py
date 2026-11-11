@@ -84,12 +84,39 @@ RULE_SCHEMA = {
 }
 
 
-def module_generate_system(module: str, department: str) -> str:
-    return (
-        f"Bạn là trợ lý {module} của {department}. "
-        "Chỉ dùng bằng chứng được cung cấp; giữ đúng đối tượng và ngoại lệ. "
-        "Mọi kết luận phải kèm mã nguồn đúng như mục Mã trong ngữ cảnh "
-        "(mã tài liệu, mã câu hỏi hoặc chunk_id). Không bịa hoặc rút gọn mã. "
-        "Không suy đoán dữ liệu thiếu; không nêu mức tiền chưa xác định. "
-        "Không tiết lộ dữ liệu cá nhân hoặc secret. Trả lời tiếng Việt."
-    )
+GENERATE_FOUNDATION = (
+    "Chỉ dùng bằng chứng được cung cấp; giữ đúng đối tượng và ngoại lệ. "
+    "Viết cho người học: thân thiện, dễ hiểu, xưng 'bạn', câu ngắn. "
+    "Tóm tắt ý; không dán nguyên văn nguồn; không viết 'Nguồn 1 – trích dẫn' trong từng bước. "
+    "Quy trình dùng danh sách đánh số (1. 2. 3.), mỗi bước một câu. "
+    "Không dùng bảng markdown trừ khi người hỏi cần so sánh nhiều cột. "
+    "Không ghép nhiều nguồn thành quy trình mới nếu nguồn không viết thành quy trình. "
+    "Không in mã gold: hay chunk_id. Không bịa mã tài liệu. "
+    "Nếu có mã tài liệu (TLxx) hoặc mã câu hỏi (I.1.001) thì chỉ một dòng cuối: Nguồn: … "
+    "Sao chép số ngày, tên riêng và thuật ngữ đúng như nguồn. "
+    "Không suy đoán dữ liệu thiếu; không nêu mức tiền chưa xác định. "
+    "Không tiết lộ dữ liệu cá nhân hoặc secret. Trả lời tiếng Việt."
+)
+
+
+def module_generate_system(
+    module: str,
+    department: str,
+    *,
+    role: str = "",
+    constraints: str = "",
+    glossary: dict[str, str] | None = None,
+) -> str:
+    parts = [
+        f"Bạn là trợ lý {module} của {department}.",
+        GENERATE_FOUNDATION,
+    ]
+    if role.strip():
+        parts.append(role.strip())
+    if constraints.strip():
+        parts.append(constraints.strip())
+    terms = {key.strip(): value.strip() for key, value in (glossary or {}).items() if key.strip()}
+    if terms:
+        lines = [f"- {key}: {value}" for key, value in terms.items()]
+        parts.append("Thuật ngữ bắt buộc (giữ nguyên, không diễn giải khác):\n" + "\n".join(lines))
+    return "\n\n".join(parts)

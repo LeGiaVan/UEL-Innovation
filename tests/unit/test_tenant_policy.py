@@ -95,6 +95,97 @@ def test_template_rule_controls_action_and_contact(tmp_path):
     assert ask("alpha").status == "clarification_required"
     # Only the allowed decision may retrieve, not OOS/handoff/unknown/timeout.
     assert len(retriever.calls) == 1
+    assert "Exam rules" not in ask("alpha").answer
+    assert "ĐHCQ" in ask("alpha").answer
+    assert "Chưa xác định chắc chắn phạm vi hỗ trợ" not in ask("alpha").answer
+
+
+def test_exact_faq_answers_before_policy_classifier(tmp_path):
+    from app.agent.models import FaqMatch
+
+    llm = Classifier()
+    llm.choice = "invented"
+    faqs = MemoryFaqStore(
+        [
+            FaqMatch(
+                question_code="I.1.001",
+                question="Quy định khảo thí ở đâu?",
+                answer="Theo Quyết định 3388.",
+            )
+        ]
+    )
+    runtime = AgentRuntime(
+        AgentDeps(
+            llm,
+            faqs,
+            MemoryRetriever([]),
+            rules=Rules(),
+            config_path=str(registry(tmp_path)),
+        )
+    )
+    result = runtime.invoke(
+        "Quy định khảo thí ở đâu?",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+    )
+    assert result.status == "faq_answered"
+    assert "3388" in result.answer
+    assert result.routing_source == "faq_exact"
+    assert result.faq_question_code == "I.1.001"
+
+
+def test_fee_question_abstains_instead_of_scope_menu(tmp_path):
+    llm = Classifier()
+    llm.choice = "invented"
+    runtime = AgentRuntime(
+        AgentDeps(
+            llm,
+            MemoryFaqStore([]),
+            MemoryRetriever([]),
+            rules=Rules(),
+            config_path=str(registry(tmp_path)),
+        )
+    )
+    result = runtime.invoke(
+        "lệ phí phúc khảo",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+    )
+    assert result.status == "insufficient_evidence"
+    assert result.routing_source == "fee_keyword"
+    assert "số tiền" in result.answer
+    assert "Nội dung bot có thể trả lời" not in result.answer
+    assert "Chưa khớp đúng một phạm vi" not in result.answer
+
+
+def test_iter_progress_emits_greeting_result(tmp_path):
+    runtime = AgentRuntime(
+        AgentDeps(
+            Classifier(),
+            MemoryFaqStore([]),
+            MemoryRetriever([]),
+            rules=Rules(),
+            config_path=str(registry(tmp_path)),
+        )
+    )
+    stages: list[str] = []
+    final = None
+    for name, item in runtime.iter_progress(
+        "xin chào",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+        conversation_id="progress",
+    ):
+        stages.append(name)
+        if item is not None:
+            final = item
+    assert "routing_check" not in stages
+    assert stages[-1] == "__result__"
+    assert final is not None
+    assert final.status == "greeting"
 
 
 def test_missing_policy_never_defaults_to_permission(tmp_path):
@@ -455,8 +546,12 @@ def test_openapi_lists_admin_etl_and_inspect_release(settings, tmp_path):
         schema = client.get("/openapi.json").json()
         paths = schema["paths"]
         assert "/v1/admin/releases" in paths
+        assert "/v1/admin/releases/upload" in paths
         assert "/v1/admin/packages/inspect" in paths
+        assert "/v1/admin/packages/inspect-upload" in paths
         assert "/v1/admin/tenants" in paths
+        assert "/v1/admin/modules/{department_id}/{module_code}/bot" in paths
+        assert "/v1/admin/chat-preview" in paths
         assert any(tag["name"] == "administration" for tag in schema["tags"])
         admin = {"X-Admin-Key": "admin-secret-with-enough-length"}
         inspected = client.post(
@@ -500,3 +595,269 @@ def test_openapi_lists_admin_etl_and_inspect_release(settings, tmp_path):
         assert listed.status_code == 200
         assert listed.json()[0]["department_id"] == "finance"
         assert listed.json()[0]["source_present"] is True
+
+
+def test_admin_multipart_upload_inspect_and_release(settings, tmp_path):
+    from pydantic import SecretStr
+
+    from tests.helpers.xlsx_builder import write_mini_release
+
+    config = tmp_path / "configs" / "departments.yaml"
+    config.parent.mkdir()
+    config.write_text(yaml.safe_dump({"departments": []}), encoding="utf-8")
+    settings.departments_config_path = str(config)
+    settings.app_admin_api_key = SecretStr("admin-secret-with-enough-length")
+    folder = tmp_path / "pkg"
+    write_mini_release(folder, module_name="Student finance")
+    module_xlsx = next(folder.glob("1*.xlsx"))
+    faq_xlsx = next(folder.glob("2*.xlsx"))
+    docs_xlsx = next(folder.glob("3*.xlsx"))
+    uploads = {
+        "workbook_module": (module_xlsx.name, module_xlsx.read_bytes()),
+        "workbook_faq": (faq_xlsx.name, faq_xlsx.read_bytes()),
+        "workbook_documents": (docs_xlsx.name, docs_xlsx.read_bytes()),
+    }
+    admin = {"X-Admin-Key": "admin-secret-with-enough-length"}
+    with TestClient(create_app(settings)) as client:
+        inspected = client.post(
+            "/v1/admin/packages/inspect-upload",
+            headers=admin,
+            data={
+                "department_id": "dao_tao",
+                "department_name": "Dao tao",
+                "module_code": "dkhp",
+                "module_name": "Student finance",
+                "release_id": "pdt-001",
+            },
+            files=uploads,
+        )
+        assert inspected.status_code == 200, inspected.text
+        created = client.post(
+            "/v1/admin/releases/upload",
+            headers=admin,
+            data={
+                "department_id": "dao_tao",
+                "department_name": "Dao tao",
+                "module_code": "dkhp",
+                "module_name": "Student finance",
+                "release_id": "pdt-001",
+                "dry_run": "true",
+            },
+            files=uploads,
+        )
+        assert created.status_code == 200, created.text
+        assert created.json()["status"] == "validated"
+        stored = tmp_path / "data" / "dao_tao" / "dkhp" / "pdt-001"
+        assert stored.is_dir()
+        assert len(list(stored.glob("*.xlsx"))) == 3
+        assert (stored / "release-manifest.yaml").is_file()
+
+
+def test_generic_generate_prompt_omits_assessment_glossary():
+    from app.agent.policy import module_generate_system
+
+    generic = module_generate_system("Đăng ký học phần", "Phòng Đào tạo")
+    assert "ĐHCQ" not in generic
+    assert "sinh viên học kỳ" not in generic
+    assert "gold:" in generic
+    assert "thân thiện" in generic
+    assert "chunk_id" in generic
+    packed = module_generate_system(
+        "Mô-đun Khảo khí",
+        "Phòng Bảo đảm chất lượng",
+        glossary={"ĐHCQ": "đại học chính quy"},
+        constraints="Không viết ĐHCQ thành sinh viên học kỳ.",
+    )
+    assert "ĐHCQ: đại học chính quy" in packed
+    assert "Không viết ĐHCQ" in packed
+
+
+def test_generate_user_prompt_uses_pack_not_khao_khi_defaults():
+    from app.agent.models import RetrievedEvidence
+    from app.agent.prompts import SYSTEM_GENERATE, generate_user_prompt
+
+    evidence = [
+        RetrievedEvidence(
+            chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+            entity_type="regulation",
+            boosted_score=0.9,
+            stair_markdown="Hạn 2 ngày.",
+            document_code="TL02",
+        )
+    ]
+    plain = generate_user_prompt("hỏi quy định", evidence, "unknown")
+    assert "ĐHCQ" not in plain
+    assert "khảo thí" not in plain.casefold()
+    assert "Khảo khí" not in plain
+    packed = generate_user_prompt(
+        "hỏi quy định",
+        evidence,
+        "dhcq",
+        training_systems=["dhcq", "sdh"],
+        writing_notes="PACK_STYLE_MARKER",
+        glossary={"ĐHCQ": "đại học chính quy", "SĐH": "sau đại học"},
+    )
+    assert "PACK_STYLE_MARKER" in packed
+    assert "ĐHCQ (đại học chính quy)" in packed
+    assert "khảo thí" not in SYSTEM_GENERATE.casefold()
+    assert "Khảo khí" not in SYSTEM_GENERATE
+
+
+def test_pack_answer_style_reaches_generate(tmp_path):
+    from app.agent.llm import FakeLlm
+    from app.gold.models import GoldHit
+
+    config = registry(tmp_path)
+    data = yaml.safe_load(config.read_text(encoding="utf-8"))
+    module = data["departments"][0]["modules"][0]
+    module["profile"] = "assessment"
+    module["routing_aliases"] = {"shared": ["Thời hạn phúc khảo ĐHCQ"]}
+    module["prompt_pack"] = {
+        "answer_style": "PACK_STYLE_MARKER",
+        "metadata_system": "PACK_META_MARKER",
+        "glossary": {"ĐHCQ": "đại học chính quy", "SĐH": "sau đại học"},
+    }
+    config.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    llm = FakeLlm(generate_text="Hạn 02 ngày. Nguồn: TL02.")
+    rules = Rules()
+    rules.scope = "answer_allowed"
+    runtime = AgentRuntime(
+        AgentDeps(
+            llm,
+            MemoryFaqStore([]),
+            MemoryRetriever(
+                [
+                    GoldHit(
+                        chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+                        entity_type="regulation",
+                        score=0.9,
+                        boosted_score=0.9,
+                        stair_markdown="Hạn phúc khảo ĐHCQ 02 ngày làm việc.",
+                        payload={"document_code": "TL02"},
+                    )
+                ]
+            ),
+            rules=rules,
+            config_path=str(config),
+        )
+    )
+    result = runtime.invoke(
+        "Thời hạn phúc khảo ĐHCQ",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+    )
+    assert result.status == "answered"
+    generate_req = next(item for item in llm.requests if item.purpose == "generate")
+    user = generate_req.messages[1].content
+    assert "PACK_STYLE_MARKER" in user
+    assert "ĐHCQ" in user
+    assert "khảo thí" not in generate_req.messages[0].content.casefold()
+
+
+def test_custom_greeting_comes_from_module_messages(tmp_path):
+    config = registry(tmp_path)
+    data = yaml.safe_load(config.read_text(encoding="utf-8"))
+    data["departments"][0]["modules"][0]["messages"] = {"greeting": "Xin chao tai chinh."}
+    config.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    runtime = AgentRuntime(
+        AgentDeps(
+            Classifier(),
+            MemoryFaqStore([]),
+            MemoryRetriever([]),
+            rules=Rules(),
+            config_path=str(config),
+        )
+    )
+    result = runtime.invoke(
+        "xin chào", department_id="alpha", module_code="one", environment="test"
+    )
+    assert result.status == "greeting"
+    assert result.answer == "Xin chao tai chinh."
+
+
+def test_bot_config_put_preview_and_ingest_keeps_pack(settings, tmp_path):
+    from pydantic import SecretStr
+
+    from app.api.routes.admin import _upsert_registry
+    from app.ingestion.contact import ContactConfig
+    from app.ingestion.manifest import DepartmentModuleConfig
+
+    config = registry(tmp_path)
+    settings.departments_config_path = str(config)
+    settings.app_admin_api_key = SecretStr("admin-secret-with-enough-length")
+    admin = {"X-Admin-Key": "admin-secret-with-enough-length"}
+    with TestClient(create_app(settings)) as client:
+
+        class Runtime:
+            def invoke(self, message, **context):
+                from app.agent.models import ChatResult
+
+                assert context["department_id"] == "alpha"
+                assert context["principal_id"] == "admin-preview"
+                return ChatResult(
+                    request_id="r",
+                    status="answered",
+                    answer="preview-ok",
+                    routing_source="template_policy",
+                    rule_id="shared",
+                )
+
+        client.app.state.agent_runtime = Runtime()
+        loaded = client.get("/v1/admin/modules/alpha/one/bot", headers=admin)
+        assert loaded.status_code == 200
+        saved = client.put(
+            "/v1/admin/modules/alpha/one/bot",
+            headers={**admin, "If-Match": loaded.headers["etag"]},
+            json={
+                "prompt_pack": {
+                    "role": "Tro ly tai chinh",
+                    "constraints": "Khong bia so tien.",
+                    "glossary": {"HP": "hoc phan"},
+                    "answer_style": "Tra loi tung he.",
+                    "metadata_system": "PACK_META_MARKER",
+                },
+                "messages": {"greeting": "Xin chao PDT."},
+                "retrieval": {"top_k": 3, "score_threshold": 0.4},
+                "routing_aliases": {},
+                "profile": "generic",
+            },
+        )
+        assert saved.status_code == 200, saved.text
+        preview = client.post(
+            "/v1/admin/chat-preview",
+            headers=admin,
+            json={"department_id": "alpha", "module_code": "one", "message": "hello"},
+        )
+        assert preview.status_code == 200
+        assert preview.json()["answer"] == "preview-ok"
+        _upsert_registry(
+            config,
+            department_id="alpha",
+            department_name="ALPHA",
+            audience="students",
+            module=DepartmentModuleConfig(
+                code="one",
+                name="ONE",
+                source_type="xlsx",
+                source_path="data/alpha/one",
+                profile="generic",
+                contact=ContactConfig(),
+            ),
+            contact=ContactConfig(),
+        )
+        kept = client.get("/v1/admin/modules/alpha/one/bot", headers=admin)
+        assert kept.status_code == 200
+        body = kept.json()
+        assert body["prompt_pack"]["role"] == "Tro ly tai chinh"
+        assert body["prompt_pack"]["glossary"]["HP"] == "hoc phan"
+        assert body["prompt_pack"]["answer_style"] == "Tra loi tung he."
+        assert body["prompt_pack"]["metadata_system"] == "PACK_META_MARKER"
+        assert body["messages"]["greeting"] == "Xin chao PDT."
+        page = client.get("/admin")
+        assert page.status_code == 200
+        assert "Prompt pack" in page.text
+        assert "answerStyle" in page.text
+        assert "metadataSystem" in page.text
+        assert "Thêm mô-đun" in page.text
+        assert "inspectTemplates" in page.text

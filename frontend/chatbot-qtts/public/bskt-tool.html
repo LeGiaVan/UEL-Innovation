@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tra cứu Bổ sung kiến thức — Tuyển sinh Sau đại học | UEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Màu thương hiệu UEL */
+    --primary:#144e8c;       /* xanh navy — màu chính */
+    --primary-dark:#0e3a6b;
+    --secondary:#f05a23;     /* cam — màu phụ/nhấn */
+    --secondary-dark:#d4471a;
+    --ink:#1f2a3a; --muted:#64748b; --line:#e2e8f0;
+    --ok:#1e8a4c; --okbg:#e6f4ea; --warn:#c2680f; --warnbg:#fdf0e3; --bad:#b03a2e; --badbg:#fbe4e4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Be Vietnam Pro',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+       color:var(--ink);background:#f1f5f9;line-height:1.45}
+  .main{max-width:1000px;margin:0 auto;padding:22px 22px 44px}
+  .tool-head{text-align:center;margin:4px 0 20px}
+  .tool-title{margin:0;font-size:24px;font-weight:800;color:var(--primary);letter-spacing:-.3px}
+  .tool-sub{margin:6px auto 0;max-width:640px;font-size:14px;color:var(--muted);line-height:1.5}
+  .tabs{display:flex;gap:8px;margin:0 0 16px;max-width:520px}
+  .tab{flex:1;padding:11px;text-align:center;border:2px solid var(--primary);border-radius:11px;background:#fff;
+       color:var(--primary);font-weight:700;cursor:pointer;font-size:14px;transition:.15s}
+  .tab.active{background:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(20,78,140,.22)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;
+        box-shadow:0 4px 20px rgba(20,78,140,.06)}
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--primary)}
+  .field{position:relative}
+  .field input{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;font-size:16px;background:#fff;font-family:inherit}
+  .field input:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(240,90,35,.15)}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px}
+  .ac{position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1.5px solid var(--secondary);
+      border-top:none;border-radius:0 0 11px 11px;max-height:300px;overflow-y:auto;display:none;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+  .ac.show{display:block}
+  .ac-item{padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid #f1f5f9}
+  .ac-item:hover,.ac-item.sel{background:#fff4ee}
+  .ac-item b{color:var(--primary)}
+  .ac-code{display:inline-block;min-width:64px;color:var(--secondary);font-weight:700;font-variant-numeric:tabular-nums}
+  .recog{margin-top:14px;padding:12px 14px;border-radius:11px;background:#eaf1fa;border:1px solid var(--primary);font-size:15px;display:none}
+  .recog.show{display:block} .recog.err{background:var(--badbg);border-color:var(--bad);color:var(--bad)} .recog b{color:var(--primary)}
+  .summary{display:none;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+  .summary.show{display:flex}
+  .sm{flex:1;min-width:120px;border-radius:11px;padding:10px;text-align:center;border:1.5px solid}
+  .sm b{display:block;font-size:24px} .sm span{font-size:12px}
+  .sm-ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+  .sm-warn{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+  .sm-bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+  th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:var(--primary);color:#fff;font-weight:600;font-size:13px}
+  .pill{font-weight:700;padding:3px 9px;border-radius:20px;font-size:12.5px;white-space:nowrap;display:inline-block}
+  .p-ok{background:var(--okbg);color:var(--ok)} .p-warn{background:var(--warnbg);color:var(--warn)} .p-bad{background:var(--badbg);color:var(--bad)}
+  tr.row-bad td{color:#94a3b8}
+  .subj{font-size:13px;white-space:pre-wrap;color:var(--warn)}
+  .resultBox{display:none} .resultBox.show{display:block}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  footer{text-align:left;color:var(--muted);font-size:12px;padding:18px 4px}
+  footer a{color:var(--secondary);font-weight:600;text-decoration:none}
+  @media(max-width:560px){.tabs{max-width:none}.main{padding:16px}}
+</style>
+</head>
+<body>
+  <main class="main">
+    <header class="tool-head">
+      <h2 class="tool-title">Bổ sung kiến thức</h2>
+      <p class="tool-sub">Hệ thống đối chiếu các ngành đào tạo sau đại học của UEL và tư vấn bổ sung kiến thức</p>
+    </header>
+
+    <div class="tabs">
+      <div class="tab active" data-mode="ths" onclick="setMode('ths')">🎓 Dự tuyển Thạc sĩ</div>
+      <div class="tab" data-mode="ts" onclick="setMode('ts')">📘 Dự tuyển Tiến sĩ</div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label id="lbMajor">Ngành Đại học đã tốt nghiệp</label>
+        <input id="major" autocomplete="off" placeholder="Nhập tên ngành tốt nghiệp Đại học hoặc Mã 7 số"
+               oninput="onType()" onfocus="onType()" onkeydown="acKey(event)">
+        <div class="ac" id="ac"></div>
+      </div>
+      <div class="recog" id="recog"></div>
+      <div class="summary" id="summary"></div>
+      <div class="resultBox" id="resultBox">
+        <div style="overflow-x:auto"><table id="resTable">
+          <thead><tr><th style="width:36%" id="thProg">Ngành Thạc sĩ dự tuyển</th><th style="width:20%">Kết luận</th><th>Môn phải bổ sung (nếu cần)</th></tr></thead>
+          <tbody id="resBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <footer>
+      <p style="margin:0 0 8px"><b>Lưu ý:</b> <i>Nội dung trên có giá trị tham khảo, được xây dựng trên cơ sở Danh mục ngành đào tạo theo Thông tư số 09/2022/TT-BGDĐT và danh mục học phần bổ sung kiến thức theo chương trình đào tạo sau đại học của Trường Đại học Kinh tế - Luật. Sau khi hoàn tất việc nộp hồ sơ trực tuyến, người dự tuyển sẽ được chuyên viên phụ trách xét duyệt hồ sơ phản hồi kết quả rà soát theo quy định.</i></p>
+      📞 <b>Hotline:</b> <a href="tel:19001239">1900 1239</a> | 🌐 <a href="https://tuyensinh.uel.edu.vn" target="_blank" rel="noopener">tuyensinh.uel.edu.vn</a>
+    </footer>
+  </main>
+
+<script src="bskt-data.js"></script>
+<script>
+let mode='ths', selectedCode=null, acIndex=-1, acList=[];
+
+function norm(s){return (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().trim();}
+function progs(){return mode==='ths'?DATA.ths:DATA.ts;}
+function catFiltered(){const pre=mode==='ths'?'7':'8';return DATA.catalog.filter(c=>c.code[0]===pre);}
+function nameByCode(code){const f=DATA.catalog.find(c=>c.code===code);return f?f.name:null;}
+function esc(s){return (s||'').toString().replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+/* Đo lường sử dụng công cụ (best-effort) — gửi event nhẹ về BE, lỗi bỏ qua. */
+function _sendBskt(b){try{fetch('/api/bskt/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b),keepalive:true});}catch(e){}}
+let _logT=null,_lastLogged='';
+function logLookup(code,c){
+  const key=mode+':'+code; clearTimeout(_logT);
+  _logT=setTimeout(()=>{ if(_lastLogged===key)return; _lastLogged=key;
+    _sendBskt({event:'lookup',bac:mode,code:code,major:nameByCode(code)||'',n_ok:c.ok,n_warn:c.warn,n_bad:c.bad}); },1500);
+}
+
+function setMode(m){
+  mode=m; selectedCode=null;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
+  document.getElementById('lbMajor').textContent = m==='ths'?'Ngành Đại học đã tốt nghiệp':'Ngành Thạc sĩ đã tốt nghiệp';
+  document.getElementById('major').placeholder = m==='ths'?'Nhập tên ngành tốt nghiệp Đại học hoặc Mã 7 số':'Nhập tên ngành tốt nghiệp Thạc sĩ hoặc Mã 7 số';
+  document.getElementById('thProg').textContent = m==='ths'?'Ngành Thạc sĩ dự tuyển':'Ngành Tiến sĩ dự tuyển';
+  document.getElementById('major').value=''; hideAC(); clearResult();
+}
+
+function onType(){
+  const q=document.getElementById('major').value.trim(); selectedCode=null;
+  if(/^[789]\d{6}$/.test(q)) selectedCode=q;
+  if(q.length<1){hideAC();clearResult();return;}
+  const nq=norm(q);
+  acList=catFiltered().filter(c=>norm(c.name).includes(nq)||c.code.includes(q)).slice(0,40);
+  renderAC(); evaluate();
+}
+function renderAC(){
+  const ac=document.getElementById('ac');
+  if(!acList.length){hideAC();return;}
+  ac.innerHTML=acList.map((c,i)=>`<div class="ac-item ${i===acIndex?'sel':''}" onmousedown="pick(${i})"><span class="ac-code">${c.code}</span> <b>${esc(c.name)}</b></div>`).join('');
+  ac.classList.add('show');
+}
+function hideAC(){document.getElementById('ac').classList.remove('show');acIndex=-1;}
+function pick(i){const c=acList[i];document.getElementById('major').value=c.name;selectedCode=c.code;hideAC();evaluate();}
+function acKey(e){
+  const ac=document.getElementById('ac'); if(!ac.classList.contains('show'))return;
+  if(e.key==='ArrowDown'){acIndex=Math.min(acIndex+1,acList.length-1);renderAC();e.preventDefault();}
+  else if(e.key==='ArrowUp'){acIndex=Math.max(acIndex-1,0);renderAC();e.preventDefault();}
+  else if(e.key==='Enter'){if(acIndex>=0){pick(acIndex);e.preventDefault();}}
+  else if(e.key==='Escape'){hideAC();}
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.field'))hideAC();});
+
+function classify(p,code){ if(p.need.includes(code))return 'warn'; if(p.ok.includes(code))return 'ok'; return 'bad';}
+const RANK={ok:0,warn:1,bad:2};
+const VL={ok:['p-ok','Không cần BSKT'],warn:['p-warn','Cần học BSKT'],bad:['p-bad','Không phù hợp']};
+function clearResult(){document.getElementById('recog').className='recog';document.getElementById('summary').className='summary';document.getElementById('resultBox').className='resultBox';}
+function resolveCode(){
+  const raw=document.getElementById('major').value.trim(); if(!raw)return null;
+  if(selectedCode)return selectedCode;
+  if(/^[789]\d{6}$/.test(raw))return raw;
+  const nq=norm(raw); const hit=catFiltered().find(c=>norm(c.name)===nq); return hit?hit.code:null;
+}
+function evaluate(){
+  const raw=document.getElementById('major').value.trim(); const recog=document.getElementById('recog');
+  if(!raw){clearResult();return;}
+  const code=resolveCode();
+  if(!code){recog.className='recog show err';recog.innerHTML='⚠ Chưa nhận diện được ngành. Hãy chọn ngành trong danh sách gợi ý hoặc nhập đúng mã 7 số.';document.getElementById('summary').className='summary';document.getElementById('resultBox').className='resultBox';return;}
+  const nm=nameByCode(code)||'(không có trong danh mục)';
+  recog.className='recog show'; recog.innerHTML=`Ngành tốt nghiệp: <b>${code} — ${esc(nm)}</b>`;
+  const rows=progs().map(p=>({prog:p.name,verd:classify(p,code),subj:p.subjects}));
+  rows.sort((a,b)=>RANK[a.verd]-RANK[b.verd]);
+  const c={ok:0,warn:0,bad:0}; rows.forEach(r=>c[r.verd]++);
+  document.getElementById('summary').className='summary show';
+  document.getElementById('summary').innerHTML=
+    `<div class="sm sm-ok"><b>${c.ok}</b><span>Đủ điều kiện</span></div>
+     <div class="sm sm-warn"><b>${c.warn}</b><span>Cần học BSKT</span></div>
+     <div class="sm sm-bad"><b>${c.bad}</b><span>Không phù hợp</span></div>`;
+  document.getElementById('resBody').innerHTML=rows.map(r=>
+    `<tr class="row-${r.verd}"><td><b>${esc(r.prog)}</b></td>
+       <td><span class="pill ${VL[r.verd][0]}">${VL[r.verd][1]}</span></td>
+       <td>${r.verd==='warn'&&r.subj?`<span class="subj">${esc(r.subj)}</span>`:'<span class="muted small">—</span>'}</td></tr>`).join('');
+  document.getElementById('resultBox').className='resultBox show';
+  logLookup(code,c);
+}
+
+setMode('ths');
+_sendBskt({event:'open'});
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" role="img" aria-labelledby="t">
+  <title id="t">Minh họa nhóm S – Xã hội</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ecfdf3"/>
+      <stop offset="100%" stop-color="#d1fae3"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="200" fill="url(#g)" rx="14"/>
+  <text x="20" y="44" font-size="22" fill="#047857" font-family="system-ui,Segoe UI,sans-serif" font-weight="700">Xã hội · S</text>
+  <text x="20" y="72" font-size="13" fill="#3d6b55" font-family="system-ui,Segoe UI,sans-serif">Hỗ trợ, giao tiếp, cộng đồng</text>
+  <g fill="#059669" opacity="0.38">
+    <circle cx="100" cy="120" r="24"/>
+    <circle cx="160" cy="120" r="24"/>
+    <circle cx="220" cy="120" r="24"/>
+    <path d="M70 160c30-20 90-20 120 0" fill="none" stroke="#059669" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

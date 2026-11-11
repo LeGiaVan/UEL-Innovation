@@ -32,33 +32,55 @@ def test_browser_chat_renders_citation_and_escapes_answer():
             assert route.request.headers["x-api-key"] == "test-key"
             assert route.request.post_data_json["message"] == "Hello"
             assert route.request.post_data_json["module_code"] == "khao_khi"
-            route.fulfill(
-                status=200,
-                content_type="application/json",
-                body=json.dumps(
-                    {
-                        "conversation_id": "5a7f17f0-b0f6-4aad-bc0b-f9b7d5e970a1",
-                        "status": "answered",
-                        "answer": "<img src=x onerror=alert(1)>",
-                        "citations": [{"kind": "document_code", "value": "TL03<img src=x>"}],
-                        "support_contact": None,
-                        "contact_information": None,
-                        "online_channel": "javascript:alert(1)",
-                    }
+            payload = {
+                "conversation_id": "5a7f17f0-b0f6-4aad-bc0b-f9b7d5e970a1",
+                "status": "answered",
+                "answer": (
+                    "Kết quả **đã duyệt**.\n\n"
+                    "| Bước | Việc |\n| --- | --- |\n| 1 | Nộp đơn |\n\n"
+                    "Xem https://portal.uel.edu.vn/ và "
+                    "[biểu mẫu](https://uel.edu.vn/form).\n\n"
+                    "<img src=x onerror=alert(1)>"
                 ),
+                "citations": [
+                    {"kind": "document_code", "value": "TL03<img src=x>"},
+                    {"kind": "chunk_id", "value": "gold:aaaaaaaaaaaaaaaaaaaaaaaa"},
+                ],
+                "support_contact": None,
+                "contact_information": None,
+                "online_channel": "javascript:alert(1)",
+            }
+            body = (
+                'event: status\ndata: {"stage":"start","label":"Đang xử lý câu hỏi…"}\n\n'
+                "event: token\ndata: "
+                + json.dumps({"text": payload["answer"]})
+                + "\n\n"
+                "event: done\ndata: "
+                + json.dumps(payload)
+                + "\n\n"
             )
+            route.fulfill(status=200, content_type="text/event-stream", body=body)
 
         page.route("http://chat.test/v1/modules", modules)
-        page.route("http://chat.test/v1/chat", chat)
+        page.route("http://chat.test/v1/chat/stream", chat)
         page.goto("http://chat.test/")
         page.locator("#key").fill("test-key")
         page.locator("#loadModules").click()
         page.locator("#module").select_option("khao_khi")
         page.locator("#message").fill("Hello")
         page.locator("#send").click()
-        page.get_by_text("document_code: TL03", exact=False).wait_for()
+        page.get_by_text("Nguồn: TL03", exact=False).wait_for()
+        assert page.locator("#messages strong").inner_text() == "đã duyệt"
+        assert page.locator("#messages table").count() == 1
+        assert page.locator("#messages th").nth(0).inner_text() == "Bước"
+        assert page.locator("#messages td").nth(1).inner_text() == "Nộp đơn"
         assert page.locator("#messages img").count() == 0
-        assert page.locator("#messages a").count() == 0
+        assert page.locator('#messages a[href="https://portal.uel.edu.vn/"]').count() == 1
+        form_link = page.locator('#messages a[href="https://uel.edu.vn/form"]')
+        assert form_link.inner_text() == "biểu mẫu"
+        assert page.locator('#messages a[href^="javascript"]').count() == 0
+        assert "chunk_id" not in page.locator("#messages").inner_text()
+        assert "gold:" not in page.locator("#messages").inner_text()
         assert "javascript:alert(1)" in page.locator("#messages").inner_text()
         assert "<img src=x onerror=alert(1)>" in page.locator("#messages").inner_text()
         browser.close()

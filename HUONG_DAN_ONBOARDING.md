@@ -2,7 +2,57 @@
 
 Một **phòng ban = một tenant**. Mỗi tenant có một hoặc nhiều **mô-đun**. Không sửa mã nguồn nếu dữ liệu đúng ba template chuẩn.
 
-Mẫu PoC hiện có: `bao_dam_chat_luong` / `khao_khi`. Tài liệu vận hành kỹ thuật: `docs/operations-multi-tenant.md`. Swagger: http://127.0.0.1:8000/docs
+Mẫu PoC hiện có: `bao_dam_chat_luong` / `khao_khi`. Tài liệu vận hành kỹ thuật: `docs/operations-multi-tenant.md`. Swagger: http://127.0.0.1:8000/docs. Sau khi nạp Qdrant, cấu hình cách bot nói: `HDSD_QUAN_LY_BOT.md` và http://127.0.0.1:8000/admin.
+
+## Dữ liệu điền trong template lưu ở đâu?
+
+Ba file trong `template/` là **mẫu trống**. Bạn copy ra máy mình, điền Excel — lúc đó dữ liệu **chỉ nằm trên máy bạn**, hệ thống chưa biết.
+
+Sau khi **upload qua API**, server copy nguyên 3 file `.xlsx` (+ `release-manifest.yaml`) vào thư mục nguồn:
+
+`data/{department_id}/{module_code}/{release_id}/`
+
+Ví dụ: `data/phong_dao_tao/dang_ky_hoc_phan/pdt-dkhp-2026-11-11-001/`
+
+| Môi trường | Chỗ file Excel thật sự nằm |
+|---|---|
+| API chạy Docker (mặc định) | Volume `api_sources` gắn vào `/app/data` **trong container**. Folder `data/` trên máy Windows **không** tự hiện file vừa upload. Xem bằng `docker compose exec api ls /app/data/...` |
+| API chạy trực tiếp trên máy | Đúng folder `data/` trong repo |
+
+`POST .../inspect` và `inspect-upload` **không lưu** file; chỉ đọc tạm rồi trả JSON.
+
+Khi `dry_run=false` (ETL), dữ liệu được **tách ra 3 lớp** — chat không đọc Excel lúc hỏi:
+
+| Lớp | Chỗ lưu | Dùng để |
+|---|---|---|
+| Nguồn | `data/...` (volume) | Bản gốc workbook + manifest |
+| Bronze | MinIO | Snapshot file + checksum |
+| Silver | PostgreSQL | Phạm vi Template 1, FAQ, đoạn tài liệu đã parse |
+| Gold | Qdrant | Vector để truy hồi khi chat |
+
+Cập nhật nội dung = điền Excel mới + upload **release_id mới**. Không ghi đè thư mục cũ.
+
+## Upload như nào?
+
+Cách khuyến nghị: http://127.0.0.1:8000/admin tab **Thêm mô-đun** — điền thông tin, kéo thả 3 Excel, kiểm tra template, nạp dữ liệu.
+
+Cách Swagger: mở http://127.0.0.1:8000/docs → **Authorize** (nhập `X-Admin-Key`) → chọn file Excel.
+
+1. `POST /v1/admin/packages/inspect-upload` — chọn 3 file, chưa ghi gì. Kiểm tra đúng Template 1/2/3.
+2. `POST /v1/admin/releases/upload` — cùng 3 file + điền `department_id`, `module_code`, `release_id`, `module_name`.
+   - `dry_run=true`: ghi vào `data/...` + registry, **chưa** MinIO/Postgres/Qdrant.
+   - Nếu thư mục đã tạo ở bước dry-run: `POST /v1/admin/sync` với `dry_run=false`.
+   - Hoặc lần đầu dùng `releases/upload` luôn với `dry_run=false` để ETL một phát.
+
+Ba ô file trên Swagger:
+
+- `workbook_module` = Template 1 (thông tin mô-đun / phạm vi)
+- `workbook_faq` = Template 2
+- `workbook_documents` = Template 3
+
+Cần `.env` có `APP_ADMIN_API_KEY` ≥ 16 ký tự rồi recreate API; không có thì mọi `/v1/admin/*` trả 401.
+
+Máy/script không dùng Swagger thì gửi JSON + base64 tới `POST /v1/admin/packages/inspect` và `POST /v1/admin/releases` (mục 2 bên dưới).
 
 ## 1. Điều kiện trước khi làm
 
@@ -46,7 +96,11 @@ Copy ba file trong `template/`. Điền:
 
 Nên đặt `rule_id` ổn định ở cột H (header `rule_id` hoặc `MÃ PHẠM VI`) để sửa mô tả sau này không đổi ID.
 
-### Bước 2 — Mã hóa file (PowerShell)
+### Bước 2 — Upload (chọn file trên Swagger, khuyến nghị)
+
+http://127.0.0.1:8000/docs → Authorize → `POST /v1/admin/packages/inspect-upload` rồi `POST /v1/admin/releases/upload`. Không cần base64.
+
+Nếu gọi JSON (script), mã hóa file (PowerShell):
 
 ```powershell
 function Encode-File([string]$Path) {
@@ -63,7 +117,7 @@ Tên file trong JSON không được chứa `\` hoặc `..`.
 
 ### Bước 3 — Inspect (nhận diện template, sinh manifest)
 
-`POST /v1/admin/packages/inspect`  
+`POST /v1/admin/packages/inspect-upload` (chọn file) hoặc `POST /v1/admin/packages/inspect` (JSON).  
 Header: `X-Admin-Key`
 
 ```json
@@ -81,7 +135,7 @@ Kỳ vọng HTTP 200, đủ ba role `module_and_routing`, `faq`, `business_docum
 
 ### Bước 4 — Validate (chưa ghi MinIO / Postgres / Qdrant)
 
-`POST /v1/admin/releases` với cùng metadata + `files`, thêm:
+`POST /v1/admin/releases/upload` (chọn file) hoặc `POST /v1/admin/releases` (JSON) với cùng metadata, thêm:
 
 ```json
 {

@@ -1,0 +1,31 @@
+{
+  "short": "CTSV",
+  "name": "Phòng Công tác sinh viên",
+  "topics": [
+    [
+      "Hồ sơ & xác nhận sinh viên",
+      "Hướng dẫn giấy xác nhận và cập nhật hồ sơ",
+      "Tôi muốn xin giấy xác nhận sinh viên",
+      "Bạn vui lòng cho biết mục đích sử dụng giấy xác nhận để xác định loại thủ tục phù hợp. Biểu mẫu, cách nộp và thời gian xử lý cần được đối chiếu với hướng dẫn chính thức của phòng. Bản mẫu chưa tiếp nhận hồ sơ hay cấp giấy xác nhận."
+    ],
+    [
+      "Học bổng & hỗ trợ",
+      "Thông tin học bổng và chính sách sinh viên",
+      "Tôi muốn tìm hiểu các chương trình học bổng",
+      "Bạn quan tâm học bổng khuyến khích học tập, học bổng tài trợ hay chương trình hỗ trợ sinh viên? Điều kiện, hồ sơ và thời hạn cần được kiểm tra trong thông báo chính thức của từng chương trình. Bản mẫu chưa kết nối danh sách học bổng đang mở."
+    ],
+    [
+      "Rèn luyện & hoạt động",
+      "Điểm rèn luyện và hoạt động sinh viên",
+      "Tôi muốn tìm hiểu cách đánh giá điểm rèn luyện",
+      "Bạn có thể nêu học kỳ và nội dung cần hỗ trợ, chẳng hạn tiêu chí đánh giá hoặc bổ sung minh chứng hoạt động. Quy trình và thời hạn cần được đối chiếu với thông báo chính thức. Bản mẫu chưa tra cứu hay cập nhật điểm rèn luyện."
+    ],
+    [
+      "Đời sống & hỗ trợ sinh viên",
+      "Tiếp nhận thắc mắc và hướng dẫn đầu mối hỗ trợ",
+      "Tôi cần hỗ trợ một vấn đề trong đời sống sinh viên",
+      "Bạn vui lòng mô tả khái quát nhu cầu để được hướng dẫn tìm đầu mối phù hợp. Khi triển khai chính thức, mục này sẽ kết nối thông tin hỗ trợ của phòng. Đây là hội thoại mô phỏng, chưa chuyển yêu cầu đến cán bộ phụ trách."
+    ]
+  ],
+  "id": "ctsv"
+}

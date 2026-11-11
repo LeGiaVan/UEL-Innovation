@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" role="img" aria-labelledby="t">
+  <title id="t">Minh họa nhóm C – Quy củ</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef2ff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="200" fill="url(#g)" rx="14"/>
+  <text x="20" y="44" font-size="22" fill="#3730a3" font-family="system-ui,Segoe UI,sans-serif" font-weight="700">Quy củ · C</text>
+  <text x="20" y="72" font-size="13" fill="#4c4f6b" font-family="system-ui,Segoe UI,sans-serif">Trật tự, dữ liệu, quy trình</text>
+  <g fill="#4f46e5" opacity="0.35">
+    <rect x="56" y="108" width="56" height="40" rx="4"/>
+    <rect x="120" y="108" width="56" height="40" rx="4"/>
+    <rect x="184" y="108" width="56" height="40" rx="4"/>
+    <rect x="248" y="108" width="56" height="40" rx="4"/>
+  </g>
+</svg>

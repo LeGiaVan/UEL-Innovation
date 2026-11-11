@@ -2,25 +2,27 @@ from __future__ import annotations
 
 from app.agent.models import RetrievedEvidence, TrainingSystem
 
-SYSTEM_GENERATE = """Bạn là trợ lý quy định khảo thí của Trường Đại học Kinh tế - Luật (UEL).
-Chỉ dùng ngữ cảnh STAIR/FAQ được cung cấp. Không dùng kiến thức ngoài để kết luận quy định UEL.
-Không nêu email, hotline, mật khẩu, API key hay dữ liệu cá nhân.
-Không nêu số tiền lệ phí nếu nguồn ghi chưa xác định.
-Trả lời tiếng Việt, ngắn, trung lập.
-Mọi kết luận phải kèm mã nguồn có trong ngữ cảnh (TLxx hoặc mã câu hỏi dạng I.1.001).
-Nếu ngữ cảnh không đủ, nói rõ là không đủ dữ liệu — không suy đoán."""
+# Legacy generate fallback (tests with legacy_mode). Production uses module_generate_system
+# plus prompt_pack from departments.yaml /admin.
+SYSTEM_GENERATE = (
+    "Chỉ dùng ngữ cảnh được cung cấp. Không nêu secret hay dữ liệu cá nhân. "
+    "Trả lời tiếng Việt, ngắn, dễ hiểu. Không in mã gold: hay chunk_id. "
+    "Không suy đoán khi ngữ cảnh thiếu."
+)
 
-ROUTING_SYSTEM = """Phân loại câu hỏi người học UEL vào đúng một scope_type.
-answer_allowed: quy định khảo thí chung (hình thức thi, phúc khảo, điểm I, SEB hướng dẫn).
-human_required: hồ sơ/kết quả/điểm/khiếu nại cá nhân, cấm thi, không có tên trong danh sách.
-out_of_scope: học phí, TKB, đăng ký học phần, cài phần mềm, LMS, học bổng, phòng ban khác.
-Chỉ trả JSON theo schema."""
+# Used only when AgentDeps.legacy_mode is True. Production routing is Template 1.
+ROUTING_SYSTEM = """Select exactly one scope_type for this module.
+answer_allowed: the module may answer from approved evidence.
+human_required: a specific person's case, file, or result.
+out_of_scope: another unit's work.
+Return JSON only."""
 
-METADATA_SYSTEM = """Rút metadata từ câu hỏi khảo thí.
-training_system: dhcq | sdh | vb2_vlvh | unknown (không đoán nếu không nêu).
+# Default metadata prompt when profile=assessment and prompt_pack.metadata_system is empty.
+METADATA_SYSTEM = """Extract metadata from the question.
+training_system: dhcq | sdh | vb2_vlvh | unknown (do not guess).
 topic: phuc_khao | diem_i_nhan | diem_i_tra | seb | hinh_thuc_thi | fee | other.
-is_fee_question: true nếu hỏi mức thu/số tiền/lệ phí.
-Không bịa mã tài liệu hay mã câu hỏi."""
+is_fee_question: true if asking a fee amount.
+Do not invent document or question codes."""
 
 ROUTING_SCHEMA: dict[str, object] = {
     "type": "object",
@@ -58,16 +60,41 @@ METADATA_SCHEMA: dict[str, object] = {
 }
 
 
+_TRAINING_CODES = ("dhcq", "sdh", "vb2_vlvh")
+
+
+def _training_labels(glossary: dict[str, str] | None) -> dict[str, str]:
+    labels: dict[str, str] = {}
+    for key, value in (glossary or {}).items():
+        folded = key.strip().casefold()
+        display = f"{key.strip()} ({value.strip()})" if value.strip() else key.strip()
+        if folded in {"đhcq", "dhcq"}:
+            labels["dhcq"] = display
+        elif folded in {"sđh", "sdh"}:
+            labels["sdh"] = display
+        elif folded in {"vb2/vlvh", "vb2", "vlvh"}:
+            labels["vb2_vlvh"] = display
+    return labels
+
+
 def generate_user_prompt(
     query: str,
     evidence: list[RetrievedEvidence],
     training_system: TrainingSystem,
+    training_systems: list[str] | None = None,
+    *,
+    writing_notes: str = "",
+    glossary: dict[str, str] | None = None,
 ) -> str:
-    blocks = [
-        f"Câu hỏi: {query}",
-        f"Hệ đào tạo (nếu có): {training_system}",
-        "Ngữ cảnh đã duyệt:",
-    ]
+    labels = _training_labels(glossary)
+    systems = [item for item in (training_systems or []) if item in _TRAINING_CODES]
+    if not systems and training_system in _TRAINING_CODES:
+        systems = [training_system]
+    blocks = [f"Câu hỏi: {query}"]
+    if systems:
+        named = [labels.get(item, item) for item in systems]
+        blocks.append("Hệ đào tạo được hỏi: " + ", ".join(named))
+    blocks.append("Ngữ cảnh đã duyệt:")
     for index, item in enumerate(evidence, start=1):
         codes = [item.chunk_id]
         if item.document_code:
@@ -78,6 +105,9 @@ def generate_user_prompt(
         if len(markdown) > 1200:
             markdown = markdown[:1200] + "\n…"
         blocks.append(f"[{index}] Mã: {', '.join(codes)}\n{markdown}")
+    notes = writing_notes.strip()
+    if notes:
+        blocks.append(notes)
     return "\n\n".join(blocks)
 
 
@@ -146,7 +176,7 @@ def fallback_evidence(evidence: list[RetrievedEvidence]) -> list[RetrievedEviden
 
 def extractive_fallback(evidence: list[RetrievedEvidence]) -> str:
     lines = [
-        "Tôi trích đoạn dữ liệu đã duyệt (chưa tóm tắt bằng LLM).",
+        "Mình trích đúng dữ liệu đã duyệt (chưa tóm tắt):",
         "",
     ]
     for item in fallback_evidence(evidence):

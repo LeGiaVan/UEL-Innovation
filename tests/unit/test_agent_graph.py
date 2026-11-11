@@ -111,6 +111,29 @@ def test_adversarial_refuses_without_llm_or_search() -> None:
     assert retriever.calls == []
 
 
+def test_followup_sau_dai_hoc_merges_into_previous_question() -> None:
+    runtime, _, retriever = _runtime()
+    first = runtime.invoke(
+        "Thời hạn phúc khảo là mấy ngày làm việc?",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="follow-sdh",
+    )
+    assert first.status == "clarification_required"
+    second = runtime.invoke(
+        "sau đại học",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="follow-sdh",
+    )
+    assert second.status == "answered"
+    assert second.search_called is True
+    assert any("phúc khảo" in call.casefold() or "phuc khao" in call.casefold() for call in retriever.calls)
+    assert any("sau đại học" in call.casefold() or "sđh" in call.casefold() or "sdh" in call.casefold() for call in retriever.calls)
+
+
 def test_clarification_then_retrieve_on_second_turn() -> None:
     runtime, llm, retriever = _runtime()
     first = runtime.invoke(
@@ -146,7 +169,121 @@ def test_generate_without_citation_attaches_retrieved_codes() -> None:
     )
     assert result.status == "answered"
     assert any(item.value == "TL02" for item in result.citations)
-    assert "[TL02]" in result.answer
+    assert "Hạn phúc khảo là 2 ngày làm việc." in result.answer
+    assert "TL02" in result.answer
+    assert "gold:" not in result.answer
+    assert "trích" not in result.answer.casefold()
+
+
+def test_generate_strips_gold_chunk_ids_from_student_answer() -> None:
+    runtime, _, _ = _runtime(
+        llm=FakeLlm(
+            generate_text=(
+                "Bạn nộp đơn trong 2 ngày làm việc.\n\n"
+                "Mã nguồn tham khảo\n"
+                "- Mã: gold:aaaaaaaaaaaaaaaaaaaaaaaa"
+            )
+        )
+    )
+    result = runtime.invoke(
+        "Thời hạn phúc khảo đại học chính quy là mấy ngày?",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="strip-gold",
+    )
+    assert result.status == "answered"
+    assert "2 ngày" in result.answer
+    assert "gold:" not in result.answer
+    assert "Mã nguồn" not in result.answer
+    assert "Nguồn: TL02" in result.answer
+    assert any(item.value == "TL02" for item in result.citations)
+
+
+def test_phuc_khao_both_systems_keeps_labeled_sections() -> None:
+    runtime, _, retriever = _runtime(
+        llm=FakeLlm(
+            generate_text=(
+                "**ĐHCQ**: đăng ký phúc khảo trong 02 ngày làm việc trên Portal.\n"
+                "**SĐH**: đăng ký trong 07 ngày làm việc.\n"
+                "Nguồn: TL02."
+            )
+        )
+    )
+    result = runtime.invoke(
+        "Quy trình và điều kiện phúc khảo: sdh và dhcq",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="both-systems",
+    )
+    assert result.status == "answered"
+    assert "ĐHCQ" in result.answer
+    assert "SĐH" in result.answer
+    assert "sinh viên học kỳ" not in result.answer
+    assert retriever.calls
+    assert "phúc khảo" in retriever.calls[-1].casefold()
+
+
+def test_phuc_khao_both_systems_paraphrase_falls_back() -> None:
+    runtime, _, _ = _runtime(
+        llm=FakeLlm(
+            generate_text=(
+                "ĐHCQ là sinh viên học kỳ, SĐH là sinh viên đại học, hạn 2 ngày. Nguồn: TL02."
+            )
+        )
+    )
+    result = runtime.invoke(
+        "Quy trình phúc khảo SĐH và ĐHCQ",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="both-bad",
+    )
+    assert result.status == "answered"
+    assert "sinh viên học kỳ" not in result.answer
+    assert "trích" in result.answer.casefold()
+
+
+def test_training_system_followup_merges_with_previous_phuc_khao() -> None:
+    runtime, _, retriever = _runtime()
+    first = runtime.invoke(
+        "Quy trình và điều kiện phúc khảo",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="follow-systems",
+    )
+    assert first.status == "answered"
+    second = runtime.invoke(
+        "sdh và dhcq",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="follow-systems",
+    )
+    assert second.search_called is True
+    assert any("phúc khảo" in call.casefold() for call in retriever.calls)
+    assert any("sdh" in call.casefold() or "sđh" in call.casefold() for call in retriever.calls)
+
+
+def test_training_label_paraphrase_falls_back_to_extractive() -> None:
+    runtime, _, _ = _runtime(
+        llm=FakeLlm(
+            generate_text="ĐHCQ là sinh viên học kỳ, hạn phúc khảo 2 ngày. Nguồn: TL02."
+        )
+    )
+    result = runtime.invoke(
+        "Thời hạn phúc khảo đại học chính quy là mấy ngày?",
+        department_id="bao_dam_chat_luong",
+        module_code="khao_khi",
+        environment="test",
+        conversation_id="label-fail",
+    )
+    assert result.status == "answered"
+    assert "sinh viên học kỳ" not in result.answer
+    assert "trích" in result.answer.casefold()
+    assert any(item.value == "TL02" for item in result.citations)
 
 
 def test_invalid_citation_falls_back_to_extractive() -> None:

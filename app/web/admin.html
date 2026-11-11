@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quản lý bot UEL</title>
+  <style>
+    :root {
+      --ink: #17304c;
+      --muted: #52667c;
+      --line: #cbd5e1;
+      --bg: #f1f5f9;
+      --card: #fff;
+      --brand: #164e80;
+      --ok: #067647;
+      --err: #b42318;
+      --warn: #b54708;
+    }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+    main { max-width: 1080px; margin: 1.25rem auto; padding: 0 1.25rem 2.5rem; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: .75rem; }
+    h1 { margin: .2rem 0; }
+    h2 { margin: 0 0 .6rem; font-size: 1.15rem; }
+    p { margin: .35rem 0; }
+    a { color: var(--brand); }
+    label { display: block; margin-top: .85rem; font-weight: 600; }
+    input, textarea, select, button { font: inherit; padding: .65rem; border: 1px solid #a8b9cc; border-radius: 8px; width: 100%; box-sizing: border-box; }
+    button { width: auto; background: var(--brand); color: white; cursor: pointer; border: 0; }
+    button.secondary { background: #475569; }
+    button.ghost { background: transparent; color: var(--brand); border: 1px solid var(--line); }
+    button.ok { background: var(--ok); color: white; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: flex-end; }
+    .row > * { flex: 1; min-width: 180px; }
+    .card { background: var(--card); border-radius: 12px; padding: 1rem 1.1rem; margin-top: 1rem; box-shadow: 0 1px 0 rgba(23,48,76,.04); }
+    .status { color: var(--muted); font-size: .92rem; }
+    .status.err, .issue.err { color: var(--err); }
+    .status.ok { color: var(--ok); }
+    small, .hint { color: var(--muted); font-size: .9rem; font-weight: 400; }
+    .tabs { display: flex; gap: .4rem; margin-top: 1rem; flex-wrap: wrap; }
+    .tab { padding: .55rem .9rem; border-radius: 999px; border: 1px solid var(--line); background: white; color: var(--ink); }
+    .tab.active { background: var(--brand); color: white; border-color: var(--brand); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin: .8rem 0 1rem; }
+    .step {
+      background: #e8eef5; border-radius: 10px; padding: .65rem .7rem; text-align: left; cursor: pointer; border: 0;
+      width: auto; color: var(--ink);
+    }
+    .step b { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    .step.active { background: var(--brand); color: white; }
+    .step.done { background: #d1fae5; color: #065f46; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .75rem; }
+    .mod-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: .85rem; background: #f8fafc; cursor: pointer; text-align: left;
+      width: auto; color: var(--ink);
+    }
+    .mod-card:hover, .mod-card.selected { border-color: var(--brand); background: #eff6ff; }
+    .mod-card h3 { margin: 0 0 .25rem; font-size: 1rem; }
+    .badges { display: flex; gap: .35rem; flex-wrap: wrap; margin-top: .45rem; }
+    .badge { font-size: .75rem; padding: .15rem .45rem; border-radius: 999px; background: #e8eef5; color: var(--ink); }
+    .badge.ok { background: #d1fae5; color: #065f46; }
+    .badge.warn { background: #ffedd5; color: #9a3412; }
+    .drop {
+      border: 2px dashed #a8b9cc; border-radius: 12px; padding: 1rem; text-align: center; min-height: 7.2rem;
+      cursor: pointer; background: #f8fafc;
+    }
+    .drop:hover, .drop.over { border-color: var(--brand); background: #eff6ff; }
+    .drop.has-file { border-color: var(--ok); background: #ecfdf3; }
+    .drop .name { font-weight: 600; word-break: break-all; }
+    .files { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+    .seg { display: flex; gap: .4rem; margin-top: .5rem; }
+    .seg button { flex: 1; }
+    .seg button.active { box-shadow: inset 0 0 0 2px #0f3a60; }
+    .counts { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+    .count { background: #e8eef5; border-radius: 8px; padding: .35rem .6rem; font-size: .9rem; }
+    .layers { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: .8rem; }
+    .layer { border-radius: 10px; padding: .7rem; background: #e8eef5; }
+    .layer.done { background: #d1fae5; }
+    .layer.fail { background: #fee2e2; }
+    .layer.wait { background: #ffedd5; }
+    #previewAnswer { background: #f8fafc; padding: .8rem; border-radius: 8px; min-height: 4rem; overflow-wrap: anywhere; }
+    #previewAnswer a { color: var(--brand); }
+    .waiting { display: flex; align-items: center; gap: .6rem; color: var(--muted); }
+    .dots span { display: inline-block; width: .4rem; height: .4rem; margin-right: .15rem; border-radius: 50%; background: var(--brand); opacity: .2; animation: blink 1.4s infinite; }
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 50% { opacity: 1; } }
+    .hidden { display: none !important; }
+    .issue { font-size: .9rem; padding: .3rem 0; border-bottom: 1px solid #e2e8f0; }
+    @media (max-width: 800px) {
+      .steps, .files, .layers { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Quản lý bot</h1>
+      <p>Thêm phòng/mô-đun từ 3 template Excel, cấu hình cách bot nói, rồi thử chat — không cần Swagger.</p>
+      <p><a href="/">Chat người học</a> · <a href="/docs">API docs</a></p>
+    </header>
+
+    <section class="card">
+      <label for="adminKey">Admin key</label>
+      <input id="adminKey" type="password" autocomplete="off" placeholder="APP_ADMIN_API_KEY — bản dev cũng nhận APP_API_KEY">
+      <p class="status">Không điền tên biến. Dán giá trị key trong <code>.env</code>. Sửa env xong: <code>docker compose up -d --no-build --force-recreate api</code>.</p>
+    </section>
+
+    <nav class="tabs" aria-label="Phần quản lý">
+      <button type="button" class="tab active" data-tab="onboard" id="tabOnboard">Thêm mô-đun</button>
+      <button type="button" class="tab" data-tab="pack" id="tabPack">Cấu hình bot</button>
+      <button type="button" class="tab" data-tab="preview" id="tabPreview">Thử chat</button>
+    </nav>
+
+    <section class="panel active" id="panel-onboard">
+      <div class="card">
+        <h2>Mô-đun đã có</h2>
+        <p class="status" id="tenantStatus">Dán admin key để tải danh sách.</p>
+        <div class="grid" id="moduleCards"></div>
+      </div>
+      <div class="card" id="onboardWizard">
+        <h2>Thêm phòng hoặc mô-đun</h2>
+        <p class="hint">Copy 3 file từ thư mục <code>template/</code>, điền Excel, rồi làm lần lượt các bước. Không sửa mã Python nếu đúng schema.</p>
+        <div class="steps" id="onboardSteps">
+          <button type="button" class="step active" data-step="1"><b>Bước 1</b>Thông tin</button>
+          <button type="button" class="step" data-step="2"><b>Bước 2</b>Ba file Excel</button>
+          <button type="button" class="step" data-step="3"><b>Bước 3</b>Kiểm tra template</button>
+          <button type="button" class="step" data-step="4"><b>Bước 4</b>Nạp dữ liệu</button>
+        </div>
+
+        <div id="onboard-1">
+          <div class="seg" id="modeSeg">
+            <button type="button" class="secondary active" data-mode="new-dept">Phòng mới</button>
+            <button type="button" class="secondary" data-mode="existing">Thêm mô-đun vào phòng có sẵn</button>
+          </div>
+          <div id="existingDeptWrap" class="hidden">
+            <label for="existingDept">Phòng ban</label>
+            <select id="existingDept"></select>
+          </div>
+          <div class="row">
+            <div>
+              <label for="departmentName">Tên phòng ban</label>
+              <input id="departmentName" placeholder="Phòng Đào tạo">
+            </div>
+            <div>
+              <label for="departmentId">department_id <span class="hint">(a-z, 0-9, _)</span></label>
+              <input id="departmentId" placeholder="phong_dao_tao" pattern="[a-z0-9_]+">
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="moduleName">Tên mô-đun <span class="hint">khớp ô tên Template 1</span></label>
+              <input id="moduleName" placeholder="Đăng ký học phần">
+            </div>
+            <div>
+              <label for="moduleCode">module_code</label>
+              <input id="moduleCode" placeholder="dang_ky_hoc_phan" pattern="[a-z0-9_]+">
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="releaseId">release_id</label>
+              <input id="releaseId" placeholder="pdt-dkhp-2026-11-11-001">
+            </div>
+            <div>
+              <label for="onboardProfile">Profile</label>
+              <select id="onboardProfile">
+                <option value="generic">generic — phòng mới (khuyến nghị)</option>
+                <option value="assessment">assessment — chỉ khảo thí (ĐHCQ/SĐH, lệ phí, điểm I)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="supportContact">Đầu mối hỗ trợ</label>
+              <input id="supportContact" placeholder="Phòng Đào tạo">
+            </div>
+            <div>
+              <label for="contactInfo">Email / điện thoại</label>
+              <input id="contactInfo" placeholder="email@uel.edu.vn">
+            </div>
+          </div>
+          <div class="row" style="margin-top:1rem">
+            <button type="button" id="toFiles">Tiếp: chọn 3 file Excel</button>
+          </div>
+        </div>
+
+        <div id="onboard-2" class="hidden">
+          <p class="hint">Kéo thả hoặc bấm để chọn. Đúng 3 workbook: phạm vi, FAQ, tài liệu.</p>
+          <div class="files">
+            <div class="drop" id="dropT1" data-slot="t1" tabindex="0">
+              <div class="hint">Template 1</div>
+              <div class="name" id="labelT1">Phạm vi trả lời</div>
+              <small id="metaT1">Chưa chọn file</small>
+            </div>
+            <div class="drop" id="dropT2" data-slot="t2" tabindex="0">
+              <div class="hint">Template 2</div>
+              <div class="name" id="labelT2">FAQ</div>
+              <small id="metaT2">Chưa chọn file</small>
+            </div>
+            <div class="drop" id="dropT3" data-slot="t3" tabindex="0">
+              <div class="hint">Template 3</div>
+              <div class="name" id="labelT3">Tài liệu nghiệp vụ</div>
+              <small id="metaT3">Chưa chọn file</small>
+            </div>
+          </div>
+          <input id="fileT1" class="hidden" type="file" accept=".xlsx">
+          <input id="fileT2" class="hidden" type="file" accept=".xlsx">
+          <input id="fileT3" class="hidden" type="file" accept=".xlsx">
+          <div class="row" style="margin-top:1rem">
+            <button type="button" class="ghost" id="backToInfo">Quay lại</button>
+            <button type="button" id="inspectTemplates">Kiểm tra template</button>
+          </div>
+        </div>
+
+        <div id="onboard-3" class="hidden">
+          <p class="status" id="inspectStatus">Chưa kiểm tra.</p>
+          <div class="badges" id="inspectRoles"></div>
+          <div class="counts" id="inspectCounts"></div>
+          <div class="row" style="margin-top:1rem">
+            <button type="button" class="ghost" id="backToFiles">Chọn lại file</button>
+            <button type="button" id="toIngest" disabled>Tiếp: nạp dữ liệu</button>
+          </div>
+        </div>
+
+        <div id="onboard-4" class="hidden">
+          <p class="hint">Validate chỉ ghi thư mục nguồn + kiểm workbook. Nạp đầy đủ mới vào MinIO, Postgres và Qdrant. Lần Gold đầu có thể chậm vì tải model embedding.</p>
+          <div class="row">
+            <button type="button" class="secondary" id="ingestValidate">Nạp thử (validate)</button>
+            <button type="button" class="ok" id="ingestFull">Nạp đầy đủ (Bronze → Silver → Gold)</button>
+          </div>
+          <p class="status" id="ingestStatus"></p>
+          <div id="ingestWait" class="waiting hidden"><span class="dots"><span></span><span></span><span></span></span> Đang nạp…</div>
+          <div class="layers hidden" id="ingestLayers">
+            <div class="layer" id="layerBronze"><b>Bronze</b><div class="hint" id="bronzeHint">MinIO</div></div>
+            <div class="layer" id="layerSilver"><b>Silver</b><div class="hint" id="silverHint">PostgreSQL</div></div>
+            <div class="layer" id="layerGold"><b>Gold</b><div class="hint" id="goldHint">Qdrant</div></div>
+          </div>
+          <div id="ingestIssues"></div>
+          <div class="row" style="margin-top:1rem">
+            <button type="button" class="ghost" id="backToInspect">Quay lại kiểm tra</button>
+            <button type="button" class="hidden" id="gotoPack">Cấu hình cách bot nói</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-pack">
+      <div class="card">
+        <h2>Prompt pack</h2>
+        <p class="hint">Overlay cách bot nói. Routing nghiệp vụ vẫn lấy từ Template 1 đã sync. YAML git không tự vào Docker — lưu ở đây mới ghi volume.</p>
+        <label for="module">Mô-đun</label>
+        <select id="module"></select>
+        <p class="status" id="botStatus"></p>
+        <label for="profile">Profile</label>
+        <select id="profile">
+          <option value="generic">generic</option>
+          <option value="assessment">assessment (Khảo khí)</option>
+        </select>
+        <label for="role">Vai trò (tối đa 500 ký tự)</label>
+        <textarea id="role" rows="2" maxlength="500" placeholder="Trợ lý Phòng Đào tạo, hỗ trợ người học về đăng ký học phần."></textarea>
+        <label for="constraints">Ràng buộc thêm (tối đa 4000)</label>
+        <textarea id="constraints" rows="5" maxlength="4000"></textarea>
+        <label for="glossary">Thuật ngữ bắt buộc (mỗi dòng: KEY = nghĩa)</label>
+        <textarea id="glossary" rows="4" placeholder="ĐHCQ = đại học chính quy"></textarea>
+        <label for="answerStyle">Cách viết câu trả lời (tối đa 2000) — ghi vào user prompt, không vào system chung</label>
+        <textarea id="answerStyle" rows="4" maxlength="2000" placeholder="Khi hỏi nhiều hệ đào tạo, trả lời từng hệ thành mục riêng."></textarea>
+        <label for="metadataSystem">Prompt metadata (tối đa 4000) — để trống nếu mô-đun không cần phân hệ/chủ đề</label>
+        <textarea id="metadataSystem" rows="5" maxlength="4000" placeholder="Rút metadata từ câu hỏi…"></textarea>
+        <label for="greeting">Câu chào</label>
+        <textarea id="greeting" rows="2" maxlength="2000"></textarea>
+        <label for="oos">Ngoài phạm vi</label>
+        <textarea id="oos" rows="2" maxlength="2000"></textarea>
+        <label for="clarification">Câu hỏi làm rõ (khi không khớp rule)</label>
+        <textarea id="clarification" rows="3" maxlength="2000"></textarea>
+        <label for="aliases">routing_aliases (JSON)</label>
+        <textarea id="aliases" rows="4" placeholder='{"RULE-ID":["câu hỏi khớp exact"]}'></textarea>
+        <div class="row">
+          <div>
+            <label for="topK">top_k</label>
+            <input id="topK" type="number" min="1" max="20" placeholder="mặc định hệ thống">
+          </div>
+          <div>
+            <label for="threshold">score_threshold</label>
+            <input id="threshold" type="number" min="0" max="1" step="0.01" placeholder="mặc định hệ thống">
+          </div>
+        </div>
+        <div class="row" style="margin-top:.8rem">
+          <button type="button" id="loadBot">Tải cấu hình bot</button>
+          <button type="button" id="saveBot">Lưu cấu hình</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-preview">
+      <div class="card">
+        <h2>Thử chat (không cần API_CLIENTS)</h2>
+        <label for="previewMessage">Câu hỏi</label>
+        <textarea id="previewMessage" rows="2" maxlength="4000"></textarea>
+        <button type="button" id="previewSend" style="margin-top:.8rem">Gửi thử</button>
+        <p class="status" id="previewMeta"></p>
+        <div id="previewAnswer"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const KEY_STORE = "uel-admin-key";
+    let etag = null;
+    let conversation = null;
+    let tenantRows = [];
+    let keyTimer = null;
+    let currentStep = 1;
+    let inspectOk = false;
+    let lastOnboarded = null;
+    const dirty = { departmentId: false, moduleCode: false, releaseId: false };
+    const files = { t1: null, t2: null, t3: null };
+
+    const adminHeaders = () => ({
+      "Content-Type": "application/json",
+      "X-Admin-Key": document.querySelector("#adminKey").value
+    });
+    const adminKeyOnly = () => ({ "X-Admin-Key": document.querySelector("#adminKey").value });
+
+    function setStatus(id, text, cls) {
+      const node = document.querySelector(id);
+      node.className = "status " + (cls || "");
+      node.textContent = text;
+    }
+
+    function authError(status) {
+      if (status !== 401) return "";
+      return " Sai key. Dán giá trị APP_ADMIN_API_KEY (dev: APP_API_KEY cũng được), không dán tên biến.";
+    }
+
+    async function readError(response) {
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        if (typeof data.detail === "string") return data.detail;
+        if (data.detail) return JSON.stringify(data.detail);
+        return text || ("HTTP " + response.status);
+      } catch (err) {
+        return text || ("HTTP " + response.status);
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function formatLink(href, label) {
+      return '<a href="' + href + '" rel="noopener noreferrer" target="_blank">' + (label || href) + '</a>';
+    }
+
+    function renderPreview(source) {
+      const escaped = escapeHtml(source).replace(/\r\n/g, '\n');
+      const withMd = escaped
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (_, label, href) => formatLink(href, label));
+      return withMd.replace(
+        /(<a\b[^>]*>[\s\S]*?<\/a>)|(https?:\/\/[^\s<]+)/g,
+        (full, anchor, url) => {
+          if (anchor) return anchor;
+          const trimmed = url.replace(/[),.;:]+$/, '');
+          return formatLink(trimmed) + url.slice(trimmed.length);
+        }
+      ).replace(/\n/g, '<br>');
+    }
+
+    function parseGlossary(text) {
+      const out = {};
+      for (const line of text.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const idx = trimmed.indexOf("=");
+        if (idx < 1) continue;
+        out[trimmed.slice(0, idx).trim()] = trimmed.slice(idx + 1).trim();
+      }
+      return out;
+    }
+
+    function renderGlossary(map) {
+      return Object.entries(map || {}).map(([k, v]) => k + " = " + v).join("\n");
+    }
+
+    function slugify(text) {
+      return text.normalize("NFC").toLowerCase()
+        .replace(/đ/g, "d")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 48);
+    }
+
+    function todayStamp() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function showTab(name) {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.tab === name);
+      });
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === "panel-" + name);
+      });
+      if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+    }
+
+    function showStep(n) {
+      currentStep = n;
+      [1, 2, 3, 4].forEach((item) => {
+        document.querySelector("#onboard-" + item).classList.toggle("hidden", item !== n);
+        const btn = document.querySelector('.step[data-step="' + item + '"]');
+        btn.classList.toggle("active", item === n);
+        btn.classList.toggle("done", item < n || (item === 3 && inspectOk && n === 4));
+      });
+    }
+
+    function selectedModule() {
+      const value = document.querySelector("#module").value;
+      if (!value) return null;
+      const [department_id, module_code] = value.split("/");
+      return { department_id, module_code };
+    }
+
+    function currentRow() {
+      const selected = selectedModule();
+      if (!selected) return null;
+      return tenantRows.find((row) =>
+        row.department_id === selected.department_id && row.module_code === selected.module_code
+      ) || null;
+    }
+
+    function uniqueDepartments() {
+      const seen = new Map();
+      for (const row of tenantRows) {
+        if (!seen.has(row.department_id)) seen.set(row.department_id, row.department_name);
+      }
+      return [...seen.entries()].map(([id, name]) => ({ id, name }));
+    }
+
+    function fillExistingDepts() {
+      const select = document.querySelector("#existingDept");
+      const previous = select.value;
+      select.replaceChildren();
+      for (const dept of uniqueDepartments()) {
+        const option = document.createElement("option");
+        option.value = dept.id;
+        option.textContent = dept.name + " (" + dept.id + ")";
+        select.append(option);
+      }
+      if (previous && [...select.options].some((item) => item.value === previous)) select.value = previous;
+    }
+
+    function renderModuleCards() {
+      const root = document.querySelector("#moduleCards");
+      root.replaceChildren();
+      if (!tenantRows.length) {
+        root.innerHTML = "<p class='hint'>Chưa có mô-đun. Thêm bằng wizard bên dưới.</p>";
+        return;
+      }
+      for (const row of tenantRows) {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "mod-card";
+        const selected = selectedModule();
+        if (selected && selected.department_id === row.department_id && selected.module_code === row.module_code) {
+          card.classList.add("selected");
+        }
+        card.innerHTML =
+          "<h3>" + escapeHtml(row.module_name) + "</h3>" +
+          "<div class='hint'>" + escapeHtml(row.department_name) + " · <code>" +
+          escapeHtml(row.department_id + "/" + row.module_code) + "</code></div>" +
+          "<div class='badges'>" +
+            "<span class='badge'>" + escapeHtml(row.profile) + "</span>" +
+            "<span class='badge " + (row.source_present ? "ok" : "warn") + "'>" +
+              (row.source_present ? "đã có nguồn" : "chưa có Excel") + "</span>" +
+            "<span class='badge " + (row.has_prompt_pack ? "ok" : "") + "'>" +
+              (row.has_prompt_pack ? "đã có pack" : "chưa pack") + "</span>" +
+            (row.last_sync_status
+              ? "<span class='badge'>" + escapeHtml(row.last_sync_status) + "</span>"
+              : "") +
+          "</div>";
+        card.addEventListener("click", () => {
+          document.querySelector("#module").value = row.department_id + "/" + row.module_code;
+          conversation = null;
+          etag = null;
+          showTab("pack");
+          loadBotConfig();
+          renderModuleCards();
+        });
+        root.append(card);
+      }
+    }
+
+    function fillModuleSelect(previous) {
+      const select = document.querySelector("#module");
+      select.replaceChildren();
+      for (const row of tenantRows) {
+        const option = document.createElement("option");
+        option.value = row.department_id + "/" + row.module_code;
+        option.textContent = row.department_name + " / " + row.module_name +
+          " (" + row.profile + (row.has_prompt_pack ? ", đã có pack" : "") + ")";
+        select.append(option);
+      }
+      const packed = tenantRows.find((row) => row.has_prompt_pack);
+      const preferred = lastOnboarded
+        ? tenantRows.find((row) => row.department_id + "/" + row.module_code === lastOnboarded)
+        : null;
+      const fallback = preferred || packed || tenantRows[0];
+      if (previous && [...select.options].some((item) => item.value === previous)) {
+        select.value = previous;
+      } else if (fallback) {
+        select.value = fallback.department_id + "/" + fallback.module_code;
+      }
+    }
+
+    async function loadTenants() {
+      conversation = null;
+      const select = document.querySelector("#module");
+      const previous = select.value;
+      tenantRows = [];
+      try {
+        const response = await fetch("/v1/admin/tenants", { headers: adminHeaders() });
+        if (!response.ok) throw new Error("HTTP " + response.status + authError(response.status));
+        sessionStorage.setItem(KEY_STORE, document.querySelector("#adminKey").value);
+        tenantRows = await response.json();
+        fillModuleSelect(previous);
+        fillExistingDepts();
+        renderModuleCards();
+        setStatus("#tenantStatus", "Đã nạp " + tenantRows.length + " mô-đun.", "ok");
+        if (select.value) await loadBotConfig();
+      } catch (err) {
+        setStatus("#tenantStatus", "Không tải được: " + err.message, "err");
+        document.querySelector("#moduleCards").replaceChildren();
+      }
+    }
+
+    async function loadBotConfig() {
+      const selected = selectedModule();
+      if (!selected) { setStatus("#botStatus", "Chọn mô-đun trước.", "err"); return; }
+      setStatus("#botStatus", "Đang nạp cấu hình…");
+      try {
+        const response = await fetch(
+          "/v1/admin/modules/" + selected.department_id + "/" + selected.module_code + "/bot",
+          { headers: adminHeaders() }
+        );
+        if (!response.ok) throw new Error("HTTP " + response.status + authError(response.status));
+        etag = response.headers.get("etag");
+        const data = await response.json();
+        document.querySelector("#profile").value = data.profile || "generic";
+        document.querySelector("#role").value = data.prompt_pack.role || "";
+        document.querySelector("#constraints").value = data.prompt_pack.constraints || "";
+        document.querySelector("#glossary").value = renderGlossary(data.prompt_pack.glossary);
+        document.querySelector("#answerStyle").value = data.prompt_pack.answer_style || "";
+        document.querySelector("#metadataSystem").value = data.prompt_pack.metadata_system || "";
+        document.querySelector("#greeting").value = data.messages.greeting || "";
+        document.querySelector("#oos").value = data.messages.out_of_scope || "";
+        document.querySelector("#clarification").value = data.messages.clarification || "";
+        document.querySelector("#aliases").value = JSON.stringify(data.routing_aliases || {}, null, 2);
+        document.querySelector("#topK").value = data.retrieval.top_k ?? "";
+        document.querySelector("#threshold").value = data.retrieval.score_threshold ?? "";
+        const packed = currentRow() && currentRow().has_prompt_pack;
+        setStatus(
+          "#botStatus",
+          (packed ? "Đã nạp pack đã lưu." : "Chưa có pack — đang hiện mặc định.") +
+            " ETag " + (etag || "").slice(0, 10) + "…",
+          "ok"
+        );
+      } catch (err) {
+        setStatus("#botStatus", "Không tải bot: " + err.message, "err");
+      }
+    }
+
+    function maybeSlugs() {
+      if (!dirty.departmentId) {
+        document.querySelector("#departmentId").value = slugify(document.querySelector("#departmentName").value);
+      }
+      if (!dirty.moduleCode) {
+        document.querySelector("#moduleCode").value = slugify(document.querySelector("#moduleName").value);
+      }
+      if (!dirty.releaseId) {
+        const dept = document.querySelector("#departmentId").value || "dept";
+        const mod = document.querySelector("#moduleCode").value || "mod";
+        document.querySelector("#releaseId").value = [dept, mod, todayStamp(), "001"].join("-");
+      }
+    }
+
+    function identity() {
+      return {
+        department_id: document.querySelector("#departmentId").value.trim(),
+        department_name: document.querySelector("#departmentName").value.trim(),
+        module_code: document.querySelector("#moduleCode").value.trim(),
+        module_name: document.querySelector("#moduleName").value.trim(),
+        release_id: document.querySelector("#releaseId").value.trim(),
+        profile: document.querySelector("#onboardProfile").value,
+        support_contact: document.querySelector("#supportContact").value.trim(),
+        contact_information: document.querySelector("#contactInfo").value.trim()
+      };
+    }
+
+    function requireIdentity() {
+      const data = identity();
+      const idOk = /^[a-z0-9_]+$/.test(data.department_id);
+      const modOk = /^[a-z0-9_]+$/.test(data.module_code);
+      const relOk = /^[a-z0-9][a-z0-9._-]{1,127}$/.test(data.release_id);
+      if (!data.department_name || !data.module_name || !idOk || !modOk || !relOk) {
+        throw new Error("Điền tên, id (a-z0-9_) và release_id hợp lệ trước.");
+      }
+      return data;
+    }
+
+    function requireFiles() {
+      if (!files.t1 || !files.t2 || !files.t3) throw new Error("Chọn đủ 3 file .xlsx.");
+    }
+
+    function appendIdentity(form) {
+      const data = requireIdentity();
+      form.append("department_id", data.department_id);
+      form.append("department_name", data.department_name);
+      form.append("module_code", data.module_code);
+      form.append("module_name", data.module_name);
+      form.append("release_id", data.release_id);
+      form.append("profile", data.profile);
+      form.append("audience", "nguoi_hoc");
+      form.append("support_contact", data.support_contact);
+      form.append("contact_information", data.contact_information);
+      form.append("workbook_module", files.t1, files.t1.name);
+      form.append("workbook_faq", files.t2, files.t2.name);
+      form.append("workbook_documents", files.t3, files.t3.name);
+      return data;
+    }
+
+    function setFile(slot, file) {
+      if (file && !file.name.toLowerCase().endsWith(".xlsx")) {
+        setStatus("#inspectStatus", "Chỉ nhận file .xlsx.", "err");
+        return;
+      }
+      files[slot] = file || null;
+      inspectOk = false;
+      const map = { t1: ["dropT1", "labelT1", "metaT1", "Phạm vi trả lời"], t2: ["dropT2", "labelT2", "metaT2", "FAQ"], t3: ["dropT3", "labelT3", "metaT3", "Tài liệu nghiệp vụ"] };
+      const [dropId, labelId, metaId, fallback] = map[slot];
+      document.querySelector("#" + dropId).classList.toggle("has-file", Boolean(file));
+      document.querySelector("#" + labelId).textContent = file ? file.name : fallback;
+      document.querySelector("#" + metaId).textContent = file
+        ? Math.ceil(file.size / 1024) + " KB"
+        : "Chưa chọn file";
+    }
+
+    function bindDrop(dropId, inputId, slot) {
+      const drop = document.querySelector("#" + dropId);
+      const input = document.querySelector("#" + inputId);
+      drop.addEventListener("click", () => input.click());
+      drop.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); input.click(); }
+      });
+      drop.addEventListener("dragover", (event) => { event.preventDefault(); drop.classList.add("over"); });
+      drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+      drop.addEventListener("drop", (event) => {
+        event.preventDefault();
+        drop.classList.remove("over");
+        setFile(slot, event.dataTransfer.files[0]);
+      });
+      input.addEventListener("change", () => setFile(slot, input.files[0]));
+    }
+
+    function renderInspect(data) {
+      const roles = document.querySelector("#inspectRoles");
+      const counts = document.querySelector("#inspectCounts");
+      roles.replaceChildren();
+      counts.replaceChildren();
+      const wanted = {
+        module_and_routing: "Template 1 — phạm vi",
+        faq: "Template 2 — FAQ",
+        business_documents: "Template 3 — tài liệu"
+      };
+      const found = new Set((data.files || []).map((item) => item.role));
+      for (const [role, label] of Object.entries(wanted)) {
+        const span = document.createElement("span");
+        span.className = "badge " + (found.has(role) ? "ok" : "warn");
+        span.textContent = (found.has(role) ? "✓ " : "Thiếu ") + label;
+        roles.append(span);
+      }
+      const labels = {
+        routing_rules: "Phạm vi",
+        faqs: "FAQ",
+        documents: "Tài liệu",
+        regulation_sections: "Điều khoản",
+        procedure_steps: "Bước",
+        dossier_items: "Hồ sơ"
+      };
+      for (const [key, label] of Object.entries(labels)) {
+        const value = (data.expected_counts || {})[key];
+        if (value == null) continue;
+        const chip = document.createElement("div");
+        chip.className = "count";
+        chip.textContent = label + ": " + value;
+        counts.append(chip);
+      }
+    }
+
+    function resetLayers() {
+      ["layerBronze", "layerSilver", "layerGold"].forEach((id) => {
+        document.querySelector("#" + id).className = "layer";
+      });
+      document.querySelector("#bronzeHint").textContent = "MinIO";
+      document.querySelector("#silverHint").textContent = "PostgreSQL";
+      document.querySelector("#goldHint").textContent = "Qdrant";
+    }
+
+    function paintLayers(payload, dryRun) {
+      const box = document.querySelector("#ingestLayers");
+      box.classList.remove("hidden");
+      resetLayers();
+      const status = payload.status || "";
+      const report = (payload.sync && payload.sync.report) || {};
+      const issues = document.querySelector("#ingestIssues");
+      issues.replaceChildren();
+      if (dryRun) {
+        document.querySelector("#layerBronze").classList.add("wait");
+        document.querySelector("#bronzeHint").textContent = "Chưa ghi (validate)";
+        document.querySelector("#layerSilver").classList.add("wait");
+        document.querySelector("#silverHint").textContent = "Chưa ghi (validate)";
+        document.querySelector("#layerGold").classList.add("wait");
+        document.querySelector("#goldHint").textContent = "Chưa ghi (validate)";
+        if (status === "validated") {
+          document.querySelector("#layerBronze").classList.remove("wait");
+          document.querySelector("#layerBronze").classList.add("done");
+          document.querySelector("#bronzeHint").textContent = "Workbook hợp lệ, đã lưu thư mục nguồn";
+        }
+      } else if (status === "completed") {
+        ["layerBronze", "layerSilver", "layerGold"].forEach((id) => document.querySelector("#" + id).classList.add("done"));
+        document.querySelector("#bronzeHint").textContent = "Đã snapshot";
+        document.querySelector("#silverHint").textContent = report.silver ? report.silver.status : "Đã parse";
+        document.querySelector("#goldHint").textContent = report.gold ? report.gold.status : "Đã index";
+      } else if (status === "partial_failed") {
+        document.querySelector("#layerBronze").classList.add("done");
+        document.querySelector("#layerSilver").classList.add("done");
+        document.querySelector("#layerGold").classList.add("fail");
+        document.querySelector("#goldHint").textContent = "Lỗi embedding/Qdrant";
+      } else {
+        document.querySelector("#layerBronze").classList.add("fail");
+        document.querySelector("#bronzeHint").textContent = status || "thất bại";
+      }
+      for (const issue of (report.issues || []).slice(0, 8)) {
+        const line = document.createElement("div");
+        line.className = "issue " + (issue.severity === "error" ? "err" : "");
+        line.textContent = (issue.severity || "info") + ": " + (issue.message || JSON.stringify(issue));
+        issues.append(line);
+      }
+    }
+
+    async function inspectTemplates() {
+      try {
+        requireIdentity();
+        requireFiles();
+      } catch (err) {
+        setStatus("#inspectStatus", err.message, "err");
+        showStep(err.message.includes("file") ? 2 : 1);
+        return;
+      }
+      showStep(3);
+      inspectOk = false;
+      document.querySelector("#toIngest").disabled = true;
+      setStatus("#inspectStatus", "Đang nhận diện 3 template…");
+      const form = new FormData();
+      appendIdentity(form);
+      try {
+        const response = await fetch("/v1/admin/packages/inspect-upload", {
+          method: "POST",
+          headers: adminKeyOnly(),
+          body: form
+        });
+        if (!response.ok) throw new Error(await readError(response) + authError(response.status));
+        const data = await response.json();
+        renderInspect(data);
+        inspectOk = true;
+        document.querySelector("#toIngest").disabled = false;
+        setStatus("#inspectStatus", "Đúng 3 template. Có thể nạp.", "ok");
+        showStep(3);
+      } catch (err) {
+        document.querySelector("#inspectRoles").replaceChildren();
+        document.querySelector("#inspectCounts").replaceChildren();
+        setStatus("#inspectStatus", "Không nhận diện được: " + err.message, "err");
+      }
+    }
+
+    async function ingest(dryRun) {
+      try {
+        requireIdentity();
+        requireFiles();
+      } catch (err) {
+        setStatus("#ingestStatus", err.message, "err");
+        return;
+      }
+      const buttons = [document.querySelector("#ingestValidate"), document.querySelector("#ingestFull")];
+      buttons.forEach((btn) => { btn.disabled = true; });
+      document.querySelector("#ingestWait").classList.remove("hidden");
+      document.querySelector("#gotoPack").classList.add("hidden");
+      setStatus("#ingestStatus", dryRun ? "Đang validate…" : "Đang ghi Bronze → Silver → Gold…");
+      const form = new FormData();
+      const meta = appendIdentity(form);
+      form.append("dry_run", dryRun ? "true" : "false");
+      try {
+        const response = await fetch("/v1/admin/releases/upload", {
+          method: "POST",
+          headers: adminKeyOnly(),
+          body: form
+        });
+        if (!response.ok) throw new Error(await readError(response) + authError(response.status));
+        const payload = await response.json();
+        paintLayers(payload, dryRun);
+        lastOnboarded = meta.department_id + "/" + meta.module_code;
+        const ok = payload.status === "validated" || payload.status === "completed";
+        setStatus(
+          "#ingestStatus",
+          (ok ? "Xong: " : "Chưa xong: ") + payload.status +
+            (payload.source_path ? " · " + payload.source_path : "") +
+            (dryRun && ok ? ". Bấm Nạp đầy đủ để ghi MinIO/Postgres/Qdrant." : "") +
+            (!dryRun && payload.status === "completed" ? ". Cấp API_CLIENTS rồi recreate API nếu người học dùng /." : ""),
+          ok ? "ok" : "err"
+        );
+        if (ok) {
+          document.querySelector("#gotoPack").classList.remove("hidden");
+          await loadTenants();
+        }
+      } catch (err) {
+        setStatus("#ingestStatus", "Không nạp được: " + err.message, "err");
+      } finally {
+        document.querySelector("#ingestWait").classList.add("hidden");
+        buttons.forEach((btn) => { btn.disabled = false; });
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => showTab(tab.dataset.tab));
+    });
+    document.querySelectorAll(".step").forEach((btn) => {
+      btn.addEventListener("click", () => showStep(Number(btn.dataset.step)));
+    });
+    document.querySelector("#toFiles").addEventListener("click", () => {
+      try { requireIdentity(); showStep(2); }
+      catch (err) { setStatus("#tenantStatus", err.message, "err"); }
+    });
+    document.querySelector("#backToInfo").addEventListener("click", () => showStep(1));
+    document.querySelector("#backToFiles").addEventListener("click", () => showStep(2));
+    document.querySelector("#backToInspect").addEventListener("click", () => showStep(3));
+    document.querySelector("#toIngest").addEventListener("click", () => showStep(4));
+    document.querySelector("#inspectTemplates").addEventListener("click", inspectTemplates);
+    document.querySelector("#ingestValidate").addEventListener("click", () => ingest(true));
+    document.querySelector("#ingestFull").addEventListener("click", () => ingest(false));
+    document.querySelector("#gotoPack").addEventListener("click", () => {
+      showTab("pack");
+      loadBotConfig();
+    });
+
+    document.querySelectorAll("#modeSeg button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#modeSeg button").forEach((item) => item.classList.toggle("active", item === btn));
+        const existing = btn.dataset.mode === "existing";
+        document.querySelector("#existingDeptWrap").classList.toggle("hidden", !existing);
+        if (existing && uniqueDepartments().length) {
+          const first = uniqueDepartments()[0];
+          document.querySelector("#existingDept").value = first.id;
+          document.querySelector("#departmentId").value = first.id;
+          document.querySelector("#departmentName").value = first.name;
+          dirty.departmentId = true;
+        }
+      });
+    });
+    document.querySelector("#existingDept").addEventListener("change", () => {
+      const id = document.querySelector("#existingDept").value;
+      const dept = uniqueDepartments().find((item) => item.id === id);
+      if (!dept) return;
+      document.querySelector("#departmentId").value = dept.id;
+      document.querySelector("#departmentName").value = dept.name;
+      dirty.departmentId = true;
+    });
+    document.querySelector("#departmentName").addEventListener("input", maybeSlugs);
+    document.querySelector("#moduleName").addEventListener("input", maybeSlugs);
+    document.querySelector("#departmentId").addEventListener("input", () => { dirty.departmentId = true; maybeSlugs(); });
+    document.querySelector("#moduleCode").addEventListener("input", () => { dirty.moduleCode = true; maybeSlugs(); });
+    document.querySelector("#releaseId").addEventListener("input", () => { dirty.releaseId = true; });
+
+    bindDrop("dropT1", "fileT1", "t1");
+    bindDrop("dropT2", "fileT2", "t2");
+    bindDrop("dropT3", "fileT3", "t3");
+
+    document.querySelector("#loadBot").addEventListener("click", loadBotConfig);
+    document.querySelector("#saveBot").addEventListener("click", async () => {
+      const selected = selectedModule();
+      if (!selected) { setStatus("#botStatus", "Chọn mô-đun trước.", "err"); return; }
+      if (!etag) { setStatus("#botStatus", "Tải cấu hình trước khi lưu.", "err"); return; }
+      let aliases = {};
+      try { aliases = JSON.parse(document.querySelector("#aliases").value || "{}"); }
+      catch (err) { setStatus("#botStatus", "aliases không phải JSON hợp lệ.", "err"); return; }
+      const topK = document.querySelector("#topK").value;
+      const threshold = document.querySelector("#threshold").value;
+      const body = {
+        profile: document.querySelector("#profile").value,
+        prompt_pack: {
+          role: document.querySelector("#role").value,
+          constraints: document.querySelector("#constraints").value,
+          glossary: parseGlossary(document.querySelector("#glossary").value),
+          answer_style: document.querySelector("#answerStyle").value,
+          metadata_system: document.querySelector("#metadataSystem").value
+        },
+        messages: {
+          greeting: document.querySelector("#greeting").value,
+          out_of_scope: document.querySelector("#oos").value,
+          clarification: document.querySelector("#clarification").value
+        },
+        retrieval: {
+          top_k: topK === "" ? null : Number(topK),
+          score_threshold: threshold === "" ? null : Number(threshold)
+        },
+        routing_aliases: aliases
+      };
+      try {
+        const response = await fetch(
+          "/v1/admin/modules/" + selected.department_id + "/" + selected.module_code + "/bot",
+          { method: "PUT", headers: { ...adminHeaders(), "If-Match": etag }, body: JSON.stringify(body) }
+        );
+        if (response.status === 409) throw new Error("ETag cũ, tải lại rồi lưu");
+        if (!response.ok) throw new Error("HTTP " + response.status + " " + await response.text());
+        etag = response.headers.get("etag") || etag;
+        const row = currentRow();
+        if (row) row.has_prompt_pack = true;
+        renderModuleCards();
+        setStatus("#botStatus", "Đã lưu pack.", "ok");
+      } catch (err) {
+        setStatus("#botStatus", "Không lưu được: " + err.message, "err");
+      }
+    });
+
+    document.querySelector("#previewSend").addEventListener("click", async () => {
+      const selected = selectedModule();
+      const message = document.querySelector("#previewMessage").value.trim();
+      if (!selected || !message) { setStatus("#previewMeta", "Chọn mô-đun ở tab Cấu hình bot và nhập câu hỏi.", "err"); return; }
+      try {
+        const response = await fetch("/v1/admin/chat-preview", {
+          method: "POST",
+          headers: adminHeaders(),
+          body: JSON.stringify({
+            department_id: selected.department_id,
+            module_code: selected.module_code,
+            message,
+            conversation_id: conversation
+          })
+        });
+        if (!response.ok) throw new Error("HTTP " + response.status + authError(response.status));
+        const data = await response.json();
+        conversation = data.conversation_id;
+        const cites = (data.citations || [])
+          .filter((item) => item.kind !== "chunk_id")
+          .map((item) => item.value)
+          .join(", ");
+        setStatus(
+          "#previewMeta",
+          "status=" + data.status + (data.rule_id ? " · rule=" + data.rule_id : "") +
+          (data.routing_source ? " · " + data.routing_source : "") + (cites ? " · Nguồn: " + cites : ""),
+          "ok"
+        );
+        document.querySelector("#previewAnswer").innerHTML = renderPreview(data.answer || "");
+      } catch (err) {
+        setStatus("#previewMeta", "Lỗi: " + err.message, "err");
+      }
+    });
+
+    document.querySelector("#module").addEventListener("change", () => {
+      conversation = null;
+      etag = null;
+      loadBotConfig();
+      renderModuleCards();
+    });
+    document.querySelector("#adminKey").addEventListener("input", () => {
+      clearTimeout(keyTimer);
+      keyTimer = setTimeout(() => {
+        if (document.querySelector("#adminKey").value.trim().length >= 8) loadTenants();
+      }, 400);
+    });
+
+    const hash = (location.hash || "#onboard").slice(1);
+    if (["onboard", "pack", "preview"].includes(hash)) showTab(hash);
+    const savedKey = sessionStorage.getItem(KEY_STORE);
+    if (savedKey) {
+      document.querySelector("#adminKey").value = savedKey;
+      loadTenants();
+    }
+  </script>
+</body>
+</html>

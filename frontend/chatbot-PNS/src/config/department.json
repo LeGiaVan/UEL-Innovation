@@ -1,0 +1,31 @@
+{
+  "short": "PNS",
+  "name": "Phòng Nhân sự",
+  "topics": [
+    [
+      "Hồ sơ & thông tin nhân sự",
+      "Cập nhật hồ sơ và xác nhận công tác",
+      "Tôi muốn cập nhật thông tin hồ sơ nhân sự",
+      "Bạn vui lòng cho biết nhóm thông tin cần cập nhật hoặc loại xác nhận công tác cần hỗ trợ. Khi triển khai chính thức, mục này sẽ kết nối quy trình tiếp nhận của Phòng Nhân sự. Bản mẫu hiện chưa cập nhật hay lưu hồ sơ."
+    ],
+    [
+      "Chế độ & phúc lợi",
+      "Thông tin về chính sách và quyền lợi",
+      "Tôi muốn tìm hiểu các chế độ phúc lợi",
+      "Bạn muốn tìm hiểu nhóm phúc lợi hoặc chính sách nào? Nội dung áp dụng cần được đối chiếu với quy định và thông báo chính thức của trường. Bản mẫu hiện chưa kết nối dữ liệu chính sách nhân sự."
+    ],
+    [
+      "Nghỉ phép & công tác",
+      "Hướng dẫn đăng ký và theo dõi đề nghị",
+      "Tôi muốn đăng ký nghỉ phép",
+      "Bạn có thể mô tả loại đề nghị và khoảng thời gian dự kiến để trải nghiệm luồng hỗ trợ. Biểu mẫu, điều kiện và cấp phê duyệt cần được Phòng Nhân sự xác nhận. Hội thoại mô phỏng này chưa gửi đơn hay ghi nhận ngày nghỉ."
+    ],
+    [
+      "Tuyển dụng & bồi dưỡng",
+      "Vị trí tuyển dụng và phát triển chuyên môn",
+      "Tôi muốn tìm hiểu các chương trình bồi dưỡng",
+      "Bạn vui lòng nêu lĩnh vực chuyên môn hoặc kỹ năng muốn bồi dưỡng. Danh sách chương trình, điều kiện tham gia và thời hạn đăng ký sẽ cần kết nối thông báo chính thức của phòng. Bản mẫu chưa tiếp nhận đăng ký."
+    ]
+  ],
+  "id": "pns"
+}

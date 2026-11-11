@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.ingestion.contact import ContactConfig
 from app.ingestion.enums import WorkbookRole
@@ -53,6 +53,43 @@ class ReleaseManifest(BaseModel):
         return {item.schema_sha256: item.role for item in self.files}
 
 
+class PromptPack(BaseModel):
+    role: str = Field(default="", max_length=500)
+    constraints: str = Field(default="", max_length=4000)
+    glossary: dict[str, str] = Field(default_factory=dict)
+    answer_style: str = Field(
+        default="",
+        max_length=2000,
+        description="Per-module writing notes appended to the generate user prompt.",
+    )
+    metadata_system: str = Field(
+        default="",
+        max_length=4000,
+        description="Optional LLM system text for topic/training-system metadata.",
+    )
+
+    @field_validator("glossary")
+    @classmethod
+    def _glossary_bounds(cls, value: dict[str, str]) -> dict[str, str]:
+        if len(value) > 20:
+            raise ValueError("glossary allows at most 20 terms")
+        for key, term in value.items():
+            if not key.strip() or len(key) > 64 or len(term) > 200:
+                raise ValueError("glossary term keys ≤64 and values ≤200 characters")
+        return value
+
+
+class BotMessages(BaseModel):
+    greeting: str = Field(default="", max_length=2000)
+    out_of_scope: str = Field(default="", max_length=2000)
+    clarification: str = Field(default="", max_length=2000)
+
+
+class RetrievalSettings(BaseModel):
+    top_k: int | None = Field(default=None, ge=1, le=20)
+    score_threshold: float | None = Field(default=None, ge=0, le=1)
+
+
 class DepartmentModuleConfig(BaseModel):
     code: str = Field(pattern=r"^[a-z0-9_]+$")
     name: str
@@ -63,6 +100,9 @@ class DepartmentModuleConfig(BaseModel):
     profile: Literal["generic", "assessment"] = "generic"
     description: str = ""
     routing_aliases: dict[str, list[str]] = Field(default_factory=dict)
+    prompt_pack: PromptPack = Field(default_factory=PromptPack)
+    messages: BotMessages = Field(default_factory=BotMessages)
+    retrieval: RetrievalSettings = Field(default_factory=RetrievalSettings)
 
 
 class DepartmentConfig(BaseModel):

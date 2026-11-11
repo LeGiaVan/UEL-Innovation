@@ -1,0 +1,287 @@
+/* Trang đăng ký: chữ và vùng chạm lớn, tối ưu iPad / điện thoại */
+
+.reg-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, var(--uel-bg-light, #f4f7fb) 0%, var(--uel-bg-white, #fff) 45%);
+  padding: clamp(1rem, 3.5vw, 1.75rem) clamp(1rem, 4vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+}
+
+.reg-page-inner {
+  width: 100%;
+  max-width: min(100%, 46rem);
+  margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+  .reg-page-inner {
+    max-width: min(100%, 52rem);
+  }
+}
+
+@media (min-width: 900px) {
+  .reg-page-inner {
+    max-width: min(100%, 58rem);
+  }
+}
+
+.reg-page .reg-btn--primary {
+  background: linear-gradient(
+    155deg,
+    var(--uel-submit-bg-light, #ef6c00) 0%,
+    var(--uel-submit-bg, #e65100) 45%,
+    var(--uel-submit-bg-hover, #bf360c) 100%
+  );
+  box-shadow: 0 4px 18px var(--uel-submit-shadow, rgba(230, 81, 0, 0.28));
+}
+
+.reg-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: clamp(1rem, 2.8vw, 1.125rem);
+  font-weight: 700;
+  color: var(--feature-accent, var(--uel-primary, #144e8c));
+  text-decoration: none;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  min-height: var(--uel-touch-min, 48px);
+  padding: 0.5rem 0.35rem 0.5rem 0;
+}
+
+.reg-page-back:hover {
+  text-decoration: underline;
+}
+
+.reg-page-panel {
+  max-width: 100%;
+  margin: 0 auto;
+  max-height: none;
+  border-radius: clamp(18px, 3vw, 26px);
+  box-shadow:
+    0 16px 48px rgba(15, 58, 107, 0.14),
+    0 0 0 1px rgba(20, 78, 140, 0.08);
+}
+
+.reg-page-link-btn {
+  text-decoration: none;
+  text-align: center;
+  min-height: var(--uel-touch-min, 48px);
+  box-sizing: border-box;
+}
+
+/* —— Phóng to toàn bộ form (class từ RegistrationLeadModal.css) —— */
+
+.reg-page .reg-modal-hero {
+  padding: clamp(1.5rem, 5vw, 2.35rem) clamp(1.25rem, 4vw, 2rem);
+}
+
+.reg-page .reg-modal-hero-icon {
+  width: clamp(4.5rem, 14vw, 5.5rem);
+  height: clamp(4.5rem, 14vw, 5.5rem);
+  margin-bottom: 1rem;
+  border-radius: clamp(16px, 3vw, 22px);
+}
+
+.reg-page .reg-modal-hero-icon svg {
+  width: clamp(1.75rem, 5vw, 2.25rem);
+  height: clamp(1.75rem, 5vw, 2.25rem);
+}
+
+.reg-page .reg-modal-hero-icon-img {
+  width: clamp(2.5rem, 8vw, 3.25rem);
+  height: clamp(2.5rem, 8vw, 3.25rem);
+  object-fit: contain;
+}
+
+.reg-page .reg-modal-title {
+  font-size: clamp(1.35rem, 4.8vw, 1.95rem);
+  font-weight: 800;
+  line-height: 1.28;
+}
+
+.reg-page .reg-modal-sub {
+  font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+  line-height: 1.5;
+  margin-top: 0.65rem;
+  max-width: 26rem;
+  opacity: 0.95;
+}
+
+.reg-page .reg-modal-body {
+  padding: clamp(1.35rem, 4.5vw, 2.1rem) clamp(1.15rem, 4vw, 1.85rem)
+    clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.reg-page .reg-modal-lead {
+  font-size: clamp(1rem, 2.8vw, 1.125rem);
+  line-height: var(--uel-readable-line, 1.55);
+  margin-bottom: 1.25rem;
+  color: var(--uel-text-secondary, #555);
+}
+
+.reg-page .reg-modal-form {
+  gap: clamp(1rem, 2.5vw, 1.35rem) clamp(1rem, 2.5vw, 1.5rem);
+}
+
+@media (min-width: 560px) {
+  .reg-page .reg-modal-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .reg-page .reg-modal-form .reg-field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.reg-page .reg-field-label {
+  font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.reg-page .reg-field-input,
+.reg-page .reg-field-textarea {
+  font-size: clamp(1.0625rem, 2.9vw, 1.1875rem);
+  border-radius: var(--uel-form-radius, 14px);
+  border-width: 2px;
+  line-height: var(--uel-readable-line, 1.55);
+}
+
+.reg-page .reg-field-input {
+  min-height: var(--uel-touch-min, 48px);
+  padding: 0.85rem 1rem 0.85rem 3.1rem;
+}
+
+.reg-page .reg-field-icon {
+  left: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.reg-page .reg-field-textarea-wrap .reg-field-icon-ta {
+  top: 0.9rem;
+}
+
+.reg-page .reg-field-textarea {
+  min-height: 7rem;
+  padding: 1rem 1rem 1rem 3.1rem;
+}
+
+.reg-page .reg-modal-msg {
+  font-size: clamp(0.98rem, 2.6vw, 1.0625rem);
+  padding: 0.85rem 1rem;
+  line-height: var(--uel-readable-line, 1.55);
+}
+
+.reg-page .reg-modal-actions {
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.reg-page .reg-btn {
+  min-height: var(--uel-touch-min, 48px);
+  font-size: clamp(1.0625rem, 2.8vw, 1.125rem);
+  font-weight: 800;
+  padding: 0.75rem 1.35rem;
+  border-radius: var(--uel-form-radius, 14px);
+}
+
+.reg-page .reg-btn--primary {
+  padding: 0.85rem 1.75rem;
+  min-height: 52px;
+  border-radius: 14px;
+}
+
+@media (max-width: 480px) {
+  .reg-page .reg-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .reg-page .reg-btn,
+  .reg-page .reg-page-link-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* === Bậc đào tạo — grid pill buttons === */
+.reg-page .reg-program-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.reg-page .reg-program-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.78rem 0.9rem;
+  background: #fff;
+  border: 1.5px solid rgba(15, 58, 107, 0.18);
+  border-radius: 12px;
+  color: #1f3347;
+  font: inherit;
+  font-size: 0.93rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.3;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.reg-page .reg-program-pill:hover {
+  border-color: rgba(20, 78, 140, 0.45);
+  background: #f4f8fc;
+}
+
+.reg-page .reg-program-pill:focus-visible {
+  outline: none;
+  border-color: var(--uel-primary, #144e8c);
+  box-shadow: 0 0 0 3px rgba(20, 78, 140, 0.2);
+}
+
+.reg-page .reg-program-pill.is-active {
+  border-color: var(--uel-primary, #144e8c);
+  background: linear-gradient(135deg, #144e8c 0%, #0d47a1 100%);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(15, 58, 107, 0.22);
+  transform: translateY(-1px);
+}
+
+.reg-page .reg-program-pill-dot {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  display: inline-block;
+}
+
+.reg-page .reg-program-pill.is-active .reg-program-pill-dot {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: inset 0 0 0 3px var(--uel-primary, #144e8c);
+}
+
+.reg-page .reg-program-pill-label {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 768px) {
+  .reg-page .reg-program-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .reg-page .reg-program-grid {
+    grid-template-columns: 1fr;
+  }
+}

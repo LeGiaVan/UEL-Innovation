@@ -1,0 +1,66 @@
+/* UEL Brand Colors - Nhận diện thương hiệu UEL */
+:root {
+  /* Màu chính UEL */
+  --uel-primary: #144E8C; /* Màu chính logo UEL (R=20 G=80 B=140) */
+  --uel-primary-dark: #0F3A6B; /* Màu đậm hơn */
+  --uel-primary-light: #1F6BB8; /* Màu sáng hơn */
+  --uel-primary-lighter: #E8F0F8; /* Màu nhạt cho background */
+  
+  /* Màu phụ */
+  --uel-secondary: #0070C0; /* Xanh dương sáng */
+  --uel-accent: #FF6B35; /* Màu cam accent (nếu cần) */
+
+  /* Nút submit / Gửi — cam phụ (đồng bộ xét tuyển, #E65100) */
+  --uel-submit-bg: #e65100;
+  --uel-submit-bg-hover: #bf360c;
+  --uel-submit-bg-light: #ef6c00;
+  --uel-submit-shadow: rgba(230, 81, 0, 0.32);
+  --uel-submit-ring: rgba(230, 81, 0, 0.14);
+  
+  /* Màu text */
+  --uel-text-primary: #1F497D; /* Xanh đậm cho text */
+  --uel-text-secondary: #666666;
+  --uel-text-light: #999999;
+  
+  /* Màu background */
+  --uel-bg-white: #FFFFFF;
+  --uel-bg-light: #F7F9FC;
+  --uel-bg-gray: #F5F5F5;
+  
+  /* Màu border */
+  --uel-border: #E0E0E0;
+  --uel-border-light: #F0F0F0;
+  
+  /* Màu success/action */
+  --uel-success: #144E8C; /* Dùng màu primary cho button */
+  --uel-success-hover: #0F3A6B;
+
+  /* Hệ thống chữ & vùng chạm — ưu tiên đọc trên điện thoại / iPad */
+  --uel-touch-min: 48px;
+  --uel-readable-line: 1.55;
+  --uel-form-radius: 14px;
+
+  /* Tiêu đề / dẫn — dùng chung Module 1 hub, Module 2 hub & khi làm bài, Module 3 */
+  --uel-module-title-size: clamp(1.25rem, 4.2vw, 1.55rem);
+  --uel-module-title-weight: 800;
+  --uel-module-title-lh: 1.25;
+  --uel-module-title-track: -0.02em;
+  --uel-module-title-mt: 0.25rem;
+  --uel-module-title-mb: 0.75rem;
+  --uel-module-lead-size: clamp(0.9rem, 2.5vw, 1.06rem);
+  --uel-module-lead-weight: 500;
+  --uel-module-lead-lh: 1.45;
+  --uel-module-lead-mb: 0.85rem;
+  --uel-module-lead-max: 26rem;
+  --uel-module-lead-fg: #475569;
+  /* Padding dọc vùng đầu nội dung module (đồng bộ với .admission-info-hub) */
+  --uel-module-head-pad-y: 0.85rem;
+}
+
+/* Tablet & điện thoại: nút và ô nhập tối thiểu lớn hơn (Apple HIG ~44–48px) */
+@media (max-width: 1024px) {
+  :root {
+    --uel-touch-min: 52px;
+    --uel-readable-line: 1.58;
+  }
+}

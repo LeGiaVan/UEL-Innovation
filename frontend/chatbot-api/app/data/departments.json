@@ -1,0 +1,182 @@
+{
+  "dbcl": {
+    "short": "ĐBCL",
+    "name": "Phòng Đảm bảo chất lượng",
+    "topics": [
+      [
+        "Khảo khí",
+        "Quy định thi, phúc khảo, điểm I, hình thức thi",
+        "Thời hạn phúc khảo ĐHCQ là bao lâu?",
+        "Câu này được trả lời từ mô-đun RAG khao_khi khi BFF bật CHATBOT_PROVIDER=rag."
+      ],
+      [
+        "Kiểm định chất lượng",
+        "Tiêu chuẩn, quy trình và minh chứng",
+        "Tôi cần chuẩn bị minh chứng kiểm định như thế nào?",
+        "Bạn có thể phân nhóm minh chứng theo tiêu chuẩn, ghi rõ tên tài liệu, đơn vị phụ trách, thời điểm ban hành và phiên bản. Danh mục chính thức cần được phòng xác nhận."
+      ],
+      [
+        "Đảm bảo chất lượng nội bộ",
+        "Tự đánh giá và cải tiến chất lượng",
+        "Kế hoạch cải tiến chất lượng gồm những gì?",
+        "Một kế hoạch tham khảo gồm vấn đề cần cải tiến, mục tiêu, hoạt động, đơn vị phụ trách, thời hạn và minh chứng kết quả."
+      ],
+      [
+        "Biểu mẫu & hướng dẫn",
+        "Tra cứu tài liệu theo nhu cầu",
+        "Tôi tìm biểu mẫu tự đánh giá ở đâu?",
+        "Hãy cho biết loại báo cáo và đơn vị của bạn để xác định biểu mẫu phù hợp. Bản mẫu hiện chưa kết nối kho tài liệu chính thức."
+      ]
+    ]
+  },
+  "qtts": {
+    "short": "QTTS",
+    "name": "Phòng Quản trị tài sản",
+    "topics": [
+      [
+        "Cơ sở vật chất",
+        "Phòng học, không gian và trang thiết bị",
+        "Tôi muốn đăng ký sử dụng phòng học",
+        "Bạn có thể chuẩn bị mục đích sử dụng, thời gian, số người và yêu cầu thiết bị. Việc đặt phòng cần được đơn vị phụ trách xác nhận; bản mẫu chưa tạo lịch đặt phòng."
+      ],
+      [
+        "Báo hỏng & sửa chữa",
+        "Tiếp nhận thông tin sự cố thiết bị",
+        "Máy chiếu trong phòng học bị hỏng",
+        "Bạn vui lòng mô tả vị trí phòng, mã thiết bị nếu có, biểu hiện sự cố và thời điểm phát hiện. Đây là hội thoại mô phỏng, chưa gửi yêu cầu sửa chữa."
+      ],
+      [
+        "Quản lý tài sản",
+        "Bàn giao, điều chuyển và kiểm kê",
+        "Cần thông tin gì khi bàn giao tài sản?",
+        "Thông tin tham khảo gồm tên tài sản, mã tài sản, số lượng, tình trạng, bên giao, bên nhận và ngày bàn giao. Biểu mẫu áp dụng cần được phòng xác nhận."
+      ],
+      [
+        "Biểu mẫu & hướng dẫn",
+        "Hướng dẫn yêu cầu hỗ trợ",
+        "Tôi muốn đề nghị bảo trì thiết bị",
+        "Hãy chuẩn bị danh sách thiết bị, vị trí, hiện trạng và nhu cầu bảo trì. Khi kết nối hệ thống chính thức, bạn có thể gửi và theo dõi yêu cầu tại đây."
+      ]
+    ]
+  },
+  "pdt": {
+    "short": "PĐT",
+    "name": "Phòng Đào tạo",
+    "topics": [
+      [
+        "Kế hoạch học tập",
+        "Chương trình và kế hoạch đào tạo",
+        "Tôi muốn tra cứu chương trình đào tạo",
+        "Bạn vui lòng cung cấp ngành, khóa tuyển sinh và chương trình học. Bản mẫu chưa kết nối dữ liệu đào tạo để tra cứu thông tin chính thức."
+      ],
+      [
+        "Đăng ký học phần",
+        "Học phần, lớp học và thời khóa biểu",
+        "Tôi cần hỗ trợ đăng ký học phần",
+        "Bạn có thể nêu mã học phần, học kỳ và vấn đề gặp phải. Lịch đăng ký, điều kiện tiên quyết và số lượng chỗ cần được kiểm tra trên hệ thống đào tạo chính thức."
+      ],
+      [
+        "Thi & kết quả học tập",
+        "Lịch thi, điểm và phúc khảo",
+        "Tôi muốn tìm hiểu thủ tục phúc khảo",
+        "Bạn nên chuẩn bị mã học phần, lớp học phần, học kỳ và thông tin bài thi. Thời hạn, lệ phí và cách nộp đơn cần đối chiếu thông báo chính thức của phòng."
+      ],
+      [
+        "Thủ tục học vụ",
+        "Bảo lưu, học lại và tốt nghiệp",
+        "Tôi muốn tìm hiểu điều kiện xét tốt nghiệp",
+        "Điều kiện xét tốt nghiệp phụ thuộc chương trình và khóa học. Hãy cung cấp ngành, khóa và nội dung cần hỗ trợ để được hướng dẫn tra cứu quy định phù hợp."
+      ]
+    ]
+  },
+  "pns": {
+    "short": "PNS",
+    "name": "Phòng Nhân sự",
+    "topics": [
+      [
+        "Hồ sơ & thông tin nhân sự",
+        "Cập nhật hồ sơ và xác nhận công tác",
+        "Tôi muốn cập nhật thông tin hồ sơ nhân sự",
+        "Bạn vui lòng cho biết nhóm thông tin cần cập nhật hoặc loại xác nhận công tác cần hỗ trợ. Khi triển khai chính thức, mục này sẽ kết nối quy trình tiếp nhận của Phòng Nhân sự. Bản mẫu hiện chưa cập nhật hay lưu hồ sơ."
+      ],
+      [
+        "Chế độ & phúc lợi",
+        "Thông tin về chính sách và quyền lợi",
+        "Tôi muốn tìm hiểu các chế độ phúc lợi",
+        "Bạn muốn tìm hiểu nhóm phúc lợi hoặc chính sách nào? Nội dung áp dụng cần được đối chiếu với quy định và thông báo chính thức của trường. Bản mẫu hiện chưa kết nối dữ liệu chính sách nhân sự."
+      ],
+      [
+        "Nghỉ phép & công tác",
+        "Hướng dẫn đăng ký và theo dõi đề nghị",
+        "Tôi muốn đăng ký nghỉ phép",
+        "Bạn có thể mô tả loại đề nghị và khoảng thời gian dự kiến để trải nghiệm luồng hỗ trợ. Biểu mẫu, điều kiện và cấp phê duyệt cần được Phòng Nhân sự xác nhận. Hội thoại mô phỏng này chưa gửi đơn hay ghi nhận ngày nghỉ."
+      ],
+      [
+        "Tuyển dụng & bồi dưỡng",
+        "Vị trí tuyển dụng và phát triển chuyên môn",
+        "Tôi muốn tìm hiểu các chương trình bồi dưỡng",
+        "Bạn vui lòng nêu lĩnh vực chuyên môn hoặc kỹ năng muốn bồi dưỡng. Danh sách chương trình, điều kiện tham gia và thời hạn đăng ký sẽ cần kết nối thông báo chính thức của phòng. Bản mẫu chưa tiếp nhận đăng ký."
+      ]
+    ]
+  },
+  "hc": {
+    "short": "HC",
+    "name": "Phòng Hành chính",
+    "topics": [
+      [
+        "Văn bản & công văn",
+        "Tra cứu và hướng dẫn xử lý văn bản",
+        "Tôi muốn tra cứu một công văn",
+        "Bạn vui lòng cho biết chủ đề, số hiệu hoặc thời gian ban hành dự kiến của văn bản. Khi triển khai chính thức, mục này sẽ kết nối kho văn bản của phòng. Bản mẫu hiện chưa tra cứu công văn thực tế."
+      ],
+      [
+        "Văn thư & con dấu",
+        "Hướng dẫn trình ký và đóng dấu",
+        "Tôi muốn tìm hiểu quy trình đóng dấu văn bản",
+        "Bạn có thể mô tả loại văn bản và mục đích sử dụng để được hướng dẫn xác định quy trình phù hợp. Hồ sơ, thẩm quyền ký và cách tiếp nhận cần được Phòng Hành chính xác nhận. Bản mẫu chưa tiếp nhận văn bản hay yêu cầu đóng dấu."
+      ],
+      [
+        "Lịch công tác & hội họp",
+        "Thông tin lịch và hỗ trợ tổ chức cuộc họp",
+        "Tôi muốn đăng ký lịch họp",
+        "Bạn có thể chuẩn bị nội dung cuộc họp, thời gian dự kiến, thành phần tham dự và nhu cầu hỗ trợ. Việc sắp xếp lịch cần được đơn vị phụ trách xác nhận. Hội thoại mô phỏng này chưa tạo lịch họp."
+      ],
+      [
+        "Thủ tục & biểu mẫu",
+        "Hướng dẫn các yêu cầu hành chính",
+        "Tôi muốn tìm biểu mẫu hành chính",
+        "Bạn vui lòng nêu thủ tục hoặc loại biểu mẫu cần tìm. Danh mục, phiên bản và hướng dẫn sử dụng cần được đối chiếu với tài liệu chính thức của phòng. Bản mẫu hiện chưa kết nối kho biểu mẫu."
+      ]
+    ]
+  },
+  "ctsv": {
+    "short": "CTSV",
+    "name": "Phòng Công tác sinh viên",
+    "topics": [
+      [
+        "Hồ sơ & xác nhận sinh viên",
+        "Hướng dẫn giấy xác nhận và cập nhật hồ sơ",
+        "Tôi muốn xin giấy xác nhận sinh viên",
+        "Bạn vui lòng cho biết mục đích sử dụng giấy xác nhận để xác định loại thủ tục phù hợp. Biểu mẫu, cách nộp và thời gian xử lý cần được đối chiếu với hướng dẫn chính thức của phòng. Bản mẫu chưa tiếp nhận hồ sơ hay cấp giấy xác nhận."
+      ],
+      [
+        "Học bổng & hỗ trợ",
+        "Thông tin học bổng và chính sách sinh viên",
+        "Tôi muốn tìm hiểu các chương trình học bổng",
+        "Bạn quan tâm học bổng khuyến khích học tập, học bổng tài trợ hay chương trình hỗ trợ sinh viên? Điều kiện, hồ sơ và thời hạn cần được kiểm tra trong thông báo chính thức của từng chương trình. Bản mẫu chưa kết nối danh sách học bổng đang mở."
+      ],
+      [
+        "Rèn luyện & hoạt động",
+        "Điểm rèn luyện và hoạt động sinh viên",
+        "Tôi muốn tìm hiểu cách đánh giá điểm rèn luyện",
+        "Bạn có thể nêu học kỳ và nội dung cần hỗ trợ, chẳng hạn tiêu chí đánh giá hoặc bổ sung minh chứng hoạt động. Quy trình và thời hạn cần được đối chiếu với thông báo chính thức. Bản mẫu chưa tra cứu hay cập nhật điểm rèn luyện."
+      ],
+      [
+        "Đời sống & hỗ trợ sinh viên",
+        "Tiếp nhận thắc mắc và hướng dẫn đầu mối hỗ trợ",
+        "Tôi cần hỗ trợ một vấn đề trong đời sống sinh viên",
+        "Bạn vui lòng mô tả khái quát nhu cầu để được hướng dẫn tìm đầu mối phù hợp. Khi triển khai chính thức, mục này sẽ kết nối thông tin hỗ trợ của phòng. Đây là hội thoại mô phỏng, chưa chuyển yêu cầu đến cán bộ phụ trách."
+      ]
+    ]
+  }
+}

@@ -60,7 +60,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             {"name": "health", "description": "Liveness and dependency readiness."},
             {
                 "name": "chat",
-                "description": "Tenant-scoped chat. Server derives tenant from the API key.",
+                "description": (
+                    "Tenant-scoped chat. POST /v1/chat returns JSON; "
+                    "POST /v1/chat/stream is SSE (status, token, done)."
+                ),
             },
             {
                 "name": "administration",
@@ -97,5 +100,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/", include_in_schema=False)
     async def web_chat() -> FileResponse:
         return FileResponse(Path(__file__).parent / "web" / "index.html")
+
+    @app.get("/admin", include_in_schema=False)
+    async def web_admin() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "web" / "admin.html")
 
     return app
