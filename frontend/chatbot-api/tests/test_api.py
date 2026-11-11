@@ -11,7 +11,7 @@ from app.repositories.users import UserRepository
 from app.schemas.api import Membership
 
 PASSWORD = "Test-password-123!"
-DEPARTMENTS = ["dbcl", "qtts", "pdt", "pns", "hc", "ctsv"]
+DEPARTMENTS = ["dbcl", "qtts", "pdt", "pns", "hc", "ctsv", "khcn"]
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS memberships (
  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
- department TEXT NOT NULL CHECK(department IN ('dbcl','qtts','pdt','pns','hc','ctsv')),
+ department TEXT NOT NULL CHECK(department IN ('dbcl','qtts','pdt','pns','hc','ctsv','khcn')),
  role TEXT NOT NULL CHECK(role IN ('member','department_admin')),
  PRIMARY KEY(user_id, department)
 );

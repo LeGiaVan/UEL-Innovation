@@ -2,7 +2,7 @@
 
 Nguồn khung FE/BE: [github.com/Vinhtheripper/chatbot_uel](https://github.com/Vinhtheripper/chatbot_uel) — copy trong `frontend/`. Khi lệch hợp đồng (SSE, phòng, stub), **sửa phía GitHub**, không đụng graph RAG đã chạy ổn.
 
-PoC này **không production-ready**. Chỉ ĐBCL / Khảo khí nối RAG; năm phòng còn lại là FE + BFF mô phỏng.
+PoC này **không production-ready**. Chỉ ĐBCL / Khảo khí nối RAG; sáu phòng còn lại là FE + BFF mô phỏng.
 
 ## Kiến trúc
 
@@ -17,7 +17,8 @@ Sảnh lounge :5170          (nút từng phòng)
     ├── PĐT   :5175  ──►  BFF :30957  ──►  stub
     ├── PNS   :5176  ──►  BFF :30957  ──►  stub
     ├── HC    :5177  ──►  BFF :30957  ──►  stub
-    └── CTSV  :5178  ──►  BFF :30957  ──►  stub
+    ├── CTSV  :5178  ──►  BFF :30957  ──►  stub
+    └── KHCN  :5179  ──►  BFF :30957  ──►  stub
 ```
 
 | Lớp | Cổng | Việc làm |
@@ -29,6 +30,7 @@ Sảnh lounge :5170          (nút từng phòng)
 | FE PNS | 5176 | Chat mô phỏng Nhân sự |
 | FE HC | 5177 | Chat mô phỏng Hành chính |
 | FE CTSV | 5178 | Chat mô phỏng Công tác sinh viên |
+| FE KHCN | 5179 | Chat mô phỏng Khoa học công nghệ |
 | BFF GitHub | 30957 | `/api/chat/stream`, Bearer / `X-Department-ID` |
 | RAG UEL-Innovation | 8000 | `POST /v1/chat/stream`, `X-API-Key` |
 
@@ -38,7 +40,7 @@ Sảnh lounge :5170          (nút từng phòng)
 |---|---|---|---|
 | `dbcl` | `module_1` (Khảo khí) | `bao_dam_chat_luong` | `khao_khi` |
 
-Mọi tổ hợp khác (ĐBCL chủ đề 2–4, năm phòng còn lại) **không gọi graph**. BFF trả lời stub từ `chatbot-api/app/data/departments.json`.
+Mọi tổ hợp khác (ĐBCL chủ đề 2–4, sáu phòng còn lại) **không gọi graph**. BFF trả lời stub từ `chatbot-api/app/data/departments.json`.
 
 Vite proxy `/api` → `http://127.0.0.1:30957`. Hai package Python đều tên `app`: **không** `pip install` BFF vào venv RAG.
 
@@ -56,7 +58,7 @@ curl.exe -fsS http://127.0.0.1:8000/health/ready
 
 Nếu chưa từng nạp dữ liệu Khảo khí, xem `HUONG_DAN_ONBOARDING.md` và `HDSD_QUAN_LY_BOT.md` (trang `/admin`).
 
-### 2. Bật sảnh + 6 FE + BFF
+### 2. Bật sảnh + 7 FE + BFF
 
 ```powershell
 cd D:\ITAC\UEL-Innovation\frontend
@@ -67,11 +69,11 @@ Script sẽ:
 
 - `npm install` từng FE nếu chưa có `node_modules/vite`
 - ghi `.env.local` (dev: tắt login, FE nói chuyện với BFF)
-- mở cửa sổ: BFF, lounge, 6 Vite
+- mở cửa sổ: BFF, lounge, 7 Vite
 
 Mở **http://127.0.0.1:5170** rồi chọn phòng.
 
-Lần đầu năm FE ngoài ĐBCL có thể mất vài phút vì `npm install`. Nếu cửa sổ báo `'vite' is not recognized`, trong thư mục FE đó chạy `npm install` rồi `npm run dev`.
+Lần đầu sáu FE ngoài ĐBCL có thể mất vài phút vì `npm install`. Nếu cửa sổ báo `'vite' is not recognized`, trong thư mục FE đó chạy `npm install` rồi `npm run dev`.
 
 ### 3. Chỉ một phần
 
@@ -88,9 +90,10 @@ Lần đầu năm FE ngoài ĐBCL có thể mất vài phút vì `npm install`. 
 
 | URL | Kỳ vọng |
 |---|---|
-| http://127.0.0.1:5170 | 6 nút phòng |
+| http://127.0.0.1:5170 | 7 nút phòng |
 | http://127.0.0.1:5173 | Chat ĐBCL; hỏi phúc khảo / “sau đại học” ra RAG |
 | http://127.0.0.1:5178 | Chat CTSV; câu trả lời có `[Phản hồi mô phỏng]` |
+| http://127.0.0.1:5179 | Chat KHCN; câu trả lời có `[Phản hồi mô phỏng]` |
 | http://127.0.0.1:8000/health/ready | `"status": "ready"` |
 | http://127.0.0.1:30957/health/ready | BFF sẵn sàng |
 | http://127.0.0.1:8000/admin | Cấu hình bot RAG (`X-Admin-Key`) |
@@ -119,7 +122,7 @@ VITE_AUTH_DISABLED=true
 | `VITE_AUTH_DISABLED=true` | Bỏ trang đăng nhập (dev). BFF cũng cần `CHATBOT_AUTH_DISABLED=true` |
 | `VITE_SHOW_SOURCES` | ĐBCL: `true` (chỉ hiện dòng nguồn nếu câu trả lời chưa có `Nguồn:`). Phòng stub: `false` |
 
-Mỗi FE gửi `X-Department-ID` theo `src/config/department.json` (`dbcl`, `qtts`, `pdt`, `pns`, `hc`, `ctsv`).
+Mỗi FE gửi `X-Department-ID` theo `src/config/department.json` (`dbcl`, `qtts`, `pdt`, `pns`, `hc`, `ctsv`, `khcn`).
 
 ## Hội thoại (ĐBCL / RAG)
 
@@ -138,6 +141,7 @@ frontend/
 ├── chatbot-PNS/
 ├── chatbot-HC/
 ├── chatbot-CTSV/
+├── chatbot-KHCN/
 ├── chatbot-api/            BFF FastAPI :30957
 ├── run-cluster.ps1
 ├── run-bff.ps1
@@ -160,5 +164,5 @@ frontend/
 
 - Không `pip install` package BFF vào `.venv` RAG (cả hai đều tên `app`).
 - Không sửa graph/Qdrant chỉ để nối FE GitHub.
-- Không coi năm phòng stub là chatbot nghiệp vụ đã nạp dữ liệu.
+- Không coi sáu phòng stub là chatbot nghiệp vụ đã nạp dữ liệu.
 - Không commit `.env`, `.env.local`, hay API key.

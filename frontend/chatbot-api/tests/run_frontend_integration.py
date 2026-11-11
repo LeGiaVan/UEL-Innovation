@@ -27,7 +27,7 @@ def main():
             password,
             [
                 Membership(department=d)
-                for d in ["dbcl", "qtts", "pdt", "pns", "hc", "ctsv"]
+                for d in ["dbcl", "qtts", "pdt", "pns", "hc", "ctsv", "khcn"]
             ],
         )
         env = {
@@ -71,7 +71,7 @@ def main():
                 time.sleep(0.1)
             else:
                 raise RuntimeError("Temporary API did not become ready")
-            for suffix in ["DBCL", "qtts", "PDT", "PNS", "HC", "CTSV"]:
+            for suffix in ["DBCL", "qtts", "PDT", "PNS", "HC", "CTSV", "KHCN"]:
                 frontend = ROOT.parent / f"chatbot-{suffix}"
                 node_env = {
                     **os.environ,

@@ -1,0 +1,219 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  width: 100%;
+  background-color: var(--uel-bg-white);
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-outlet {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Responsive cho App */
+
+/* Mobile - dưới 480px */
+@media (max-width: 480px) {
+  .app-container {
+    flex-direction: column;
+  }
+}
+
+/* Tablet nhỏ và mobile lớn - 481px đến 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+}
+
+/* Tablet (iPad) - 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-container {
+    flex-direction: row;
+  }
+}
+
+/* Desktop nhỏ (19 inch) - 1025px đến 1280px */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .app-container {
+    flex-direction: row;
+  }
+}
+
+/* Desktop lớn - trên 1280px */
+@media (min-width: 1281px) {
+  .app-container {
+    flex-direction: row;
+  }
+}
+
+/* —— Mobile / tablet nhỏ: sidebar dạng drawer, nội dung full chiều cao —— */
+.mobile-module-bar,
+.sidebar-overlay,
+.sidebar-drawer__head {
+  display: none;
+}
+
+.sidebar-drawer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-module-bar {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0.3rem 0.65rem;
+    background: var(--uel-bg-white, #fff);
+    border-bottom: 1px solid var(--uel-border, #e0e0e0);
+  }
+
+  .mobile-module-bar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid rgba(20, 78, 140, 0.22);
+    border-radius: 12px;
+    background: var(--uel-bg-light, #f7f9fc);
+    color: var(--uel-primary, #144e8c);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .mobile-module-bar__btn:hover {
+    background: var(--uel-primary-lighter, #e8f0f8);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 210;
+    background: rgba(15, 23, 42, 0.38);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .sidebar-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(88vw, 300px);
+    max-width: 100%;
+    z-index: 220;
+    background: var(--uel-bg-white, #fff);
+    box-shadow: 6px 0 28px rgba(15, 23, 42, 0.18);
+    transform: translateX(-105%);
+    transition: transform 0.22s ease-out;
+    border-right: 1px solid var(--uel-border, #e0e0e0);
+  }
+
+  .sidebar-drawer--open {
+    transform: translateX(0);
+  }
+
+  .sidebar-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--uel-border, #e0e0e0);
+    background: var(--uel-bg-white, #fff);
+  }
+
+  .sidebar-drawer__title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--uel-text-primary, #1f497d);
+  }
+
+  .sidebar-drawer__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(20, 78, 140, 0.08);
+    color: var(--uel-primary, #144e8c);
+    cursor: pointer;
+  }
+
+  .sidebar-drawer__close:hover {
+    background: rgba(20, 78, 140, 0.14);
+  }
+
+  .sidebar-drawer .sidebar {
+    width: 100%;
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+    border: none;
+    border-bottom: none;
+    border-right: none;
+    /* Đảm bảo stack DỌC, không phải ngang */
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Phần TRÊN: 4 modules — CỐ ĐỊNH, không scroll. Hiển thị đầy đủ theo nội dung. */
+  .sidebar-drawer .sidebar-modes {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid rgba(20, 78, 140, 0.12);
+  }
+
+  .sidebar-drawer .sidebar-modes-list {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  /* Phần DƯỚI: Thông báo tuyển sinh — chiếm hết phần còn lại, SCROLL được */
+  .sidebar-drawer .sidebar-notices {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+}
+
+body.layout-drawer-open {
+  overflow: hidden;
+}

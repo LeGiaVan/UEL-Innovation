@@ -10,6 +10,7 @@ def test_dbcl_module_1_maps_to_khao_khi():
     assert map_rag_target("dbcl", "module_1") == ("bao_dam_chat_luong", "khao_khi")
     assert map_rag_target("dbcl", "module_2") is None
     assert map_rag_target("hc", "module_1") is None
+    assert map_rag_target("khcn", "module_1") is None
 
 
 def test_unmapped_department_falls_back_to_stub():

@@ -1,0 +1,31 @@
+{
+  "short": "KHCN",
+  "name": "Phòng Khoa học công nghệ",
+  "topics": [
+    [
+      "Đề tài & nhiệm vụ KHCN",
+      "Đăng ký, theo dõi và nghiệm thu đề tài",
+      "Tôi muốn tìm hiểu quy trình đăng ký đề tài",
+      "Bạn vui lòng nêu loại đề tài (cấp trường, cấp bộ, hợp tác) và vai trò của bạn. Hồ sơ, thời hạn và biểu mẫu cần đối chiếu thông báo chính thức của phòng. Bản mẫu chưa tiếp nhận đăng ký đề tài."
+    ],
+    [
+      "Công bố khoa học",
+      "Bài báo, hội thảo và thống kê công bố",
+      "Tôi cần kê khai bài báo khoa học",
+      "Bạn có thể chuẩn bị tên bài, tạp chí hoặc hội thảo, thời điểm và mã số nếu có. Danh mục tạp chí và quy định kê khai cần được phòng xác nhận. Hội thoại mô phỏng chưa ghi nhận công bố."
+    ],
+    [
+      "Sở hữu trí tuệ",
+      "Sáng chế, giải pháp hữu ích và bản quyền",
+      "Tôi muốn hỏi thủ tục đăng ký sở hữu trí tuệ",
+      "Bạn mô tả loại đối tượng (sáng chế, giải pháp hữu ích, nhãn hiệu) và giai đoạn hiện tại. Thẩm quyền, lệ phí và hồ sơ cần theo hướng dẫn chính thức. Bản mẫu chưa tạo hồ sơ SHTT."
+    ],
+    [
+      "Biểu mẫu & hướng dẫn",
+      "Tra cứu biểu mẫu nghiên cứu khoa học",
+      "Tôi tìm biểu mẫu thuyết minh đề tài ở đâu?",
+      "Hãy cho biết loại nhiệm vụ và cấp quản lý để xác định biểu mẫu phù hợp. Phiên bản đang dùng cần được phòng xác nhận. Bản mẫu hiện chưa kết nối kho tài liệu chính thức."
+    ]
+  ],
+  "id": "khcn"
+}

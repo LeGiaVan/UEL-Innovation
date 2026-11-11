@@ -17,7 +17,7 @@ def main():
     parser.add_argument(
         "--department",
         action="append",
-        choices=["dbcl", "qtts", "pdt", "pns", "hc", "ctsv"],
+        choices=["dbcl", "qtts", "pdt", "pns", "hc", "ctsv", "khcn"],
         default=[],
     )
     parser.add_argument(

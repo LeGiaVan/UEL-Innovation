@@ -18,6 +18,24 @@ class Database:
         with self.connect() as conn:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.executescript(Path(__file__).with_name("migrations.sql").read_text())
+            version = conn.execute(
+                "SELECT COALESCE(MAX(version), 0) FROM schema_versions"
+            ).fetchone()[0]
+            if version < 2:
+                conn.executescript(
+                    """
+                    CREATE TABLE memberships_v2 (
+                     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                     department TEXT NOT NULL CHECK(department IN ('dbcl','qtts','pdt','pns','hc','ctsv','khcn')),
+                     role TEXT NOT NULL CHECK(role IN ('member','department_admin')),
+                     PRIMARY KEY(user_id, department)
+                    );
+                    INSERT INTO memberships_v2 SELECT * FROM memberships;
+                    DROP TABLE memberships;
+                    ALTER TABLE memberships_v2 RENAME TO memberships;
+                    INSERT INTO schema_versions(version) VALUES (2);
+                    """
+                )
 
     def close(self):
         pass

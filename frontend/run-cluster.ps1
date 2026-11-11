@@ -1,4 +1,4 @@
-# Bat lounge + 6 FE + BFF. RAG :8000 can chay san (docker compose).
+# Bat lounge + 7 FE + BFF. RAG :8000 can chay san (docker compose).
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 
@@ -8,7 +8,8 @@ $fes = @(
     @{ dir = "chatbot-PDT";  port = 5175; mockSources = "false" },
     @{ dir = "chatbot-PNS";  port = 5176; mockSources = "false" },
     @{ dir = "chatbot-HC";   port = 5177; mockSources = "false" },
-    @{ dir = "chatbot-CTSV"; port = 5178; mockSources = "false" }
+    @{ dir = "chatbot-CTSV"; port = 5178; mockSources = "false" },
+    @{ dir = "chatbot-KHCN"; port = 5179; mockSources = "false" }
 )
 
 function Write-FeEnv([string]$path, [string]$showSources) {

@@ -1,10 +1,10 @@
-# Backend nền tảng cho sáu chatbot UEL
+# Backend nền tảng cho bảy chatbot UEL
 
-FastAPI dùng chung cho ĐBCL (`dbcl`), QTTS (`qtts`), PĐT (`pdt`), PNS (`pns`), HC (`hc`) và CTSV (`ctsv`). Entry point mới là **`app.main:app`**, chạy từ thư mục `chatbot-api` ngoài cùng. Thư mục lồng `chatbot-api/chatbot-api` là bản TVTS tham chiếu có sẵn, không được import hay khởi chạy bởi ứng dụng mới; không dùng `.env`, dữ liệu cache hoặc khóa của bản đó.
+FastAPI dùng chung cho ĐBCL (`dbcl`), QTTS (`qtts`), PĐT (`pdt`), PNS (`pns`), HC (`hc`), CTSV (`ctsv`) và KHCN (`khcn`). Entry point mới là **`app.main:app`**, chạy từ thư mục `chatbot-api` ngoài cùng. Thư mục lồng `chatbot-api/chatbot-api` là bản TVTS tham chiếu có sẵn, không được import hay khởi chạy bởi ứng dụng mới; không dùng `.env`, dữ liệu cache hoặc khóa của bản đó.
 
 ## Môi trường đã thiết lập trong workspace
 
-Đã tạo `.env` cho backend và `.env.local` cho sáu frontend, cùng trỏ backend tới cổng **30957**. Nếu đang kích hoạt `Chatbot/venv`, có thể tiếp tục dùng môi trường đó; bộ thư viện trong `requirements.lock` đã được cài, gồm `pwdlib` và `argon2-cffi`.
+Đã tạo `.env` cho backend và `.env.local` cho bảy frontend, cùng trỏ backend tới cổng **30957**. Nếu đang kích hoạt `Chatbot/venv`, có thể tiếp tục dùng môi trường đó; bộ thư viện trong `requirements.lock` đã được cài, gồm `pwdlib` và `argon2-cffi`.
 
 Từ thư mục `chatbot-api`, chạy:
 
@@ -16,7 +16,7 @@ Script dùng virtualenv đang kích hoạt, hoặc `chatbot-api/.venv` nếu ch�
 
 ## Tạm bỏ đăng nhập
 
-Workspace hiện bật `CHATBOT_AUTH_DISABLED=true` trong backend `.env` và `VITE_AUTH_DISABLED=true` trong `.env.local` của sáu FE. Khởi động lại backend/Vite để áp dụng. FE vẫn gọi backend thật. Người truy cập dùng chung danh tính khách phát triển, có quyền chat cả sáu phòng; lịch sử khách trong cùng phòng cũng dùng chung. Hội thoại của tài khoản đã đăng nhập vẫn được cách ly, API quản trị vẫn yêu cầu quyền admin.
+Workspace hiện bật `CHATBOT_AUTH_DISABLED=true` trong backend `.env` và `VITE_AUTH_DISABLED=true` trong `.env.local` của bảy FE. Khởi động lại backend/Vite để áp dụng. FE vẫn gọi backend thật. Người truy cập dùng chung danh tính khách phát triển, có quyền chat cả bảy phòng; lịch sử khách trong cùng phòng cũng dùng chung. Hội thoại của tài khoản đã đăng nhập vẫn được cách ly, API quản trị vẫn yêu cầu quyền admin.
 
 Để bật lại đăng nhập, đặt cả hai biến về `false` và khởi động lại. Mặc định trong code và `.env.example` vẫn yêu cầu xác thực; backend từ chối bật chế độ khách trong production, FE chỉ bỏ gate khi chạy dev.
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 cp .env.example .env
 python -m app.cli create-user --username admin --system-admin \
   --department dbcl --department qtts --department pdt \
-  --department pns --department hc --department ctsv --role department_admin
+  --department pns --department hc --department ctsv --department khcn --role department_admin
 uvicorn app.main:app --host 127.0.0.1 --port 30957 --no-proxy-headers --no-access-log
 ```
 
@@ -45,7 +45,7 @@ Lệnh tạo tài khoản hỏi mật khẩu hai lần, yêu cầu tối thiểu
 - Access log ghi method, path (không gồm query string), status, thời gian xử lý và request ID. Không ghi request/response body, credentials hoặc token. Điều chỉnh mức log bằng `CHATBOT_LOG_LEVEL`.
 - `python -m app.cli cleanup` xóa sessions và cửa sổ rate limit hết hạn; có thể gọi từ lịch vận hành bên ngoài. Không tự xóa hội thoại.
 
-## Kết nối sáu frontend
+## Kết nối bảy frontend
 
 Trong từng frontend, tạo `.env.local`:
 
@@ -55,7 +55,7 @@ VITE_API_URL=/api
 API_PROXY_TARGET=http://127.0.0.1:30957
 ```
 
-Khởi động lại `npm run dev`. Các cổng lần lượt 5173…5178. FE hiện trang đăng nhập, tự gửi `Authorization: Bearer <token>` và `X-Department-ID` theo `src/config/department.json`. Không đặt mật khẩu hoặc token vào biến `VITE_*`.
+Khởi động lại `npm run dev`. Các cổng lần lượt 5173…5179. FE hiện trang đăng nhập, tự gửi `Authorization: Bearer <token>` và `X-Department-ID` theo `src/config/department.json`. Không đặt mật khẩu hoặc token vào biến `VITE_*`.
 
 Token truy cập ngẫu nhiên 256-bit được lưu **chỉ trong bộ nhớ FE**; DB chỉ lưu SHA-256 của token. Tải lại trang cần đăng nhập lại; logout thu hồi token trên server và reset Redux. HTTP 401 đưa về đăng nhập; 403 báo thiếu quyền; HTTP 429/Retry-After khóa ô gửi theo thời gian chờ. Không tự fallback sang mock khi API lỗi. Server không tin mã phòng từ trình duyệt nếu tài khoản không có membership.
 
@@ -83,7 +83,7 @@ app/
     migrations.sql        # versioned initial schema v1
   repositories/           # parameterized SQL, user and conversation persistence
   services/               # auth, chat, catalog, provider, rate limiting, audit
-  data/departments.json   # six department catalogs copied from frontend
+  data/departments.json   # seven department catalogs copied from frontend
   cli.py                  # bootstrap user, maintenance cleanup
  tests/                   # backend and live FE integration tests
 ```
@@ -152,7 +152,7 @@ Compose khởi động MongoDB cùng FastAPI và lưu dữ liệu MongoDB bằng
 
 `services/providers.py` định nghĩa `AnswerProvider`; hiện chỉ `StubAnswerProvider` và mọi câu trả lời ghi rõ mô phỏng. Chưa tạo đơn, gửi email hay thay đổi nghiệp vụ. Khi có dữ liệu: bổ sung ingestion/worker riêng, phân quyền tài liệu theo department, retrieval trong phạm vi phòng và provider LLM sau lớp kiểm tra quyền. Không lấy department hoặc user identity từ đầu ra LLM. Streaming provider thật cần bổ sung trạng thái interrupted/error, timeout, cancellation và idempotency; stub hiện không giả vờ có các khả năng đó.
 
-`app/data/departments.json` là snapshot của cấu hình sáu frontend. Khi đổi danh mục nghiệp vụ cần cập nhật cả FE và catalog backend hoặc chuyển sang quản lý tập trung.
+`app/data/departments.json` là snapshot của cấu hình bảy frontend. Khi đổi danh mục nghiệp vụ cần cập nhật cả FE và catalog backend hoặc chuyển sang quản lý tập trung.
 
 ## Kiểm thử
 
@@ -161,9 +161,9 @@ python -m pytest -q
 python -m tests.run_frontend_integration
 ```
 
-Backend test bao phủ hợp đồng sáu phòng, quyền sở hữu, đổi phòng/mode, giả mạo token, hết hạn/logout, thu hồi membership/session, role escalation, validation, rate limit, CORS/Host, body limit, persistence và concurrent writes.
+Backend test bao phủ hợp đồng bảy phòng, quyền sở hữu, đổi phòng/mode, giả mạo token, hết hạn/logout, thu hồi membership/session, role escalation, validation, rate limit, CORS/Host, body limit, persistence và concurrent writes.
 
-Live integration tự tạo DB và tài khoản tạm, mở server tại 127.0.0.1:30958, chạy Redux/API client thật của cả sáu FE (login → modes/QA → SSE → history → logout), rồi tự dừng server và xóa DB tạm. Cần Node và node_modules của các frontend. Test này không thay thế kiểm thử UI bằng trình duyệt.
+Live integration tự tạo DB và tài khoản tạm, mở server tại 127.0.0.1:30958, chạy Redux/API client thật của cả bảy FE (login → modes/QA → SSE → history → logout), rồi tự dừng server và xóa DB tạm. Cần Node và node_modules của các frontend. Test này không thay thế kiểm thử UI bằng trình duyệt.
 
 ## Docker
 
@@ -187,4 +187,4 @@ curl -N http://127.0.0.1:30957/api/chat/stream \
   -d '{"message":"hello","mode":"module_1","conversation_id":null}'
 ```
 
-API trả SSE `token` và `done`, câu trả lời bắt đầu bằng “Xin chào, đây là chatbot Phòng Hành chính…”. Đổi header thành `dbcl`, `qtts`, `pdt`, `pns`, `ctsv` để kiểm thử phòng tương ứng. Khi bật lại xác thực, thêm header Bearer token. Lời chào cũng nhận `hi`, `xin chào`, chữ hoa và dấu câu cuối câu.
+API trả SSE `token` và `done`, câu trả lời bắt đầu bằng “Xin chào, đây là chatbot Phòng Hành chính…”. Đổi header thành `dbcl`, `qtts`, `pdt`, `pns`, `ctsv`, `khcn` để kiểm thử phòng tương ứng. Khi bật lại xác thực, thêm header Bearer token. Lời chào cũng nhận `hi`, `xin chào`, chữ hoa và dấu câu cuối câu.

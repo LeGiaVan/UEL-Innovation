@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     allowed_origins: list[str] = [
         f"http://{host}:{port}"
         for host in ("localhost", "127.0.0.1")
-        for port in range(5170, 5179)
+        for port in range(5170, 5180)
     ]
     allowed_hosts: list[str] = ["localhost", "127.0.0.1", "testserver", "api"]
     session_ttl_seconds: int = Field(3600, ge=60, le=86400)

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
-Department = Literal["dbcl", "qtts", "pdt", "pns", "hc", "ctsv"]
+Department = Literal["dbcl", "qtts", "pdt", "pns", "hc", "ctsv", "khcn"]
 Role = Literal["member", "department_admin"]
 Mode = Literal["module_1", "module_2", "module_3", "module_4"]
 
@@ -24,7 +24,7 @@ class Membership(StrictModel):
 
 class UserCreate(LoginRequest):
     password: SecretStr = Field(min_length=12, max_length=256)
-    memberships: list[Membership] = Field(default_factory=list, max_length=6)
+    memberships: list[Membership] = Field(default_factory=list, max_length=7)
 
 
 class UserInfo(BaseModel):
