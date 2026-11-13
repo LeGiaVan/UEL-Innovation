@@ -255,8 +255,8 @@
         <p class="status" id="botStatus"></p>
         <label for="profile">Profile</label>
         <select id="profile">
-          <option value="generic">generic</option>
-          <option value="assessment">assessment (Khảo khí)</option>
+          <option value="generic">generic — phòng mới (chỉ YAML/pack)</option>
+          <option value="assessment">assessment — chỉ Khảo khí (điểm I, hệ đào tạo)</option>
         </select>
         <label for="role">Vai trò (tối đa 500 ký tự)</label>
         <textarea id="role" rows="2" maxlength="500" placeholder="Trợ lý Phòng Đào tạo, hỗ trợ người học về đăng ký học phần."></textarea>
@@ -279,11 +279,24 @@
         <div class="row">
           <div>
             <label for="topK">top_k</label>
-            <input id="topK" type="number" min="1" max="20" placeholder="mặc định hệ thống">
+            <input id="topK" type="number" min="1" max="20" step="1" placeholder="5">
           </div>
           <div>
             <label for="threshold">score_threshold</label>
-            <input id="threshold" type="number" min="0" max="1" step="0.01" placeholder="mặc định hệ thống">
+            <input id="threshold" type="number" min="0" max="1" step="0.0001" placeholder="0.4167">
+          </div>
+        </div>
+        <div class="row" style="margin-top:.6rem">
+          <div>
+            <label for="ragMode">mode</label>
+            <select id="ragMode">
+              <option value="hybrid">hybrid</option>
+              <option value="dense">dense</option>
+            </select>
+          </div>
+          <div>
+            <label for="faqBoost">faq_boost</label>
+            <input id="faqBoost" type="number" min="0" max="1" step="0.01" placeholder="0.12">
           </div>
         </div>
         <div class="row" style="margin-top:.8rem">
@@ -563,6 +576,8 @@
         document.querySelector("#aliases").value = JSON.stringify(data.routing_aliases || {}, null, 2);
         document.querySelector("#topK").value = data.retrieval.top_k ?? "";
         document.querySelector("#threshold").value = data.retrieval.score_threshold ?? "";
+        document.querySelector("#ragMode").value = data.retrieval.mode || "hybrid";
+        document.querySelector("#faqBoost").value = data.retrieval.faq_boost ?? "";
         const packed = currentRow() && currentRow().has_prompt_pack;
         setStatus(
           "#botStatus",
@@ -899,6 +914,7 @@
       catch (err) { setStatus("#botStatus", "aliases không phải JSON hợp lệ.", "err"); return; }
       const topK = document.querySelector("#topK").value;
       const threshold = document.querySelector("#threshold").value;
+      const faqBoost = document.querySelector("#faqBoost").value;
       const body = {
         profile: document.querySelector("#profile").value,
         prompt_pack: {
@@ -915,7 +931,9 @@
         },
         retrieval: {
           top_k: topK === "" ? null : Number(topK),
-          score_threshold: threshold === "" ? null : Number(threshold)
+          score_threshold: threshold === "" ? null : Number(threshold),
+          mode: document.querySelector("#ragMode").value || "hybrid",
+          faq_boost: faqBoost === "" ? null : Number(faqBoost)
         },
         routing_aliases: aliases
       };

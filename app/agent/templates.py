@@ -23,16 +23,26 @@ def scope_clarification_answer(
     *,
     module_name: str,
     related_faqs: list[str] | None = None,
+    assessment: bool = False,
 ) -> str:
     lines = [
         f"Tôi chưa đủ căn cứ để trả lời chắc câu hỏi này trong **{module_name}**.",
         "",
         "Bạn hãy bổ sung **một** ý cụ thể:",
-        "- Thủ tục bạn cần (phúc khảo, điểm I, hình thức thi, …)",
-        "- Hệ đào tạo nếu hỏi thời hạn: **ĐHCQ** (đại học chính quy), "
-        "**SĐH** (sau đại học), hoặc **VB2/VLVH**",
-        "- Hoặc đây là hồ sơ/điểm của một người — khi đó cần cán bộ hỗ trợ",
     ]
+    if assessment:
+        lines += [
+            "- Thủ tục bạn cần (phúc khảo, điểm I, hình thức thi, …)",
+            "- Hệ đào tạo nếu hỏi thời hạn: **ĐHCQ** (đại học chính quy), "
+            "**SĐH** (sau đại học), hoặc **VB2/VLVH**",
+            "- Hoặc đây là hồ sơ/điểm của một người — khi đó cần cán bộ hỗ trợ",
+        ]
+    else:
+        lines += [
+            "- Thủ tục hoặc nội dung quy định bạn cần",
+            "- Chi tiết còn thiếu để xác định đúng quy định",
+            "- Hoặc đây là hồ sơ của một người — khi đó cần cán bộ hỗ trợ",
+        ]
     faqs = [item.strip() for item in (related_faqs or []) if item.strip()][:3]
     if faqs:
         lines += ["", "Nếu đúng một trong các câu này, gửi lại nguyên câu:"]
@@ -46,7 +56,7 @@ INSUFFICIENT_ANSWER = (
 
 FEE_UNKNOWN_ANSWER = (
     "Nguồn đã duyệt ghi lệ phí chưa xác định. Tôi không nêu số tiền. "
-    "Vui lòng liên hệ đơn vị khảo thí để được hướng dẫn mức thu hiện hành."
+    "Vui lòng liên hệ đơn vị phụ trách để được hướng dẫn mức thu hiện hành."
 )
 
 TIMEOUT_ANSWER = (
@@ -54,7 +64,7 @@ TIMEOUT_ANSWER = (
 )
 
 PROVIDER_ERROR_ANSWER = (
-    "Không đọc được câu trả lời từ mô hình. Vui lòng thử lại hoặc hỏi một quy định khảo thí cụ thể."
+    "Không đọc được câu trả lời từ mô hình. Vui lòng thử lại hoặc hỏi một quy định cụ thể trong phạm vi mô-đun."
 )
 
 GREETING_ANSWER = (

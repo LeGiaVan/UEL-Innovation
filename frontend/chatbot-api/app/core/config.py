@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     rag_base_url: str = "http://127.0.0.1:8000"
     rag_api_key: str = ""
     rag_timeout_seconds: float = Field(90, gt=1, le=300)
+    rag_routes: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_origins(self):

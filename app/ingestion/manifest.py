@@ -88,6 +88,8 @@ class BotMessages(BaseModel):
 class RetrievalSettings(BaseModel):
     top_k: int | None = Field(default=None, ge=1, le=20)
     score_threshold: float | None = Field(default=None, ge=0, le=1)
+    mode: Literal["hybrid", "dense"] | None = None
+    faq_boost: float | None = Field(default=None, ge=0, le=1)
 
 
 class DepartmentModuleConfig(BaseModel):

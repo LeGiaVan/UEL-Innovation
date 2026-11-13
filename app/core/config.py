@@ -60,6 +60,7 @@ class Settings(BaseSettings):
     gold_faq_score_boost: float = Field(default=0.12, ge=0, le=1)
     rag_top_k: int = Field(default=5, ge=1, le=20)
     rag_score_threshold: float = Field(default=0.4167, ge=0, le=10)
+    rag_search_mode: Literal["hybrid", "dense"] = "hybrid"
 
     llm_provider: Literal["groq", "gemini", "fake"] = "fake"
     llm_model: str = Field(default="openai/gpt-oss-20b", min_length=1)

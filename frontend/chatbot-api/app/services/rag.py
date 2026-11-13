@@ -8,20 +8,32 @@ from urllib.parse import urljoin
 import httpx
 from fastapi import HTTPException
 
-# GitHub department id / mode → UEL-Innovation tenant + module (RAG đã chạy ổn).
-RAG_ROUTES: dict[str, dict[str, Any]] = {
+# Lounge room id / mode → UEL-Innovation tenant + module. Overlay via CHATBOT_RAG_ROUTES.
+DEFAULT_RAG_ROUTES: dict[str, dict[str, Any]] = {
     "dbcl": {
         "department_id": "bao_dam_chat_luong",
         "modules": {"module_1": "khao_khi"},
     }
 }
+RAG_ROUTES = DEFAULT_RAG_ROUTES
 
 
-def map_rag_target(department: str, mode: str) -> tuple[str, str] | None:
-    route = RAG_ROUTES.get(department)
+def merged_rag_routes(overlay: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    merged = {key: dict(value) for key, value in DEFAULT_RAG_ROUTES.items()}
+    for department, spec in (overlay or {}).items():
+        if isinstance(spec, dict):
+            merged[str(department)] = spec
+    return merged
+
+
+def map_rag_target(
+    department: str, mode: str, routes: dict[str, dict[str, Any]] | None = None
+) -> tuple[str, str] | None:
+    table = routes if routes is not None else DEFAULT_RAG_ROUTES
+    route = table.get(department)
     if not route:
         return None
-    module = route["modules"].get(mode)
+    module = (route.get("modules") or {}).get(mode)
     if not module:
         return None
     return str(route["department_id"]), str(module)
@@ -131,6 +143,7 @@ class RagAnswerProvider:
         self.base = str(getattr(settings, "rag_base_url", "http://127.0.0.1:8000")).rstrip("/")
         self.api_key = str(getattr(settings, "rag_api_key", "") or "")
         self.timeout = float(getattr(settings, "rag_timeout_seconds", 90))
+        self.routes = merged_rag_routes(getattr(settings, "rag_routes", None))
 
     def answer(self, department: str, mode: str, message: str) -> str:
         return self.complete(department, mode, message)["response"]
@@ -166,7 +179,7 @@ class RagAnswerProvider:
         *,
         conversation_id: str | None = None,
     ) -> Iterator[dict[str, Any]]:
-        mapped = map_rag_target(department, mode)
+        mapped = map_rag_target(department, mode, self.routes)
         if mapped is None:
             from app.services.providers import StubAnswerProvider
 

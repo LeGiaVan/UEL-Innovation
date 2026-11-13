@@ -120,6 +120,7 @@ class GoldIndexer:
         environment: str,
         limit: int = 8,
         mode: str = "hybrid",
+        faq_boost: float | None = None,
     ) -> list[GoldHit]:
         embedded = self._embedder.embed([query])[0]
         return self._store.search(
@@ -128,7 +129,7 @@ class GoldIndexer:
             module_code=module_code,
             environment=environment,
             limit=limit,
-            faq_boost=self.faq_boost,
+            faq_boost=self.faq_boost if faq_boost is None else faq_boost,
             mode=mode,
         )
 
@@ -157,6 +158,7 @@ class NullGoldIndexer:
         environment: str,
         limit: int = 8,
         mode: str = "hybrid",
+        faq_boost: float | None = None,
     ) -> list[GoldHit]:
-        del query, department_id, module_code, environment, limit, mode
+        del query, department_id, module_code, environment, limit, mode, faq_boost
         return []

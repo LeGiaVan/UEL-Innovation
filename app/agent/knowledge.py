@@ -52,6 +52,7 @@ class Retriever(Protocol):
         environment: str,
         limit: int = 8,
         mode: str = "hybrid",
+        faq_boost: float | None = None,
     ) -> list[GoldHit]: ...
 
 
@@ -223,7 +224,8 @@ class MemoryRetriever:
         environment: str,
         limit: int = 8,
         mode: str = "hybrid",
+        faq_boost: float | None = None,
     ) -> list[GoldHit]:
-        del department_id, module_code, environment, mode
+        del department_id, module_code, environment, mode, faq_boost
         self.calls.append(query)
         return list(self.hits[:limit])

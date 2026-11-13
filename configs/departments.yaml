@@ -39,6 +39,11 @@ departments:
             topic: phuc_khao | diem_i_nhan | diem_i_tra | seb | hinh_thuc_thi | fee | other.
             is_fee_question: true nếu hỏi mức thu/số tiền/lệ phí.
             Không bịa mã tài liệu hay mã câu hỏi.
+        retrieval:
+          top_k: 5
+          score_threshold: 0.4167
+          mode: hybrid
+          faq_boost: 0.12
         messages:
           greeting: |
             Xin chào. Tôi là trợ lý mô-đun Khảo khí, Phòng Bảo đảm chất lượng (UEL).

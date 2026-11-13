@@ -17,9 +17,10 @@ Trang `/admin` gửi header `X-Admin-Key`. Giá trị đúng là **`APP_ADMIN_AP
 | Tài liệu RAG | Template 3 → Qdrant | Chat không đọc Excel lúc hỏi |
 | Vai trò, ràng buộc, thuật ngữ, cách viết, metadata | Prompt pack (trang `/admin` hoặc API) | Overlay, không đè lớp an toàn |
 | Alias câu hỏi exact (bỏ LLM) | `routing_aliases` trên pack | Key = `rule_id` trong Template 1 |
-| `top_k` / ngưỡng retrieval | Pack | Để trống = mặc định hệ thống |
-| Profile `generic` / `assessment` | Pack / registry | `assessment` chỉ Khảo khí (điểm I, lệ phí, hệ đào tạo) |
+| `top_k`, `score_threshold`, `mode`, `faq_boost` | YAML mô-đun / `/admin` | Trống = `.env` `RAG_TOP_K`, `RAG_SCORE_THRESHOLD`, `RAG_SEARCH_MODE`, `GOLD_FAQ_SCORE_BOOST` |
+| Profile `generic` / `assessment` | YAML / `/admin` | Phòng mới: `generic`. `assessment` chỉ Khảo khí |
 | API key chat người học | `.env` → `API_CLIENTS` | Không lưu trên `/admin` |
+| Lounge FE → tenant RAG | BFF `.env` `CHATBOT_RAG_ROUTES` | Overlay; `dbcl`/`khao_khi` giữ mặc định |
 
 **Không** đưa toàn bộ system prompt tự do. Lớp cứng luôn giữ: chỉ dùng evidence, không bịa, không lộ secret, cô lập tenant. Mã nguồn gắn metadata/API; câu trả lời người học không nhồi citation hay `gold:`.
 
@@ -55,7 +56,7 @@ Module `generic` **không** nhận sẵn ĐHCQ/SĐH. Chỉ điền glossary nế
 - **Prompt metadata (`metadata_system`)**: system text khi cần LLM gắn hệ đào tạo/chủ đề. Để trống = không gọi bước này (trừ `profile=assessment` khi chưa điền, lúc đó mới dùng skeleton trong code).
 - **Câu chào / ngoài phạm vi / làm rõ**: để trống thì dùng câu mặc định theo tên mô-đun. Khảo khí nên điền đủ ba câu trong pack, không dựa vào `prompts.py`.  
 - **routing_aliases**: JSON `{"RULE_ID": ["câu khớp nguyên văn", ...]}`.  
-- **top_k**, **score_threshold**: số; để trống giữ mặc định.
+- **top_k**, **score_threshold**, **mode** (`hybrid`/`dense`), **faq_boost**: số/mode; để trống ghi mặc định `.env`.
 
 Lưu dùng `If-Match` (ETag). Nếu 409: tải lại rồi lưu.
 
@@ -99,7 +100,7 @@ Header mọi lệnh: `X-Admin-Key`. PUT body:
     "out_of_scope": "",
     "clarification": ""
   },
-  "retrieval": { "top_k": null, "score_threshold": null },
+  "retrieval": { "top_k": 5, "score_threshold": 0.4167, "mode": "hybrid", "faq_boost": 0.12 },
   "routing_aliases": {}
 }
 ```
@@ -108,12 +109,16 @@ Nạp release mới **không xóa** pack đã lưu (chỉ cập nhật tên, ngu
 
 ## 6. Việc vẫn nằm trong code (không có trên UI)
 
-- Graph agent, chống injection, kiểm citation, fail-closed khi thiếu rule  
-- Schema JSON metadata (`dhcq`/`sdh`/…) và heuristic `profile=assessment` (thời hạn, lệ phí, điểm I)  
-- Lớp an toàn generate: chỉ dùng evidence, không lộ `gold:`/`chunk_id`  
+Phòng / mô-đun mới: Template 1–3 + YAML pack (`generic`) + `.env` (`API_CLIENTS`, retrieval mặc định). Không sửa Python.
+
+Vẫn trong code có chủ đích:
+
+- Lớp an toàn generate (`GENERATE_FOUNDATION`), chống injection, kiểm citation, fail-closed khi thiếu rule  
+- Hybrid RRF, Cosine, prefetch; FAQ exact sau `normalize_question`  
+- Extension `profile=assessment` (Khảo khí: ĐHCQ/SĐH, điểm I, TL03/TL04, rewrite phúc khảo). `legacy_mode` chỉ test  
 - Secret `API_CLIENTS` / `APP_ADMIN_API_KEY`
 
-`app/agent/prompts.py` **không** chứa lời thoại Khảo khí. Vai trò, ràng buộc, thuật ngữ, cách viết, metadata, chào/OOS/làm rõ nằm trong pack YAML của từng mô-đun. Muốn logic đặc thù mới: viết extension + test, không nhét vào textarea pack.
+`generic` không chạy heuristic khảo thí, không rewrite “Portal UEL”, không dùng câu chào Khảo khí. Pack trống → chào/OOS theo tên mô-đun trong YAML.
 
 ## 7. Lỗi thường gặp
 

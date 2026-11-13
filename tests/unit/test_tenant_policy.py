@@ -96,7 +96,8 @@ def test_template_rule_controls_action_and_contact(tmp_path):
     # Only the allowed decision may retrieve, not OOS/handoff/unknown/timeout.
     assert len(retriever.calls) == 1
     assert "Exam rules" not in ask("alpha").answer
-    assert "ĐHCQ" in ask("alpha").answer
+    assert "ĐHCQ" not in ask("alpha").answer
+    assert "ONE" in ask("alpha").answer
     assert "Chưa xác định chắc chắn phạm vi hỗ trợ" not in ask("alpha").answer
 
 
@@ -136,6 +137,10 @@ def test_exact_faq_answers_before_policy_classifier(tmp_path):
 
 
 def test_fee_question_abstains_instead_of_scope_menu(tmp_path):
+    config = registry(tmp_path)
+    data = yaml.safe_load(config.read_text(encoding="utf-8"))
+    data["departments"][0]["modules"][0]["profile"] = "assessment"
+    config.write_text(yaml.safe_dump(data), encoding="utf-8")
     llm = Classifier()
     llm.choice = "invented"
     runtime = AgentRuntime(
@@ -144,7 +149,7 @@ def test_fee_question_abstains_instead_of_scope_menu(tmp_path):
             MemoryFaqStore([]),
             MemoryRetriever([]),
             rules=Rules(),
-            config_path=str(registry(tmp_path)),
+            config_path=str(config),
         )
     )
     result = runtime.invoke(
@@ -806,6 +811,12 @@ def test_bot_config_put_preview_and_ingest_keeps_pack(settings, tmp_path):
         client.app.state.agent_runtime = Runtime()
         loaded = client.get("/v1/admin/modules/alpha/one/bot", headers=admin)
         assert loaded.status_code == 200
+        assert loaded.json()["retrieval"] == {
+            "top_k": 5,
+            "score_threshold": 0.4167,
+            "mode": "hybrid",
+            "faq_boost": 0.12,
+        }
         saved = client.put(
             "/v1/admin/modules/alpha/one/bot",
             headers={**admin, "If-Match": loaded.headers["etag"]},
@@ -854,6 +865,12 @@ def test_bot_config_put_preview_and_ingest_keeps_pack(settings, tmp_path):
         assert body["prompt_pack"]["answer_style"] == "Tra loi tung he."
         assert body["prompt_pack"]["metadata_system"] == "PACK_META_MARKER"
         assert body["messages"]["greeting"] == "Xin chao PDT."
+        assert body["retrieval"] == {
+            "top_k": 3,
+            "score_threshold": 0.4,
+            "mode": "hybrid",
+            "faq_boost": 0.12,
+        }
         page = client.get("/admin")
         assert page.status_code == 200
         assert "Prompt pack" in page.text
@@ -861,3 +878,103 @@ def test_bot_config_put_preview_and_ingest_keeps_pack(settings, tmp_path):
         assert "metadataSystem" in page.text
         assert "Thêm mô-đun" in page.text
         assert "inspectTemplates" in page.text
+        assert "ragMode" in page.text
+        assert "faqBoost" in page.text
+
+
+def test_generic_module_does_not_rewrite_phuc_khao_or_say_khao_khi(tmp_path):
+    from app.agent.llm import LlmResponse
+    from app.gold.models import GoldHit
+
+    class Dual:
+        def complete(self, request):
+            if request.purpose == "routing":
+                return LlmResponse(text="{}", parsed={"rule_id": "shared"})
+            return LlmResponse(text="Han 5 ngay. Nguồn: QT01.")
+
+    config = registry(tmp_path)
+    retriever = MemoryRetriever(
+        [
+            GoldHit(
+                chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+                entity_type="regulation",
+                score=1,
+                boosted_score=1,
+                stair_markdown="Han nop don 5 ngay lam viec.",
+                payload={"document_code": "QT01"},
+            )
+        ]
+    )
+    rules = Rules()
+    rules.scope = "answer_allowed"
+    runtime = AgentRuntime(
+        AgentDeps(Dual(), MemoryFaqStore([]), retriever, rules=rules, config_path=str(config))
+    )
+    greeting = runtime.invoke(
+        "xin chào", department_id="alpha", module_code="one", environment="test"
+    )
+    assert greeting.status == "greeting"
+    assert "Khảo khí" not in greeting.answer
+    assert "ONE" in greeting.answer
+    result = runtime.invoke(
+        "Thời hạn phúc khảo ĐHCQ",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+        conversation_id="generic-retrieve",
+    )
+    assert retriever.calls
+    assert retriever.calls[-1] == "Thời hạn phúc khảo ĐHCQ"
+    assert "Portal UEL" not in retriever.calls[-1]
+    assert result.status in {"answered", "insufficient_evidence"}
+
+
+def test_assessment_module_rewrites_phuc_khao_query(tmp_path):
+    from app.agent.llm import LlmResponse
+    from app.gold.models import GoldHit
+
+    class Dual:
+        def complete(self, request):
+            if request.purpose == "routing":
+                return LlmResponse(text="{}", parsed={"rule_id": "shared"})
+            if request.purpose == "metadata":
+                return LlmResponse(
+                    text="{}",
+                    parsed={
+                        "training_system": "dhcq",
+                        "topic": "phuc_khao",
+                        "is_fee_question": False,
+                    },
+                )
+            return LlmResponse(text="2 ngay. Nguồn: TL02.")
+
+    config = registry(tmp_path)
+    data = yaml.safe_load(config.read_text(encoding="utf-8"))
+    data["departments"][0]["modules"][0]["profile"] = "assessment"
+    config.write_text(yaml.safe_dump(data), encoding="utf-8")
+    retriever = MemoryRetriever(
+        [
+            GoldHit(
+                chunk_id="gold:aaaaaaaaaaaaaaaaaaaaaaaa",
+                entity_type="regulation",
+                score=1,
+                boosted_score=1,
+                stair_markdown="Phuc khao DHCQ 2 ngay tren Portal UEL.",
+                payload={"document_code": "TL02"},
+            )
+        ]
+    )
+    rules = Rules()
+    rules.scope = "answer_allowed"
+    runtime = AgentRuntime(
+        AgentDeps(Dual(), MemoryFaqStore([]), retriever, rules=rules, config_path=str(config))
+    )
+    runtime.invoke(
+        "Thời hạn phúc khảo ĐHCQ",
+        department_id="alpha",
+        module_code="one",
+        environment="test",
+        conversation_id="assess-retrieve",
+    )
+    assert retriever.calls
+    assert "Portal UEL" in retriever.calls[-1]

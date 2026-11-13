@@ -93,6 +93,8 @@ class AgentState(TypedDict, total=False):
     bot_clarification: str
     rag_top_k: int
     rag_score_threshold: float
+    rag_mode: str
+    rag_faq_boost: float
     rule_id: str
     rule_version: str
     rule_contact: dict[str, Any]
@@ -135,6 +137,7 @@ class AgentDeps:
     retriever: Retriever
     top_k: int = 5
     score_threshold: float = 0.4167
+    search_mode: str = "hybrid"
     rules: RuleStore | None = None
     config_path: str = "configs/departments.yaml"
     legacy_mode: bool = False
@@ -176,6 +179,7 @@ class AgentRuntime:
                 retriever=retriever or GoldIndexer.from_settings(resolved),
                 top_k=resolved.rag_top_k,
                 score_threshold=resolved.rag_score_threshold,
+                search_mode=resolved.rag_search_mode,
                 rules=SilverRuleStore(factory),
                 config_path=resolved.departments_config_path,
             )
@@ -285,6 +289,10 @@ class AgentRuntime:
                 context["rag_top_k"] = module.retrieval.top_k
             if module.retrieval.score_threshold is not None:
                 context["rag_score_threshold"] = module.retrieval.score_threshold
+            if module.retrieval.mode is not None:
+                context["rag_mode"] = module.retrieval.mode
+            if module.retrieval.faq_boost is not None:
+                context["rag_faq_boost"] = module.retrieval.faq_boost
         prior = self._turns.get(thread_id) or {}
         initial = cast(
             AgentState,
@@ -486,7 +494,9 @@ class _Nodes:
             state["next_node"] = "faq_match"
             return state
         query_text = state.get("effective_query") or ""
-        if is_fee_question(query_text):
+        if _uses_assessment(state, legacy_mode=self.deps.legacy_mode) and is_fee_question(
+            query_text
+        ):
             contact = self._contact(state)
             _apply_contact(state, contact)
             state["status"] = "insufficient_evidence"
@@ -744,12 +754,13 @@ class _Nodes:
             else self.deps.score_threshold
         )
         hits = self.deps.retriever.search(
-            _retrieval_query(state),
+            _retrieval_query(state, legacy_mode=self.deps.legacy_mode),
             department_id=state["department_id"],
             module_code=state["module_code"],
             environment=state["environment"],
             limit=limit,
-            mode="hybrid",
+            mode=str(state.get("rag_mode") or self.deps.search_mode or "hybrid"),
+            faq_boost=state.get("rag_faq_boost"),
         )
         kept = [
             evidence_from_hit(hit)
@@ -766,7 +777,7 @@ class _Nodes:
 
     def evidence_gate(self, state: AgentState) -> AgentState:
         evidence = _load_evidence(state)
-        if state.get("profile", "assessment") == "assessment":
+        if _uses_assessment(state, legacy_mode=self.deps.legacy_mode):
             from app.agent.assessment import apply_evidence_policy
 
             if apply_evidence_policy(state, evidence):
@@ -855,13 +866,12 @@ class _Nodes:
         grounded = (bool(extracted) and not invented) or answer_overlaps_evidence(
             answer, evidence
         )
-        if (
-            not answer_distorts_training_labels(
+        labels_ok = True
+        if _uses_assessment(state, legacy_mode=self.deps.legacy_mode):
+            labels_ok = not answer_distorts_training_labels(
                 answer, evidence, training_systems=_systems_from_state(state)
             )
-            and not invented
-            and grounded
-        ):
+        if labels_ok and not invented and grounded:
             allowed = [
                 item
                 for item in extracted
@@ -1020,6 +1030,7 @@ def _unresolved_guidance(deps: AgentDeps, state: AgentState, rules: list[ScopeRu
     return scope_clarification_answer(
         module_name=module_name,
         related_faqs=_related_faqs(deps, state, query),
+        assessment=_uses_assessment(state, legacy_mode=deps.legacy_mode),
     )
 
 
@@ -1055,8 +1066,17 @@ def _systems_from_state(state: AgentState) -> list[str]:
     return [single] if single in {"dhcq", "sdh", "vb2_vlvh"} else []
 
 
-def _retrieval_query(state: AgentState) -> str:
+def _uses_assessment(state: AgentState, *, legacy_mode: bool) -> bool:
+    """Khảo khí extension. Production: YAML profile=assessment. Tests: legacy_mode."""
+    if legacy_mode:
+        return True
+    return state.get("profile") == "assessment"
+
+
+def _retrieval_query(state: AgentState, *, legacy_mode: bool = False) -> str:
     query = state.get("effective_query") or ""
+    if not _uses_assessment(state, legacy_mode=legacy_mode):
+        return query
     topic = state.get("topic") or ""
     folded = query.casefold()
     if topic != "phuc_khao" and "phúc khảo" not in folded and "phuc khao" not in folded:

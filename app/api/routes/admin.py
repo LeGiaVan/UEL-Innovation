@@ -385,6 +385,24 @@ def _persist_departments(path: Path, departments: list[DepartmentConfig]) -> Non
         temporary.unlink(missing_ok=True)
 
 
+def _filled_retrieval(retrieval: RetrievalSettings, request: Request) -> RetrievalSettings:
+    settings = request.app.state.settings
+    return RetrievalSettings(
+        top_k=retrieval.top_k if retrieval.top_k is not None else settings.rag_top_k,
+        score_threshold=(
+            retrieval.score_threshold
+            if retrieval.score_threshold is not None
+            else settings.rag_score_threshold
+        ),
+        mode=retrieval.mode or settings.rag_search_mode,
+        faq_boost=(
+            retrieval.faq_boost
+            if retrieval.faq_boost is not None
+            else settings.gold_faq_score_boost
+        ),
+    )
+
+
 def _pack_configured(module: DepartmentModuleConfig) -> bool:
     pack = module.prompt_pack
     messages = module.messages
@@ -541,7 +559,7 @@ def get_bot_config(
     return BotConfigBody(
         prompt_pack=module.prompt_pack,
         messages=module.messages,
-        retrieval=module.retrieval,
+        retrieval=_filled_retrieval(module.retrieval, request),
         routing_aliases=module.routing_aliases,
         profile=module.profile,
     )
@@ -570,13 +588,19 @@ def put_bot_config(
             raise HTTPException(404, "Unknown module") from None
         module.prompt_pack = body.prompt_pack
         module.messages = body.messages
-        module.retrieval = body.retrieval
+        module.retrieval = _filled_retrieval(body.retrieval, request)
         module.routing_aliases = body.routing_aliases
         if body.profile is not None:
             module.profile = body.profile
         _persist_departments(path, departments)
         response.headers["ETag"] = revision(path)
-    return body
+        return BotConfigBody(
+            prompt_pack=module.prompt_pack,
+            messages=module.messages,
+            retrieval=module.retrieval,
+            routing_aliases=module.routing_aliases,
+            profile=module.profile,
+        )
 
 
 def _preview_invoke(
@@ -769,6 +793,7 @@ def _ingest_release(
         source_path=relative,
         profile=body.profile,
         contact=body.contact,
+        retrieval=_filled_retrieval(RetrievalSettings(), request),
     )
     with portalocker.Lock(str(path) + ".lock", timeout=10):
         target = source_path(path, relative)
