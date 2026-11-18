@@ -1,5 +1,0 @@
-*
-!app/
-!app/**
-!requirements.lock
-app/**/__pycache__/

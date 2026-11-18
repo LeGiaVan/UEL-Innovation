@@ -1,0 +1,53 @@
+/**
+ * Giao diện theo tính năng — biến --feature-accent / --feature-accent-soft
+ * được gán trên .main-outlet (MainLayout).
+ */
+.main-outlet.feature-scope {
+  /* Viền nhấn màu module nằm trên Header (full width); tránh chồng thêm sọc trên cột nội dung */
+  border-top: none;
+  background: linear-gradient(
+    180deg,
+    var(--feature-accent-soft, var(--uel-primary-lighter)) 0%,
+    var(--uel-bg-white, #fff) 14rem
+  );
+}
+
+/* Thông tin tuyển sinh (3 RAG) — cùng tone chữ UEL */
+.main-outlet.feature-scope--admission {
+  --feature-accent: #144e8c;
+  --feature-accent-soft: rgba(20, 78, 140, 0.14);
+}
+
+.feature-scope .empty-chat-headline {
+  color: var(--feature-accent, var(--uel-text-primary));
+}
+
+.feature-scope .message-user .user-text {
+  background-color: var(--feature-accent, var(--uel-primary));
+}
+
+/* Nút Gửi chat: cam CTA thống nhất (không đổi theo từng module) */
+.feature-scope .message-input-form .send-button {
+  background: linear-gradient(
+    160deg,
+    var(--uel-submit-bg-light, #ef6c00) 0%,
+    var(--uel-submit-bg, #e65100) 48%,
+    var(--uel-submit-bg-hover, #bf360c) 100%
+  );
+}
+
+.feature-scope .message-input-form .send-button:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 12px var(--uel-submit-shadow, rgba(230, 81, 0, 0.32));
+}
+
+.feature-scope .message-input-form:focus-within {
+  border-color: var(--uel-submit-bg, #e65100);
+  box-shadow: 0 0 0 3px var(--uel-submit-ring, rgba(230, 81, 0, 0.14));
+}
+
+.feature-scope .resolved-mode-badge {
+  color: var(--feature-accent, var(--uel-primary));
+  border-color: rgba(20, 78, 140, 0.22);
+  background: var(--feature-accent-soft, rgba(20, 78, 140, 0.08));
+}

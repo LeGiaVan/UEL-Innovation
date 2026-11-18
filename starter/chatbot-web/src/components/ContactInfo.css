@@ -1,0 +1,141 @@
+.contact-info {
+  background: linear-gradient(135deg, var(--uel-primary-lighter) 0%, #F0F7FF 100%);
+  border-top: 2px solid var(--uel-primary);
+  padding: 1.25rem 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 -2px 8px rgba(20, 78, 140, 0.1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contact-info-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(20, 78, 140, 0.2);
+}
+
+.contact-info-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--uel-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contact-info-header h3::before {
+  content: "📞";
+  font-size: 1.2rem;
+}
+
+.contact-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--uel-text-primary);
+  line-height: 1.5;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+.contact-item:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.contact-item svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--uel-primary);
+}
+
+.contact-item strong {
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+/* Responsive cho ContactInfo */
+
+/* Mobile — chữ rõ, dễ đọc */
+@media (max-width: 480px) {
+  .contact-info {
+    padding: 0.85rem 1rem;
+  }
+
+  .contact-info-header {
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .contact-info-header h3 {
+    font-size: clamp(1.05rem, 3vw, 1.2rem);
+  }
+
+  .contact-item {
+    font-size: clamp(0.95rem, 2.8vw, 1.05rem);
+    line-height: var(--uel-readable-line, 1.55);
+    padding: 0.55rem 0.4rem;
+    gap: 0.65rem;
+  }
+
+  .contact-item svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .contact-info {
+    padding: 1rem 1.15rem;
+  }
+
+  .contact-item {
+    font-size: clamp(1rem, 2.4vw, 1.05rem);
+    line-height: var(--uel-readable-line, 1.55);
+  }
+}
+
+/* Tablet (iPad) - 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .contact-info {
+    padding: 1rem 1.25rem;
+    max-width: 900px;
+  }
+}
+
+/* Desktop nhỏ (19 inch) - 1025px đến 1280px */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .contact-info {
+    padding: 1.25rem 1.5rem;
+    max-width: 900px;
+  }
+}
+
+/* Desktop lớn - trên 1280px */
+@media (min-width: 1281px) {
+  .contact-info {
+    padding: 1.25rem 1.5rem;
+    max-width: 1000px;
+  }
+}

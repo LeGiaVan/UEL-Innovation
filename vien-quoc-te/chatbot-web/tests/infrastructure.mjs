@@ -1,0 +1,52 @@
+import assert from 'node:assert/strict'
+import {createServer} from 'vite'
+process.env.VITE_MOCK_API='true'
+Object.defineProperty(globalThis,'localStorage',{value:{getItem:()=>null,setItem:()=>{}},configurable:true})
+const vite=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'})
+try {
+ const {store}=await vite.ssrLoadModule('/src/store/store.js')
+ const mode=await vite.ssrLoadModule('/src/store/slices/modeSlice.js')
+ const chat=await vite.ssrLoadModule('/src/store/slices/chatSlice.js')
+ const qa=await vite.ssrLoadModule('/src/store/slices/qaSlice.js')
+ const {consumeChatSse}=await vite.ssrLoadModule('/src/utils/sse.js')
+ await store.dispatch(mode.fetchChatModes()).unwrap()
+ await store.dispatch(qa.fetchQA()).unwrap()
+ assert.equal(store.getState().mode.modes.length,4)
+ assert.equal(store.getState().qa.questions.length,4)
+ store.dispatch(mode.setSelectedMode('module_1'))
+ const question=store.getState().qa.questions[0]
+ await store.dispatch(chat.sendMessage({message:question.question})).unwrap()
+ assert.equal(store.getState().chat.messages.at(-1).content,question.answer)
+ const conversationId=store.getState().chat.conversationId
+ assert.ok(conversationId)
+ store.dispatch(mode.setSelectedMode('module_2'))
+ assert.equal(store.getState().chat.messages.length,0)
+ store.dispatch(mode.setSelectedMode('module_1'))
+ assert.equal(store.getState().chat.messages.length,2)
+ await store.dispatch(chat.fetchConversation(conversationId)).unwrap()
+ assert.equal(store.getState().chat.messages.length,2)
+ store.dispatch(chat.clearChat())
+ assert.equal(store.getState().chat.conversationId,null)
+ // A late network response must not overwrite the newly selected module.
+ store.dispatch(chat.sendMessage.pending('old',{message:'old'}))
+ store.dispatch(mode.setSelectedMode('module_2'))
+ store.dispatch(chat.appendStreamChunk({text:'late',requestId:'old'}))
+ store.dispatch(chat.sendMessage.fulfilled({response:'late'},'old',{message:'old'}))
+ assert.equal(store.getState().chat.messages.length,0)
+ store.dispatch(chat.sendMessage.pending('error',{message:'x'}))
+ store.dispatch({...chat.sendMessage.rejected(new Error('network'),'error',{message:'x'}),payload:'Lỗi mạng'})
+ assert.equal(store.getState().chat.error,'Lỗi mạng')
+ assert.equal(store.getState().chat.isLoading,false)
+ store.dispatch(chat.setRateLimited({retryAfterSec:60}))
+ assert.ok(store.getState().chat.rateLimit.untilTs>Date.now())
+ store.dispatch(chat.clearRateLimited())
+ assert.equal(store.getState().chat.rateLimit,null)
+ const events=[],bytes=new TextEncoder().encode('data:{"type":"token","text":"Tiếng Việt"}\r\n\r\ndata: {"type":"done"}\n\n')
+ let offset=0
+ const reader=new ReadableStream({pull(c){if(offset<bytes.length)c.enqueue(bytes.slice(offset,++offset));else c.close()}}).getReader()
+ await consumeChatSse(reader,e=>events.push(e))
+ assert.equal(events[0].text,'Tiếng Việt');assert.equal(events[1].type,'done')
+ const {default:api}=await vite.ssrLoadModule('/src/api/client.js')
+ await assert.rejects(()=>api.get('/api/unsupported'))
+ console.log('PASS: modes, QA, SSE, chat, history, topic isolation, stale responses, errors, rate limits, unsupported endpoints')
+} finally {await vite.close()}

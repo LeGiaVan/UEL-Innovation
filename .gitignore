@@ -33,9 +33,9 @@ Thumbs.db
 *.log
 tmp/
 
-# GitHub FE/BFF vendored under frontend/
-frontend/**/node_modules/
-frontend/**/dist/
+# Frontend build
+**/node_modules/
+**/chatbot-web/dist/
 frontend/**/.venv/
 frontend/chatbot-api/data/
 

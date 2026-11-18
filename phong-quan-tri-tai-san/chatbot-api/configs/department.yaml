@@ -1,0 +1,12 @@
+id: qtts
+name: Phòng Quản trị tài sản
+domain: qtts.chat.uel.edu.vn
+handoff_form_url: ""
+admins: []
+rate_limit:
+  chats_per_minute: 10
+  llm_tokens_per_day: 50000
+modules:
+  - code: quan_tri_tai_san
+    name: Quản trị tài sản
+    profile: generic

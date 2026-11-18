@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:7
+    volumes: [mongo_data:/data/db]
+  qdrant:
+    image: qdrant/qdrant:v1.12.6
+    volumes: [qdrant_data:/qdrant/storage]
+  app:
+    build: .
+    env_file: .env
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      QDRANT_URL: http://qdrant:6333
+      UI_DIST_DIR: /app/ui_dist
+      DEPARTMENT_YAML: /app/configs/department.yaml
+    volumes:
+      - ./chatbot-data:/app/chatbot-data
+      - ./chatbot-api/configs/department.yaml:/app/configs/department.yaml:ro
+    depends_on: [mongo, qdrant]
+    labels:
+      - traefik.http.routers.khcn.rule=Host(`khcn.chat.uel.edu.vn`)
+    ports:
+      - "8000:8000"
+volumes:
+  mongo_data:
+  qdrant_data:

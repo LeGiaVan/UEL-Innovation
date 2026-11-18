@@ -4,7 +4,7 @@ Hệ thống chatbot trợ lý ảo sử dụng Retrieval-Augmented Generation (
 
 ## Trạng thái dự án
 
-> Trạng thái: Phase 0–7 đã hoàn thành (`reports/phases/phase-07.md`). Phase 8 đánh giá còn IN_PROGRESS (`reports/phases/phase-08.md`). Routing Template 1 đa tenant đang vận hành bằng YAML registry và API quản trị trên PoC; chưa production-ready. Vận hành: `docs/operations-multi-tenant.md`. Kết quả lượt chuẩn hóa: `reports/phases/standardization.md`.
+> Trạng thái: đặc tả `PLAN_UPDATE.md`. Thực hiện `GIAI_DOAN.md`. **P0** khung `starter/` + 8 thư mục phòng — `bao-cao-giai-doan/P0.md`. P1–P7 chưa làm. Thư mục `frontend/` (7 FE + BFF) đã gỡ.
 
 PoC được triển khai cho:
 
@@ -23,20 +23,19 @@ PoC được triển khai cho:
 | LLM | Cloud API, cấu hình được nhà cung cấp |
 | Embedding | Chạy local trên CPU |
 
-## Chạy demo chatbot (sảnh + 7 phòng)
-
-Đây là cách mở giao diện đang dùng. Chi tiết cổng, biến môi trường và sự cố: `frontend/README.md`. **Chưa production-ready.** Chỉ ĐBCL / Khảo khí gọi RAG; sáu phòng còn lại là FE + BFF mô phỏng.
+## Chạy khung P0 (`starter/`)
 
 ```powershell
-cd D:\ITAC\UEL-Innovation
-docker compose up -d
-curl.exe -fsS http://127.0.0.1:8000/health/ready
+cd D:\ITAC\UEL-Innovation\starter\chatbot-api
+pip install -e .
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-cd frontend
-.\run-cluster.ps1
+cd D:\ITAC\UEL-Innovation\starter\chatbot-web
+npm install
+npm run dev
 ```
 
-Mở http://127.0.0.1:5170 — chọn phòng.
+Mở http://127.0.0.1:5173 — chat khung (chưa Google, chưa RAG). Tám phòng: `phong-hanh-chinh/` … `phong-bao-dam-chat-luong/`. Hướng dẫn copy: `starter/README.md`.
 
 | Cổng | Thành phần |
 |---:|---|

@@ -1,0 +1,12 @@
+id: pdt
+name: Phòng Đào tạo
+domain: pdt.chat.uel.edu.vn
+handoff_form_url: ""
+admins: []
+rate_limit:
+  chats_per_minute: 10
+  llm_tokens_per_day: 50000
+modules:
+  - code: dao_tao
+    name: Đào tạo
+    profile: generic

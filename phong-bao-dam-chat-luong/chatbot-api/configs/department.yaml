@@ -1,0 +1,12 @@
+id: dbcl
+name: Phòng Bảo đảm chất lượng
+domain: dbcl.chat.uel.edu.vn
+handoff_form_url: ""
+admins: []
+rate_limit:
+  chats_per_minute: 10
+  llm_tokens_per_day: 50000
+modules:
+  - code: khao_khi
+    name: Mô-đun Khảo thí
+    profile: generic

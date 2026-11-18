@@ -1,0 +1,20 @@
+id: starter
+name: Trợ lý UEL (starter)
+domain: localhost
+handoff_form_url: https://docs.google.com/forms/
+admins:
+- vanlg23416@st.uel.edu.vn
+- legiavan0210@gmail.com
+rate_limit:
+  chats_per_minute: 10
+  llm_tokens_per_day: 50000
+modules:
+- code: khao_khi
+  name: Mô-đun Khảo thí
+  profile: generic
+- code: thong_tin_chung
+  name: Thông tin chung
+  profile: generic
+- code: chuan_au_ra_va_xet_tot_nghiep
+  name: Chuẩn đầu ra và xét tốt nghiệp
+  profile: generic

@@ -1,0 +1,165 @@
+.header {
+  background: linear-gradient(
+    135deg,
+    var(--uel-primary-dark, #0f3a6b) 0%,
+    var(--uel-primary, #144e8c) 48%,
+    var(--uel-primary-light, #1f6bb8) 100%
+  );
+  border-bottom: 4px solid #e65100;
+  padding: 0.45rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Họa tiết sóng — docs/image_header.png (qua public/) */
+.header-wave {
+  position: absolute;
+  inset: 0;
+  left: 35%;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.header-wave-img {
+  height: 100%;
+  min-height: 3.5rem;
+  width: auto;
+  min-width: 42%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 100% 50%;
+  /* Lật ngang: sóng “vào” từ mép phải header */
+  transform: scaleX(-1);
+  opacity: 0.9;
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Đơn vị đồng hành (sponsor) — góc phải header */
+.header-sponsor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.18rem;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.header-sponsor:hover {
+  opacity: 0.85;
+}
+
+.header-sponsor__label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+
+.header-sponsor__img {
+  height: 40px;
+  width: auto;
+  max-width: min(38vw, 180px);
+  object-fit: contain;
+  display: block;
+}
+
+.logo-img {
+  height: 64px;
+  width: auto;
+  max-width: min(48vw, 240px);
+  object-fit: contain;
+}
+
+.logo-img--on-primary {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.header-title-line {
+  margin: 0;
+  font-size: clamp(1.05rem, 3.05vw, 1.32rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.header-title p,
+.header-subtitle {
+  font-size: clamp(0.88rem, 2.35vw, 1.05rem);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.2rem 0 0 0;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.38rem 0.65rem;
+  }
+
+  .header-wave {
+    left: 48%;
+  }
+
+  .header-wave-img {
+    min-width: 58%;
+    opacity: 0.82;
+  }
+
+  .header-logo {
+    gap: 0.55rem;
+  }
+
+  .logo-img {
+    height: 54px;
+  }
+
+  .header-sponsor__label {
+    font-size: 0.55rem;
+  }
+
+  .header-sponsor__img {
+    height: 30px;
+    max-width: 34vw;
+  }
+}
+
+@media (min-width: 1025px) {
+  .header {
+    padding: 0.6rem 1.35rem;
+  }
+
+  .logo-img {
+    height: 72px;
+  }
+
+  .header-sponsor__img {
+    height: 48px;
+  }
+}

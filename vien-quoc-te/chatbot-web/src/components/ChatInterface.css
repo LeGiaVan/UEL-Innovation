@@ -1,0 +1,604 @@
+.chat-interface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--uel-bg-white);
+  overflow: hidden;
+}
+
+/* module_2: dang lam trac nghiem — chi hien khoi quiz, khong co message list / input */
+.chat-interface--m2-quiz-focus {
+  min-height: 0;
+}
+
+.chat-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  overflow-anchor: none;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  padding: clamp(0.55rem, 1.6vw, 0.95rem) clamp(1rem, 3.5vw, 2rem);
+  padding-top: calc(env(safe-area-inset-top, 0px) + clamp(0.35rem, 1vw, 0.65rem));
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.chat-container--admission-stack {
+  display: flex;
+  flex-direction: column;
+  /* Chỉ .chat-container__thread-body cuộn tin nhắn; tránh 2 lớp overflow khiến scrollIntoView nhảy lên sau khi tắt loader. */
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+/*
+ * Hub tuyển sinh: ảnh banner là nền của chính .chat-container (đáy khung cuộn).
+ * --uel-chat-banner-url gán từ ChatInterface.jsx.
+ */
+.chat-container.chat-container--uel-banner {
+  background-color: var(--uel-bg-white, #fff);
+  background-image: var(--uel-chat-banner-url);
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: min(100%, 52rem) auto;
+}
+
+/* Section chat kiểu stacked cho admission cluster */
+.chat-container--admission-stack .chat-container__thread {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-container--admission-stack .chat-container__thread-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-container--admission-stack .chat-container__thread-body .chat-silent-followup-notice {
+  flex-shrink: 0;
+}
+
+.chat-container--admission-stack .chat-container__thread-body .message-list {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.chat-container--admission-stack .chat-container__thread-body .error-message {
+  flex-shrink: 0;
+}
+
+.chat-container--m2-quiz-only {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.chat-container--m2-quiz-only .module2-quiz {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.error-message {
+  background-color: #FFF3CD;
+  color: #856404;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin: 1rem 0;
+  border: 1.5px solid #FFE69C;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 2px 8px rgba(133, 100, 4, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.error-message::before {
+  content: "⚠️";
+  font-size: 1.25rem;
+}
+
+/* Responsive cho ChatInterface */
+
+/* Mobile - dưới 480px */
+@media (max-width: 480px) {
+  .chat-container {
+    padding: 0.45rem 0.65rem 0.65rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.4rem);
+  }
+}
+
+/* Tablet nhỏ và mobile lớn - 481px đến 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .chat-container {
+    padding: 0.5rem 0.85rem 0.85rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.45rem);
+  }
+}
+
+/* Tablet (iPad) - 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chat-container {
+    padding: 0.6rem 1.25rem 1.25rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.55rem);
+  }
+}
+
+/* Desktop nhỏ (19 inch) - 1025px đến 1280px */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .chat-container {
+    padding: 0.65rem 1.75rem 1.5rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.6rem);
+    max-width: 900px;
+  }
+}
+
+/* Desktop lớn - trên 1280px */
+@media (min-width: 1281px) {
+  .chat-container {
+    padding: 0.7rem 2rem 1.75rem;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.65rem);
+    max-width: 1000px;
+  }
+}
+
+.chat-quiz-hint {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3.5vw, 2rem) 8px;
+  font-size: 0.8125rem;
+  color: var(--uel-text-secondary, #666);
+  line-height: 1.45;
+}
+
+.chat-silent-followup-notice {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto 0.5rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--uel-text-secondary, #555);
+  background: var(--uel-bg-muted, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--uel-border-light, rgba(0, 0, 0, 0.08));
+  line-height: 1.4;
+}
+
+.admission-calc {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto 1rem;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.35rem);
+}
+
+.admission-calc__panel {
+  border: 1px solid var(--uel-border, #e0e0e0);
+  border-radius: 16px;
+  padding: clamp(1rem, 2.6vw, 1.4rem) clamp(1rem, 2.8vw, 1.5rem);
+  background: var(--uel-bg-white, #fff);
+  box-shadow: 0 2px 12px rgba(15, 58, 107, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admission-calc__input--solo {
+  width: 100%;
+}
+
+.admission-calc__inline-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--uel-text-secondary, #64748b);
+}
+
+.admission-calc__row--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admission-calc__row--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.admission-calc__row--eng5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.admission-calc__eng-zero {
+  margin: 0.5rem 0 0;
+  font-size: clamp(0.88rem, 2vw, 0.94rem);
+  color: #7a4a00;
+  line-height: 1.45;
+}
+
+.admission-calc__ccqt-note {
+  margin: 0;
+  font-size: clamp(0.88rem, 2vw, 0.94rem);
+  color: #7a4a00;
+  line-height: 1.45;
+}
+
+.admission-calc__dt4-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.admission-calc__page-head {
+  margin: 0;
+  padding: var(--uel-module-head-pad-y, 0.85rem) 0 0;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.admission-calc__page-title {
+  margin: var(--uel-module-title-mt, 0.25rem) 0 var(--uel-module-title-mb, 0.75rem);
+  font-size: var(--uel-module-title-size, clamp(1.25rem, 4.2vw, 1.55rem));
+  font-weight: var(--uel-module-title-weight, 800);
+  letter-spacing: var(--uel-module-title-track, -0.02em);
+  line-height: var(--uel-module-title-lh, 1.25);
+  text-align: center;
+  color: var(--uel-text-primary, #1f497d);
+}
+
+.admission-calc__page-lead {
+  margin: 0 auto var(--uel-module-lead-mb, 0.85rem);
+  max-width: var(--uel-module-lead-max, 26rem);
+  font-size: var(--uel-module-lead-size, clamp(0.9rem, 2.5vw, 1.06rem));
+  font-weight: var(--uel-module-lead-weight, 500);
+  line-height: var(--uel-module-lead-lh, 1.45);
+  text-align: center;
+  color: var(--uel-module-lead-fg, #475569);
+}
+
+.admission-calc__card {
+  border: 1px solid var(--uel-border, #e0e0e0);
+  border-radius: 14px;
+  padding: clamp(1rem, 2.5vw, 1.35rem) clamp(1rem, 2.8vw, 1.5rem);
+  background: var(--uel-bg-white, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admission-calc__card-title {
+  margin: 0;
+  font-size: clamp(1.02rem, 2.5vw, 1.12rem);
+  font-weight: 800;
+  color: var(--uel-text-primary, #1f497d);
+}
+
+.admission-calc__card-h4 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(0.98rem, 2.2vw, 1.05rem);
+  font-weight: 700;
+  color: var(--uel-text-primary, #1f497d);
+}
+
+.admission-calc__card-sub {
+  margin: 0;
+  font-size: clamp(0.92rem, 2.2vw, 0.98rem);
+  line-height: 1.55;
+  color: var(--uel-text-secondary, #5a6573);
+}
+
+.admission-calc__card-foot {
+  margin: 0;
+  font-size: clamp(0.9rem, 2.1vw, 0.96rem);
+  line-height: 1.5;
+  color: var(--uel-text-secondary, #555);
+}
+
+.admission-calc__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.admission-calc__school-search {
+  display: block;
+}
+
+.admission-calc__school-list {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.admission-calc__school-item {
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.35;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  cursor: pointer;
+  font-size: clamp(0.9rem, 2.1vw, 0.96rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.admission-calc__school-item-name {
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.admission-calc__school-item-sub {
+  font-size: 0.78rem;
+  color: #5f7388;
+  line-height: 1.3;
+}
+
+.admission-calc__lookup-btn {
+  white-space: nowrap;
+  font-family: inherit;
+  line-height: 1.35;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  font-size: clamp(0.88rem, 2vw, 0.95rem);
+  background: linear-gradient(
+    160deg,
+    var(--uel-submit-bg-light, #ef6c00) 0%,
+    var(--uel-submit-bg, #e65100) 50%,
+    var(--uel-submit-bg-hover, #bf360c) 100%
+  );
+  color: #fff;
+  cursor: pointer;
+}
+
+.admission-calc__lookup-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admission-calc__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.admission-calc__row--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admission-calc__group {
+  display: block;
+}
+
+.admission-calc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.admission-calc__label {
+  font-size: clamp(0.88rem, 2.1vw, 0.95rem);
+  font-weight: 700;
+  color: var(--uel-text-primary, #1f2937);
+}
+
+.admission-calc select,
+.admission-calc__input {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.02rem);
+}
+
+.admission-calc__guide,
+.admission-calc__hint {
+  margin: 0.35rem 0 0;
+  font-size: clamp(0.86rem, 2vw, 0.92rem);
+  color: var(--uel-text-secondary, #6b7280);
+  line-height: 1.45;
+}
+
+.admission-calc__eng-preview {
+  margin-top: 0.35rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  background: var(--uel-primary-lighter, #e8f0f8);
+  border: 1px solid rgba(20, 78, 140, 0.18);
+  font-size: clamp(0.92rem, 2.1vw, 0.98rem);
+  line-height: 1.5;
+}
+
+.admission-calc__eng-preview-score {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--uel-primary, #0a5f7a);
+}
+
+.admission-calc__eng-preview-meta {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.admission-calc__eng-preview-warn {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: rgba(120, 60, 0, 0.95);
+}
+
+.admission-calc__inline {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+}
+
+.admission-calc__actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
+.admission-calc__submit {
+  border: none;
+  font-family: inherit;
+  line-height: 1.35;
+  border-radius: 14px;
+  background: linear-gradient(
+    155deg,
+    var(--uel-submit-bg-light, #ef6c00) 0%,
+    var(--uel-submit-bg, #e65100) 45%,
+    var(--uel-submit-bg-hover, #bf360c) 100%
+  );
+  color: #fff;
+  padding: 0.85rem 2.25rem;
+  min-height: 52px;
+  min-width: min(100%, 240px);
+  font-size: clamp(1rem, 2.4vw, 1.08rem);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 20px var(--uel-submit-shadow, rgba(230, 81, 0, 0.28));
+}
+
+.admission-calc__submit:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.admission-calc__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.admission-calc__error {
+  margin: 0;
+  color: #b00020;
+  font-size: 0.85rem;
+}
+
+.admission-calc__field--warn .admission-calc__label {
+  color: var(--uel-secondary, #0070c0);
+}
+
+.admission-calc__field--warn .admission-calc__input,
+.admission-calc__field--warn select {
+  border-color: rgba(0, 112, 192, 0.45);
+  background: rgba(0, 112, 192, 0.08);
+}
+
+.admission-calc__field-warn {
+  margin: 0.08rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--uel-secondary, #0070c0);
+}
+
+@media (max-width: 768px) {
+  .admission-calc__row {
+    grid-template-columns: 1fr;
+  }
+  .admission-calc__row--2 {
+    grid-template-columns: 1fr;
+  }
+  .admission-calc__row--3,
+  .admission-calc__row--4 {
+    grid-template-columns: 1fr;
+  }
+  .admission-calc__row--eng5 {
+    grid-template-columns: 1fr;
+  }
+  .admission-calc__inline {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .admission-calc__row--eng5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.admission-module-stack {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Nhóm Thông tin tuyển sinh: gợi ý câu hỏi — nền primary, chữ trắng */
+.admission-suggest {
+  width: 100%;
+  margin: 0.25rem 0 0.35rem;
+  padding: 0.7rem 0.75rem 0.65rem;
+  border-radius: 12px;
+  box-sizing: border-box;
+  background: var(--uel-primary, #144e8c);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 12px rgba(15, 58, 107, 0.2);
+}
+
+.admission-suggest__title {
+  margin: 0 0 0.45rem;
+  font-size: clamp(0.86rem, 2.1vw, 0.95rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.admission-suggest__list {
+  margin: 0;
+  padding: 0 0 0 1.15rem;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(0.8rem, 1.9vw, 0.9rem);
+  line-height: 1.5;
+}
+
+.admission-suggest__item {
+  margin: 0.22rem 0;
+}
+
+.admission-suggest__item::marker {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Công cụ Bổ sung kiến thức (module_7) — nhúng iframe full khung */
+.bskt-tool{width:100%;height:100%}
+.bskt-tool__frame{width:100%;min-height:calc(100vh - 120px);height:100%;border:0;display:block;background:#f1f5f9}
+
+/* Chú thích phạm vi áp dụng — Đại học chính quy */
+.admission-calc__scope-badge{
+  display:inline-block;margin-top:8px;padding:5px 14px;border-radius:20px;
+  background:#fdf0e3;color:#d4471a;border:1.5px solid #f05a23;
+  font-weight:700;font-size:13px;letter-spacing:.2px;
+}

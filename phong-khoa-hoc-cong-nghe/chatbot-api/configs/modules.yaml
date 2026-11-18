@@ -1,0 +1,2 @@
+# Bootstrap tùy chọn. Runtime lấy department.yaml + Mongo sau P3.
+modules: []
