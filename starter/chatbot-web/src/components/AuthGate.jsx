@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { loadMe, sessionExpired } from '../store/slices/authSlice'
+import { loadMe, loadPublicConfig, sessionExpired } from '../store/slices/authSlice'
 import LoginPage from '../pages/LoginPage'
 
 export default function AuthGate({ children }) {
@@ -8,6 +8,7 @@ export default function AuthGate({ children }) {
   const { user, loaded } = useSelector((s) => s.auth)
 
   useEffect(() => {
+    dispatch(loadPublicConfig())
     dispatch(loadMe())
   }, [dispatch])
 

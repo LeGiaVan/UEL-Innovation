@@ -36,6 +36,8 @@ export const store = configureStore({
             user: null,
             isLoading: false,
             loaded: true,
+            department: state?.auth?.department || null,
+            googleClientId: state?.auth?.googleClientId || '',
             error:
               action.type === 'auth/sessionExpired'
                 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'

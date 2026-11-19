@@ -297,7 +297,52 @@
 
 /* Markdown trong bubble (stream + hoàn thành): bảng GFM, tiêu đề, danh sách */
 .assistant-text .assistant-md {
-  line-height: 1.65;
+  line-height: 1.7;
+}
+
+.assistant-text .assistant-md p {
+  margin: 0 0 0.7rem;
+}
+
+.assistant-text .assistant-md p:last-child {
+  margin-bottom: 0;
+}
+
+.assistant-text .assistant-md strong {
+  font-weight: 700;
+  color: #0f3d73;
+}
+
+.assistant-text .assistant-md em {
+  font-style: italic;
+}
+
+.assistant-text .assistant-md ul,
+.assistant-text .assistant-md ol {
+  margin: 0.35rem 0 0.85rem;
+  padding-left: 1.25rem;
+}
+
+.assistant-text .assistant-md li {
+  margin: 0.28rem 0;
+}
+
+.assistant-text .assistant-md li::marker {
+  color: var(--uel-primary, #144e8c);
+  font-weight: 600;
+}
+
+.assistant-text .assistant-md hr {
+  border: none;
+  border-top: 1px solid var(--uel-border, #d6e1ed);
+  margin: 0.85rem 0;
+}
+
+.assistant-text .assistant-md code {
+  font-size: 0.9em;
+  background: rgba(20, 78, 140, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
 }
 
 .assistant-text .assistant-md h1,

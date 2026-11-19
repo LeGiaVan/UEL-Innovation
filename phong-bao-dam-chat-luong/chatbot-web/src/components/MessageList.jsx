@@ -7,10 +7,6 @@ import { useFeatureTheme } from '../context/FeatureThemeContext'
 import { getChatWelcome, displayNameForResolvedMode } from '../config/featureIdentity'
 import './MessageList.css'
 
-/** Chỉ hiện dòng nguồn gọn khi bật VITE_SHOW_SOURCES=true và câu trả lời chưa ghi Nguồn. */
-const showSources =
-  (import.meta.env.VITE_SHOW_SOURCES || '').toLowerCase() === 'true'
-
 function findScrollPane(anchorEl) {
   if (!anchorEl || typeof window === 'undefined') return null
   let el = anchorEl.parentElement
@@ -26,29 +22,9 @@ function isNearBottom(el, px = 96) {
   return el.scrollHeight - el.scrollTop - el.clientHeight <= px
 }
 
-function uniqueCitationLabels(citations) {
-  const seen = new Set()
-  const labels = []
-  for (const item of citations || []) {
-    const label = String(item.document_name || item.source || '').trim()
-    if (!label) continue
-    const key = label.toLowerCase()
-    if (seen.has(key)) continue
-    seen.add(key)
-    labels.push(label)
-  }
-  return labels
-}
-
-function answerAlreadyCites(text, labels) {
-  const raw = text || ''
-  if (/nguồn\s*:/i.test(raw)) return true
-  const lower = raw.toLowerCase()
-  return labels.some((label) => lower.includes(label.toLowerCase()))
-}
-
 const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
   const modes = useSelector((s) => s.mode.modes)
+  const moduleId = useSelector((s) => s.chat.activeChatModuleId)
   const feature = useFeatureTheme()
   const welcome = getChatWelcome(feature)
   const messageEndRef = useRef(null)
@@ -142,7 +118,7 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
     <div className="message-list">
       {messages.map((message, index) => (
         <div
-          key={`${message.timestamp || index}-${index}`}
+          key={`${moduleId || 'chat'}-${message.timestamp || index}-${index}`}
           className={`message ${message.role === 'user' ? 'message-user' : 'message-assistant'} message-animate`}
         >
           <div className="message-content">
@@ -170,12 +146,22 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
               </div>
             ) : (
               <>
-                {message.resolvedMode && !message.streaming && (
-                  <div
-                    className="resolved-mode-badge"
-                    title={`Chế độ xử lý: ${resolvedModeLabel(message.resolvedMode)}`}
-                  >
-                    {resolvedModeLabel(message.resolvedMode)}
+                {(message.routingSource || message.status || message.resolvedMode) && !message.streaming && (
+                  <div className="route-meta" aria-label="Nguồn định tuyến">
+                    {message.routingSource ? (
+                      <span className="route-meta__chip" title="routing_source">{message.routingSource}</span>
+                    ) : null}
+                    {message.status ? (
+                      <span className="route-meta__chip" title="status">{message.status}</span>
+                    ) : null}
+                    {message.resolvedMode ? (
+                      <span
+                        className="route-meta__chip"
+                        title={`Chế độ xử lý: ${resolvedModeLabel(message.resolvedMode)}`}
+                      >
+                        {resolvedModeLabel(message.resolvedMode)}
+                      </span>
+                    ) : null}
                   </div>
                 )}
                 <div className="message-text assistant-text">
@@ -185,9 +171,33 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
                   <CollapsibleMessage
                     rawText={message.content || ''}
                     streaming={!!message.streaming}
+                    reveal={message.reveal}
                     onRevealTick={scrollToBottom}
                   />
                   )}
+                  {message.interactive?.kind === 'form' && message.interactive.url ? (
+                    <a
+                      className="handoff-form-btn"
+                      href={message.interactive.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {message.interactive.label || 'Mở form hỗ trợ'}
+                    </a>
+                  ) : null}
+                  {message.contactInfo && !message.streaming ? (
+                    <div className="message-contact" aria-label="Đầu mối hỗ trợ">
+                      {message.contactInfo.person ? (
+                        <p><strong>Người phụ trách:</strong> {message.contactInfo.person}</p>
+                      ) : null}
+                      {message.contactInfo.department ? (
+                        <p><strong>Đơn vị:</strong> {message.contactInfo.department}</p>
+                      ) : null}
+                      {message.contactInfo.email ? (
+                        <p><strong>Liên hệ:</strong> {message.contactInfo.email}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
                   {(message.interactive?.kind === 'ctdt_suggestions' ||
                     message.interactive?.kind === 'did_you_mean') ? (
                     <div className="ctdt-suggestions" aria-label="Gợi ý câu hỏi tiếp theo">
@@ -209,15 +219,6 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
                     </div>
                   ) : null}
                 </div>
-                {showSources && !message.streaming && (() => {
-                  const labels = uniqueCitationLabels(message.citations)
-                  if (!labels.length || answerAlreadyCites(message.content, labels)) return null
-                  return (
-                    <p className="message-sources" aria-label="Nguồn tài liệu">
-                      Nguồn: {labels.join(', ')}
-                    </p>
-                  )
-                })()}
               </>
             )}
             {message.timestamp && (

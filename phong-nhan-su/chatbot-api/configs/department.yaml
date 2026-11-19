@@ -1,12 +1,9 @@
 id: pns
 name: Phòng Nhân sự
 domain: pns.chat.uel.edu.vn
-handoff_form_url: ""
+handoff_form_url: https://docs.google.com/forms/
 admins: []
 rate_limit:
   chats_per_minute: 10
   llm_tokens_per_day: 50000
-modules:
-  - code: nhan_su
-    name: Nhân sự
-    profile: generic
+modules: []

@@ -28,10 +28,13 @@ const qaSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchQA.pending, (state) => {
+      .addCase(fetchQA.pending, (state, action) => {
         state.isLoading = true
         state.error = null
-        state.questions = []
+        const nextMode = action.meta.arg?.mode
+        if (nextMode && nextMode !== state.mode) {
+          state.questions = []
+        }
       })
       .addCase(fetchQA.fulfilled, (state, action) => {
         state.isLoading = false

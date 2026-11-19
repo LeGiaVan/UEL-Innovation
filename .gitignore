@@ -17,6 +17,8 @@ coverage.xml
 htmlcov/
 .mypy_cache/
 .pytest_cache/
+**/gold_chat.last.json
+**/latency.last.json
 .ruff_cache/
 
 # Build artifacts
@@ -42,3 +44,7 @@ frontend/chatbot-api/data/
 # Generated validation reports
 reports/validation/
 reports/gold/
+
+# Old PoC scratch
+.phase8-*/
+.standardization-*/

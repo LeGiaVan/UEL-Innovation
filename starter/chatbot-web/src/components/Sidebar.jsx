@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { BookOpen, ClipboardCheck, MessageCircle, FileText } from 'lucide-react'
-import department from '../config/department.json'
+import { liveDepartment } from '../config/departmentIdentity'
 import { fetchQA } from '../store/slices/qaSlice'
 import { applyCannedFaq } from '../store/slices/chatSlice'
 import AppRoutes from '../routes/AppRoutes.jsx'
@@ -18,6 +18,7 @@ export default function Sidebar({ onNavigate }) {
   const selectedMode = useSelector((s) => s.mode.selectedMode)
   const modeError = useSelector((s) => s.mode.error)
   const isAdmin = useSelector((s) => s.auth.user?.role === 'department_admin')
+  const department = liveDepartment(useSelector((s) => s.auth.department))
   const currentMode = modes.find((m) => m.id === selectedMode)
 
   return (

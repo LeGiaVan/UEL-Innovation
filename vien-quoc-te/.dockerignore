@@ -1,0 +1,12 @@
+.git
+**/.git
+**/__pycache__
+**/.pytest_cache
+**/.venv
+**/node_modules
+**/.env
+**/.env.*
+!.env.example
+chatbot-data/modules/*/releases
+*.pyc
+.DS_Store

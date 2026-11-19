@@ -17,8 +17,9 @@ def nfc_lower(value: object) -> str:
 
 
 def slug(text: str) -> str:
+    folded = nfc_lower(text).replace("đ", "d")
     folded = "".join(
-        ch for ch in unicodedata.normalize("NFD", nfc_lower(text)) if unicodedata.category(ch) != "Mn"
+        ch for ch in unicodedata.normalize("NFD", folded) if unicodedata.category(ch) != "Mn"
     )
     folded = re.sub(r"[^a-z0-9]+", "-", folded).strip("-")
     return folded or "chu-de"

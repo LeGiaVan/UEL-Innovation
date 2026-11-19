@@ -27,6 +27,11 @@ export function formatAssistantMarkdown(text) {
   // Mã tổ hợp (A01, X26, …) dính đoạn mới bắt đầu bằng "Năm"
   s = s.replace(/([A-Z]\d{2}:\s*[^\n]+)(\s+)(Năm\s+\d{4})/gu, '$1\n\n$3')
 
+  // Bước dính sau dấu chấm → đoạn mới; in đậm nhãn bước
+  s = s.replace(/([.!?…:])\s+(Bước\s+\d+)/g, '$1\n\n$2')
+  s = s.replace(/(^|\n)Bước\s+(\d+)\s*[–—\-.:]\s*/g, '$1**Bước $2.** ')
+  s = s.replace(/(^|\n)Lưu ý\s*:\s*/gi, '$1> **Lưu ý:** ')
+
   // Gom quá nhiều dòng trống
   s = s.replace(/\n{4,}/g, '\n\n\n')
 

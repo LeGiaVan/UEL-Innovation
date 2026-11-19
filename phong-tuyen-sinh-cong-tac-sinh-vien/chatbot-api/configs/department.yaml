@@ -1,12 +1,9 @@
 id: ctsv
 name: Phòng Tuyển sinh & Công tác sinh viên
 domain: ctsv.chat.uel.edu.vn
-handoff_form_url: ""
+handoff_form_url: https://docs.google.com/forms/
 admins: []
 rate_limit:
   chats_per_minute: 10
   llm_tokens_per_day: 50000
-modules:
-  - code: cong_tac_sinh_vien
-    name: Công tác sinh viên
-    profile: generic
+modules: []

@@ -1,18 +1,18 @@
-import { API_URL, fetchApi as fetch } from '../../api/client'
+import { API_URL } from '../../api/client'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from '../../api/client'
 
-// Cấu hình API dùng chung cho phòng.
-
-
 export const fetchQA = createAsyncThunk(
   'qa/fetchQA',
-  async (_, { rejectWithValue }) => {
+  async (arg, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/qa`)
-      return response.data
+      const mode = arg?.mode || getState().mode?.selectedMode || 'module_1'
+      const response = await axios.get(`${API_URL}/qa`, { params: { mode } })
+      return { mode, questions: Array.isArray(response.data) ? response.data : [] }
     } catch (error) {
-      return rejectWithValue((typeof error.response?.data?.detail === 'string' ? error.response.data.detail : error.message))
+      return rejectWithValue(
+        typeof error.response?.data?.detail === 'string' ? error.response.data.detail : error.message
+      )
     }
   }
 )
@@ -21,22 +21,29 @@ const qaSlice = createSlice({
   name: 'qa',
   initialState: {
     questions: [],
+    mode: null,
     isLoading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchQA.pending, (state) => {
+      .addCase(fetchQA.pending, (state, action) => {
         state.isLoading = true
         state.error = null
+        const nextMode = action.meta.arg?.mode
+        if (nextMode && nextMode !== state.mode) {
+          state.questions = []
+        }
       })
       .addCase(fetchQA.fulfilled, (state, action) => {
         state.isLoading = false
-        state.questions = action.payload
+        state.mode = action.payload.mode
+        state.questions = action.payload.questions
       })
       .addCase(fetchQA.rejected, (state, action) => {
         state.isLoading = false
+        state.questions = []
         state.error = action.payload || 'Có lỗi xảy ra khi tải câu hỏi'
       })
   },

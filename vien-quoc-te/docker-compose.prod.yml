@@ -1,0 +1,55 @@
+# Máy phòng. Không mount source Python/JS. Không mở Qdrant ra host.
+# docker compose -f docker-compose.prod.yml up -d --build
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes: [mongo_data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+  qdrant:
+    image: qdrant/qdrant:v1.12.6
+    restart: unless-stopped
+    volumes: [qdrant_data:/qdrant/storage]
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+      EMBED_BACKEND: bge-m3
+      MONGO_URI: mongodb://mongo:27017
+      QDRANT_URL: http://qdrant:6333
+      UI_DIST_DIR: /app/ui_dist
+      DEPARTMENT_YAML: /app/configs/department.yaml
+      PERSONA_YAML: /app/configs/persona.yaml
+      CHATBOT_DATA_DIR: /app/chatbot-data
+    volumes:
+      - ./chatbot-data:/app/chatbot-data
+      - ./chatbot-api/configs:/app/configs
+    depends_on:
+      mongo:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+volumes:
+  mongo_data:
+  qdrant_data:

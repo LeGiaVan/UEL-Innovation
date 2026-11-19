@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
-import department from '../config/department.json'
+import { liveDepartment } from '../config/departmentIdentity'
 import AppRoutes from '../routes/AppRoutes.jsx'
 import './Header.css'
 
 export default function Header() {
   const dispatch = useDispatch()
   const user = useSelector((s) => s.auth.user)
+  const department = liveDepartment(useSelector((s) => s.auth.department))
   const isAdmin = user?.role === 'department_admin'
 
   return (

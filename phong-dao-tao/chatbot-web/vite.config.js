@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.API_PROXY_TARGET || 'http://127.0.0.1:8000',
           changeOrigin: true,
-          timeout: 120000,
-          proxyTimeout: 120000,
+          timeout: 300000,
+          proxyTimeout: 300000,
           configure(proxy) {
             proxy.on('proxyRes', (proxyRes, req) => {
               if (String(req.url || '').includes('/chat/stream')) {

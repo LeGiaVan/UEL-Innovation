@@ -7,16 +7,19 @@ import jwt
 
 COOKIE_NAME = "uel_session"
 JWT_ALG = "HS256"
-# Ngoại lệ local: vẫn phải có trong admins yaml. Không nới @st.uel.edu.vn.
-ADMIN_EMAIL_EXCEPTIONS = frozenset({"legiavan0210@gmail.com"})
 
 
-def resolve_role(email: str, admins: list[str] | None) -> str:
+def resolve_role(
+    email: str,
+    admins: list[str] | None,
+    *,
+    allow_non_uel_admin: bool = False,
+) -> str:
     normalized = (email or "").strip().lower()
     allow = {(a or "").strip().lower() for a in (admins or []) if a}
     if normalized not in allow:
         return "member"
-    if normalized.endswith("@uel.edu.vn") or normalized in ADMIN_EMAIL_EXCEPTIONS:
+    if normalized.endswith("@uel.edu.vn") or allow_non_uel_admin:
         return "department_admin"
     return "member"
 

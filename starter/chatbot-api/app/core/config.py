@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     embed_dim: int = 1024
     jwt_ttl_hours: int = Field(8, ge=1, le=24)
     cookie_secure: bool = False
+    cors_origins: str = ""
+    docs_enabled: bool = False
 
 
 settings = Settings()

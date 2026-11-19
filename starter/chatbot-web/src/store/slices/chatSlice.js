@@ -9,7 +9,7 @@ import { setSelectedMode } from './modeSlice'
 
 function cloneMessagesForModule(msgs) {
   if (!Array.isArray(msgs)) return []
-  return msgs.map((m) => ({ ...m }))
+  return msgs.map((m) => ({ ...m, streaming: false, reveal: 'instant' }))
 }
 
 
@@ -28,13 +28,18 @@ export const sendMessage = createAsyncThunk(
     { dispatch, rejectWithValue, getState, signal, requestId }
   ) => {
     try {
-      const mode = getState().mode?.selectedMode ?? 'module_1'
+      const modeState = getState().mode
+      const mode = modeState?.selectedMode ?? 'module_1'
+      const selected = (modeState?.modes || []).find((m) => m.id === mode)
       const quizSessionId =
         quizFromArg ?? getState().chat?.quizSessionId ?? null
       const body = {
         message,
         conversation_id: conversationId,
         mode,
+      }
+      if (selected?.code) {
+        body.module_code = selected.code
       }
       if (quizSessionId) {
         body.quiz_session_id = quizSessionId
@@ -302,6 +307,7 @@ const chatSlice = createSlice({
           role: 'assistant',
           content: '',
           streaming: true,
+          reveal: 'type',
           streamLabel: 'Đang xử lý câu hỏi…',
           contactInfo: undefined,
           citations: [],
@@ -337,6 +343,14 @@ const chatSlice = createSlice({
             'Tin nhắn mới'
           upsertSession(p.conversation_id, preview)
         }
+        const mid = state.activeChatModuleId
+        if (mid) {
+          state.chatByModule[mid] = {
+            messages: cloneMessagesForModule(state.messages.filter((m) => !m.streaming)),
+            conversationId: state.conversationId,
+            quizSessionId: state.quizSessionId,
+          }
+        }
       })
       .addCase(sendMessage.rejected, (state, action) => {
         if (state.activeRequestId !== action.meta.requestId) return
@@ -364,7 +378,21 @@ const chatSlice = createSlice({
         const rows = action.payload.messages || []
         const mapped = []
         rows.forEach((m) => {
-          const ts = m.timestamp || new Date().toISOString()
+          const ts = m.timestamp || m.created_at || new Date().toISOString()
+          if (m.role === 'user' || m.role === 'assistant') {
+            mapped.push({
+              role: m.role,
+              content: m.content || '',
+              timestamp: ts,
+              routingSource: m.routing_source,
+              status: m.status,
+              citations: m.citations || [],
+              contactInfo: m.contact_info,
+              interactive: m.interactive ?? null,
+              reveal: 'instant',
+            })
+            return
+          }
           const um = (m.user_message || '').trim()
           if (um) {
             mapped.push({

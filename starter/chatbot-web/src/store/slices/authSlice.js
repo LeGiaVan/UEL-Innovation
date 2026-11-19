@@ -1,6 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import api, { API_URL } from '../../api/client'
 
+export const loadPublicConfig = createAsyncThunk(
+  'auth/loadPublicConfig',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`${API_URL}/auth/config`)
+      return data
+    } catch {
+      return rejectWithValue(null)
+    }
+  },
+)
+
 export const loadMe = createAsyncThunk('auth/loadMe', async (_, { rejectWithValue }) => {
   try {
     const { data } = await api.get(`${API_URL}/auth/me`)
@@ -36,7 +48,14 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 
 const slice = createSlice({
   name: 'auth',
-  initialState: { user: null, isLoading: false, loaded: false, error: null },
+  initialState: {
+    user: null,
+    isLoading: false,
+    loaded: false,
+    error: null,
+    department: null,
+    googleClientId: '',
+  },
   reducers: {
     sessionExpired: (state) => {
       state.user = null
@@ -46,6 +65,13 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(loadPublicConfig.fulfilled, (state, action) => {
+        const data = action.payload || {}
+        state.googleClientId = data.google_client_id || ''
+        if (data.department && typeof data.department === 'object') {
+          state.department = data.department
+        }
+      })
       .addCase(loadMe.fulfilled, (state, action) => {
         state.loaded = true
         state.user = action.payload

@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
-import department from '../config/department.json'
+import { liveDepartment } from '../config/departmentIdentity'
 import AppRoutes from '../routes/AppRoutes.jsx'
 import { DEFAULT_BOT_PATH } from '../config/botNav'
 import '../components/Header.css'
@@ -11,6 +11,7 @@ export default function AdminLayout() {
   const { pathname } = useLocation()
   const dispatch = useDispatch()
   const user = useSelector((s) => s.auth.user)
+  const department = liveDepartment(useSelector((s) => s.auth.department))
   const ingest = pathname.includes('/persona') === false
   return (
     <div className="admin-shell">

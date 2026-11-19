@@ -38,6 +38,7 @@ def chat_complete(
     provider: str = "",
     timeout: float = 45,
     max_retries: int = 1,
+    continue_on_limit: bool = False,
 ) -> tuple[str, int]:
     if not api_key:
         return "", 0
@@ -53,6 +54,7 @@ def chat_complete(
             max_tokens=max_tokens,
             timeout=timeout,
             max_retries=max_retries,
+            continue_on_limit=continue_on_limit,
         )
     return _openai_complete(
         api_key=api_key,
@@ -62,6 +64,7 @@ def chat_complete(
         max_tokens=max_tokens,
         timeout=timeout,
         max_retries=max_retries,
+        continue_on_limit=continue_on_limit,
     )
 
 
@@ -107,19 +110,34 @@ def _openai_complete(
     max_tokens: int,
     timeout: float,
     max_retries: int,
+    continue_on_limit: bool = False,
 ) -> tuple[str, int]:
     url = base_url.rstrip("/") + "/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {"model": model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
+    conv = list(messages)
+    chunks: list[str] = []
+    total = 0
+    remaining = max(1, int(max_tokens))
     try:
-        data = _post_with_retries(url, headers=headers, payload=payload, timeout=timeout, max_retries=max_retries)
-        text = (((data.get("choices") or [{}])[0].get("message") or {}).get("content")) or ""
-        usage = data.get("usage") or {}
-        tokens = int(usage.get("total_tokens") or 0)
-        return text.strip(), tokens
+        for _ in range(3 if continue_on_limit else 1):
+            payload = {"model": model, "messages": conv, "temperature": 0, "max_tokens": remaining}
+            data = _post_with_retries(url, headers=headers, payload=payload, timeout=timeout, max_retries=max_retries)
+            text = (((data.get("choices") or [{}])[0].get("message") or {}).get("content")) or ""
+            chunks.append(text)
+            usage = data.get("usage") or {}
+            total += int(usage.get("total_tokens") or 0)
+            finish = str(((data.get("choices") or [{}])[0].get("finish_reason")) or "")
+            if finish != "length" or not text.strip():
+                break
+            conv = conv + [
+                {"role": "assistant", "content": text},
+                {"role": "user", "content": "Tiếp tục đúng chỗ vừa dừng, không lặp lại đoạn trước."},
+            ]
+            remaining = min(2048, remaining)
+        return "".join(chunks).strip(), total
     except Exception as exc:  # noqa: BLE001
         log.warning("LLM OpenAI-compatible failed: %s", exc)
-        return "", 0
+        return "".join(chunks).strip(), total
 
 
 def _anthropic_complete(
@@ -131,6 +149,7 @@ def _anthropic_complete(
     max_tokens: int,
     timeout: float,
     max_retries: int,
+    continue_on_limit: bool = False,
 ) -> tuple[str, int]:
     raw = (base_url or "").rstrip("/")
     if not raw or "openai.com" in raw:
@@ -145,26 +164,40 @@ def _anthropic_complete(
         "content-type": "application/json",
     }
     system, rest = _split_system(messages)
-    # Haiku 5.5+: temperature/top_p/top_k → 400. Tắt thinking để JSON rule_id không bị nuốt.
-    payload: dict = {
-        "model": model,
-        "max_tokens": max(max_tokens, 256),
-        "thinking": {"type": "disabled"},
-        "output_config": {"effort": "low"},
-        "messages": rest,
-    }
-    if system:
-        payload["system"] = system
+    conv = list(rest)
+    chunks: list[str] = []
+    total = 0
+    remaining = max(int(max_tokens), 256)
     try:
-        data = _post_with_retries(url, headers=headers, payload=payload, timeout=timeout, max_retries=max_retries)
-        blocks = data.get("content") or []
-        text = "".join(b.get("text") or "" for b in blocks if isinstance(b, dict) and b.get("type") in {None, "text"})
-        usage = data.get("usage") or {}
-        tokens = int(usage.get("input_tokens") or 0) + int(usage.get("output_tokens") or 0)
-        return text.strip(), tokens
+        for _ in range(3 if continue_on_limit else 1):
+            # Haiku 5.5+: temperature/top_p/top_k → 400. Tắt thinking để JSON rule_id không bị nuốt.
+            payload: dict = {
+                "model": model,
+                "max_tokens": remaining,
+                "thinking": {"type": "disabled"},
+                "output_config": {"effort": "low"},
+                "messages": conv,
+            }
+            if system:
+                payload["system"] = system
+            data = _post_with_retries(url, headers=headers, payload=payload, timeout=timeout, max_retries=max_retries)
+            blocks = data.get("content") or []
+            text = "".join(b.get("text") or "" for b in blocks if isinstance(b, dict) and b.get("type") in {None, "text"})
+            chunks.append(text)
+            usage = data.get("usage") or {}
+            total += int(usage.get("input_tokens") or 0) + int(usage.get("output_tokens") or 0)
+            stop = str(data.get("stop_reason") or "")
+            if stop != "max_tokens" or not text.strip():
+                break
+            conv = conv + [
+                {"role": "assistant", "content": text},
+                {"role": "user", "content": "Tiếp tục đúng chỗ vừa dừng, không lặp lại đoạn trước."},
+            ]
+            remaining = min(2048, remaining)
+        return "".join(chunks).strip(), total
     except Exception as exc:  # noqa: BLE001
         log.warning("LLM Anthropic failed: %s", exc)
-        return "", 0
+        return "".join(chunks).strip(), total
 
 
 def parse_rule_id(raw: str, allowed: set[str]) -> str | None:

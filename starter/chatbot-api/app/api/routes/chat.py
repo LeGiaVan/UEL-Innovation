@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.api.dependencies import require_user
+from app.services.conversation_service import load_history, save_turn
 from app.services.module_service import live_department
 from app.services.rate_limit_service import add_llm_tokens, check_chat_limits
 from app.services.routing import resolve_module_code, route_message
@@ -71,6 +72,11 @@ async def chat_stream(
         mode=body.mode,
         module_code=body.module_code,
     )
+    history = load_history(
+        request.app.state.db,
+        conversation_id=body.conversation_id,
+        sub=str(user.get("sub") or ""),
+    )
     try:
         result = await asyncio.to_thread(
             route_message,
@@ -81,6 +87,7 @@ async def chat_stream(
             settings=request.app.state.settings,
             message=body.message,
             module_code=module_code or "",
+            history=history,
         )
     except Exception as exc:  # noqa: BLE001
         log.exception("chat route failed")
@@ -92,13 +99,32 @@ async def chat_stream(
             tokens=result.llm_tokens,
             now=now,
         )
+    conversation_id = body.conversation_id
+    if request.app.state.db is not None:
+        try:
+            conversation_id = save_turn(
+                request.app.state.db,
+                sub=str(user.get("sub") or ""),
+                conversation_id=body.conversation_id,
+                module_code=result.module_code or module_code,
+                user_message=body.message,
+                answer=result.answer,
+                routing_source=result.routing_source,
+                status=result.status,
+                rule_id=result.rule_id,
+                citations=result.citations,
+                contact_info=result.contact_info,
+                interactive=result.interactive,
+            )
+        except Exception:  # noqa: BLE001
+            log.exception("save conversation failed")
 
     async def events():
         done = {
             "type": "done",
             "answer": result.answer,
             "response": result.answer,
-            "conversation_id": body.conversation_id,
+            "conversation_id": conversation_id,
             "routing_source": result.routing_source,
             "status": result.status,
             "module_code": result.module_code,

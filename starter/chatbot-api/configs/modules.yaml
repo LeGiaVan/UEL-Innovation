@@ -1,6 +1,6 @@
 modules:
 - code: khao_khi
-  name: Mô-đun Khảo thí
+  name: Khảo khí
   profile: generic
 - code: thong_tin_chung
   name: Thông tin chung

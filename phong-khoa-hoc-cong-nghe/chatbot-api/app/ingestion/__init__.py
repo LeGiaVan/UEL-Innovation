@@ -1,1 +1,1 @@
-# P3: parser 5 Excel 3.0
+# Parser 5 Excel template 3.0 — một schema cho 8 phòng.

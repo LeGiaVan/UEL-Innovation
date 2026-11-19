@@ -6,7 +6,7 @@ Tài liệu này dùng để **làm việc**, không thay `PLAN_UPDATE.md`.
 |---|---|
 | Đặc tả đã khóa (schema Excel, auth, routing, repo) | `PLAN_UPDATE.md` |
 | Thứ tự làm, checklist, cửa ra từng pha | **file này** |
-| Cấu trúc 8 thư mục đơn vị | `cautruc8duan.md` + mục 5 `PLAN_UPDATE.md` |
+| Deploy 8 phòng | `docs/deploy.md` |
 | Báo cáo sau mỗi pha | `bao-cao-giai-doan/` |
 
 **Cách làm:** xong một pha → ghi `bao-cao-giai-doan/P<n>.md` → chỉ sang pha sau khi cửa ra đạt. Không nhảy pha. Không code ngoài phạm vi pha đang mở.
@@ -24,11 +24,13 @@ Trạng thái: `NOT_STARTED` | `IN_PROGRESS` | `BLOCKED` | `READY_FOR_REVIEW` | 
 | P2 | Hạn mức hỏi | `ACCEPTED` |
 | P3 | Ingest 5 Excel 3.0 → disk + Mongo + Qdrant | `ACCEPTED` |
 | P4 | Routing 4 tầng + RAG + Form | `ACCEPTED` |
-| P5 | Hai màn admin | `READY_FOR_REVIEW` |
-| P6 | Chốt starter: Docker + đo chất lượng / độ trễ | `NOT_STARTED` |
-| P7 | Clone starter — phòng deploy ngay | `NOT_STARTED` |
+| P5 | Hai màn admin | `ACCEPTED` |
+| P6 | Chốt starter: Docker + đo chất lượng / độ trễ | `ACCEPTED` |
+| P7 | Clone starter — phòng deploy ngay | `READY_FOR_REVIEW` |
+| P8 | Bảo vệ API (Origin + khóa docs) | `READY_FOR_REVIEW` |
+| P9 | Chốt starter generic — clone không hardcode | `READY_FOR_REVIEW` |
 
-Bước hiện tại (2026-11-18): **P5 `READY_FOR_REVIEW`**. P4 `ACCEPTED`. Embed: BGE-M3 dense 1024 (không sparse). Chờ nghiệm thu P5 rồi P6 (chốt `starter/`) trước khi clone P7.
+Bước hiện tại (2026-11-19): **P8 + P9 `READY_FOR_REVIEW`**. Demo `starter/`. Deploy: `docs/deploy.md`.
 
 ---
 
@@ -224,12 +226,12 @@ Copy sang 8 thư mục phòng. Đổi schema Excel. Đổi model embed khác BGE
 
 ### Cửa ra
 
-- [ ] Compose `starter/` healthy: app + mongo + qdrant.
-- [ ] Login Google → nạp 5 file → chat.
-- [ ] Production embed = BGE-M3; pytest pass.
-- [ ] Gold ≥ 20 câu, đạt ≥ 80%; FAQ nguyên văn; thiếu nguồn không đoán.
-- [ ] p95: FAQ ≤ 2s; không-RAG ≤ 3s; RAG+LLM ≤ 15s; embed một câu ≤ 2s.
-- [ ] README clone-ready (không “sửa code rồi mới chạy”).
+- [x] Compose `starter/` healthy: app + mongo + qdrant.
+- [x] Login Google → nạp 5 file → chat. *(UI 2026-11-18: GIS + admin nạp CĐR + chat nhiều mảng)*
+- [x] Production embed = BGE-M3; pytest pass.
+- [x] Gold ≥ 20 câu, đạt ≥ 80%; FAQ nguyên văn; thiếu nguồn không đoán.
+- [x] p95: FAQ ≤ 2s; không-RAG ≤ 3s; RAG+LLM ≤ 15s; embed một câu ≤ 2s.
+- [x] README clone-ready (không “sửa code rồi mới chạy”).
 
 ---
 
@@ -251,16 +253,51 @@ Không bắt phòng pull image ĐBCL / starter registry. Lệch hành vi chat so
 
 ### Cửa ra
 
-- [ ] 8 thư mục cùng layout starter đã P6.
-- [ ] yaml / `DEPARTMENT_ID` đúng mã phòng.
-- [ ] Ít nhất **hai** phòng (ĐBCL + một phòng khác) `compose up --build` chạy login → nạp → chat **không** sửa code.
-- [ ] Clone một phòng mới: chỉ copy + điền file, không phát sinh bước code.
+- [x] 8 thư mục cùng layout starter đã P6.
+- [x] yaml / `DEPARTMENT_ID` đúng mã phòng.
+- [x] Clone một phòng mới: chỉ copy + điền file, không phát sinh bước code.
+- [~] Compose hai phòng login → nạp → chat — **bỏ** (2026-11-19): không bắt chạy thử 2 phòng để đóng P7. Deploy: `docs/deploy.md`.
 
 ---
 
-## Sau P7 (không nằm plan này)
+## P8 — Bảo vệ API
 
-Khóa đuôi mail lúc hỏi; SSO; ticket; sảnh 8 link; lọc đối tượng người hỏi.
+**Báo cáo:** `bao-cao-giai-doan/P8.md`  
+**Spec làm việc:** `docs/api.md`
+
+Chỉ trên `starter/`. Chặn gọi thẳng POST/PUT/DELETE `/api` khi thiếu Origin hoặc Origin lạ. CORS cùng allowlist (localhost + `domain` yaml + `CORS_ORIGINS`). Tắt `/docs`. `GET /api/modules` cần login.
+
+Không CSRF token. Không pretend chặn curl đã giả Origin + cookie.
+
+### Cửa ra
+
+- [x] POST `/api/*` không Origin → 403; `/health/*` vẫn 200.
+- [x] Allowlist không hard-code 8 domain phòng.
+- [x] `/docs` mặc định 404; `GET /api/modules` → 401 khi chưa login.
+- [x] pytest origin/auth; `docs/api.md` khớp hành vi mới.
+
+---
+
+## P9 — Chốt starter generic (clone không hardcode)
+
+**Báo cáo:** `bao-cao-giai-doan/P9.md`  
+**Spec làm việc:** `docs/deploy.md`
+
+Sau P8 `ACCEPTED` (hoặc `READY_FOR_REVIEW` nếu P8 đã đủ cửa). Code path không gắn ĐBCL / `khao_khi` / một `department_id`. Seed Khảo thí chỉ còn dữ liệu thử + gold test; clone gỡ. Admin không hard-code email trong Python. Compose prod overlay: không mount `app/`, không publish Qdrant.
+
+### Cửa ra
+
+- [x] Grep `chatbot-api/app` + `chatbot-web/src`: không `ĐBCL` / `dbcl` / `khao_khi`.
+- [x] Title/package/README generic; header lấy yaml.
+- [x] `ADMIN_EMAIL_EXCEPTIONS` gỡ; yaml phòng clone `admins` do phòng điền.
+- [x] `docker-compose.prod.yml`; `clone_starter.py` skip script demo.
+- [x] `python scripts/clone_starter.py` đè 8 thư mục.
+
+---
+
+## Sau P9 (không nằm plan này)
+
+Compose từng máy phòng; khóa đuôi mail lúc hỏi; SSO; ticket; sảnh 8 link; lọc đối tượng người hỏi.
 
 ---
 
@@ -274,4 +311,4 @@ Khóa đuôi mail lúc hỏi; SSO; ticket; sảnh 8 link; lọc đối tượng 
 | `docs/plan-multi-tenant-routing.md` | Plan routing cũ |
 | `docs/decisions/phase-*.md` | Quyết định theo phase PoC |
 
-Giữ: `evaluation/*.py` (script), `app/` / `frontend/` (code hiện tại — gỡ dần từ P0), `template/`, `PLAN_UPDATE.md`, `cautruc8duan.md`.
+Giữ: `template/`, `PLAN_UPDATE.md`, `starter/`, 8 thư mục phòng. PoC `app/` / `evaluation/` / MD khóa cũ đã gỡ khi dọn deploy.

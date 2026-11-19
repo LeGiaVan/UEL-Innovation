@@ -50,6 +50,45 @@
   gap: 1rem;
 }
 
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header-admin {
+  display: flex;
+  gap: 10px;
+}
+
+.header-admin a {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.header-user-email {
+  color: white;
+  font-size: 13px;
+}
+
+.header-user-role {
+  color: #ffd54f;
+  font-size: 12px;
+}
+
+.header-logout {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+}
+
 .header-logo {
   display: flex;
   align-items: center;

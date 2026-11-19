@@ -26,7 +26,6 @@ export const fetchChatModes = createAsyncThunk(
 const modeSlice = createSlice({
   name: 'mode',
   initialState: {
-    /** Mặc định module_1 (hub Thông tin tuyển sinh — gồm CTĐT + FAQ + lịch). */
     selectedMode: 'module_1',
     modes: FALLBACK_CHAT_MODES,
     loaded: false,

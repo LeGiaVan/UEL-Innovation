@@ -1,0 +1,159 @@
+# Bộ câu vàng P6 — dữ liệu seed Khảo thí (hash trong pytest; BGE-M3 trên compose).
+# Đạt ≥ 80%. FAQ exact = nguyên văn File 02.
+meta:
+  module_code: khao_khi
+  pack: khao_khi_seed
+  min_cases: 20
+  min_pass_rate: 0.80
+cases:
+  - id: faq-001
+    question: Tôi có thể tra cứu các quy định và hướng dẫn về công tác khảo thí của Trường ở đâu?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_equals: Công tác khảo thí tại Trường Đại học Kinh tế - Luật được thực hiện theo Quy định về công tác khảo thí ban hành kèm theo Quyết định số 3388/QĐ-ĐHKTL ngày 31/12/2024 của Hiệu trưởng Trường Đại học Kinh tế - Luật. Ngoài ra, còn có Quyết định 2652/QĐ-ĐHKTL ngày 07/10/2025 về Quy trình hướng dẫn tổ chức công tác khảo thí.
+      form: false
+  - id: faq-003
+    question: Quyết định 3388 có thay thế các quyết định khảo thí trước đây không?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: thay thế Quyết định số 1622/QĐ-ĐHKTL
+  - id: faq-004
+    question: Quyết định 3388 áp dụng cho những bậc, hệ và loại hình đào tạo nào?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: đại học và sau đại học
+  - id: faq-014
+    question: Có thể kết hợp nhiều hình thức thi trong cùng một học phần không?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: Khoản 1 điều 4 Quyết định 3388
+  - id: faq-017
+    question: Hình thức thi được xác định/căn cứ vào đâu?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: đề cương chi tiết học phần
+  - id: faq-022
+    question: Nếu điểm thi kết thúc học phần dưới 2 điểm thì điểm học phần được tính như thế nào?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: điểm học phần được tính là không đạt
+  - id: faq-025
+    question: Người học xem điểm học phần ở đâu?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_equals: Người học xem điểm học phần chính thức trên tài khoản cá nhân/portal UEL (https://portal.uel.edu.vn) theo thông báo và quy trình công bố điểm của Trường.
+  - id: faq-028
+    question: Điều kiện dự thi cuối kỳ
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: vắng quá 20%
+  - id: faq-029
+    question: Bao nhiêu điểm thì đạt học phần?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: dưới 5,0
+  - id: faq-030
+    question: Thời hạn đăng ký phúc khảo
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: 02 ngày làm việc
+  - id: faq-031
+    question: Không đồng ý kết quả phúc khảo
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: không được đăng ký phúc khảo lần thứ hai
+  - id: faq-035
+    question: Tôi quên ngày thi nên không đi thi, có được xét điểm I không?
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_equals: Trường hợp quên lịch thi không được xem là lý do hợp lệ để xét điểm I.
+  - id: faq-025-punct
+    question: "Người học xem điểm học phần ở đâu???"
+    expect:
+      routing_source: faq_exact
+      status: faq_exact
+      answer_contains: portal.uel.edu.vn
+  - id: regex-handoff-personal
+    question: Kết quả phúc khảo của tôi tuần này ra sao?
+    expect:
+      routing_source: regex
+      status: human_handoff
+      form: true
+      no_invent: true
+  - id: regex-oos-hocphi
+    question: Học phí học kỳ này đóng thế nào?
+    expect:
+      routing_source: regex
+      status: out_of_scope
+      form: true
+      no_invent: true
+  - id: regex-oos-dangky
+    question: Đăng ký học phần môn A ở đâu?
+    expect:
+      routing_source: regex
+      status: out_of_scope
+      form: true
+      no_invent: true
+  - id: regex-phuckhao
+    question: thời hạn phúc khảo ĐHCQ
+    expect:
+      routing_source: regex
+      status: answer_allowed
+      not_routing: faq_exact
+  - id: regex-hoanthi
+    question: Em muốn hoãn thi vì ốm
+    expect:
+      routing_source: regex
+      status: answer_allowed
+      not_routing: faq_exact
+  - id: regex-diem-i-personal
+    question: Lịch trả điểm I của em khi nào?
+    expect:
+      routing_source: regex
+      status: human_handoff
+      form: true
+      no_invent: true
+  - id: clarify-gibberish
+    question: asdfgh qwerty 12345 xyz không liên quan
+    expect:
+      routing_source: llm_clarify
+      status: clarification_required
+      no_invent: true
+  - id: clarify-weather
+    question: Thời tiết hôm nay ở TP.HCM thế nào?
+    expect:
+      routing_source_any: [llm_clarify, cosine]
+      status_any: [clarification_required, answer_allowed]
+      no_invent: true
+  - id: clarify-empty-module
+    question: Thời hạn đăng ký phúc khảo
+    module_code: thong_tin_chung
+    expect:
+      routing_source: llm_clarify
+      status: clarification_required
+      no_invent: true
+  - id: cosine-or-clarify-vipham
+    question: Khung xử lý vi phạm quy chế thi ở mức quy định chung
+    expect:
+      routing_source_any: [cosine, llm_clarify]
+      status_any: [answer_allowed, clarification_required]
+      not_routing: faq_exact
+      no_invent: true
+  - id: cosine-or-clarify-lamtron
+    question: Quy định làm tròn điểm và điểm liệt khi khóa Score
+    expect:
+      routing_source_any: [cosine, llm_clarify, regex]
+      status_any: [answer_allowed, clarification_required]
+      no_invent: true

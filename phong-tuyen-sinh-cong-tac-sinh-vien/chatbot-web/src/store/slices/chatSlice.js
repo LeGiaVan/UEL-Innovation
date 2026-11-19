@@ -9,7 +9,7 @@ import { setSelectedMode } from './modeSlice'
 
 function cloneMessagesForModule(msgs) {
   if (!Array.isArray(msgs)) return []
-  return msgs.map((m) => ({ ...m }))
+  return msgs.map((m) => ({ ...m, streaming: false, reveal: 'instant' }))
 }
 
 
@@ -28,13 +28,18 @@ export const sendMessage = createAsyncThunk(
     { dispatch, rejectWithValue, getState, signal, requestId }
   ) => {
     try {
-      const mode = getState().mode?.selectedMode ?? 'module_1'
+      const modeState = getState().mode
+      const mode = modeState?.selectedMode ?? 'module_1'
+      const selected = (modeState?.modes || []).find((m) => m.id === mode)
       const quizSessionId =
         quizFromArg ?? getState().chat?.quizSessionId ?? null
       const body = {
         message,
         conversation_id: conversationId,
         mode,
+      }
+      if (selected?.code) {
+        body.module_code = selected.code
       }
       if (quizSessionId) {
         body.quiz_session_id = quizSessionId
@@ -52,7 +57,13 @@ export const sendMessage = createAsyncThunk(
         const payload = await res.json().catch(() => ({}))
         if (res.status === 429) dispatch(setRateLimited({requestId, retryAfterSec: Number(res.headers.get('Retry-After') || 60)}))
         const detail = payload.detail
-        return rejectWithValue(typeof detail === 'string' ? detail : (Array.isArray(detail) ? detail.map(e=>e.msg).join(' ') : 'Không thể gửi tin nhắn.'))
+        const fromDetail =
+          typeof detail === 'string'
+            ? detail
+            : Array.isArray(detail)
+              ? detail.map((e) => e.msg || String(e)).join(' ')
+              : ''
+        return rejectWithValue(fromDetail || `Không gửi được tin nhắn (${res.status})`)
       }
       if (!res.body) {
         return rejectWithValue('Trình duyệt không hỗ trợ stream')
@@ -201,6 +212,27 @@ const chatSlice = createSlice({
     addMessage: (state, action) => {
       state.messages.push(action.payload)
     },
+    applyCannedFaq: (state, action) => {
+      const question = String(action.payload?.question || '').trim()
+      const answer = String(action.payload?.answer || '').trim()
+      if (!question || !answer) return
+      const ts = new Date().toISOString()
+      state.messages.push({ role: 'user', content: question, timestamp: ts })
+      state.messages.push({
+        role: 'assistant',
+        content: answer,
+        timestamp: ts,
+        routingSource: 'faq_button',
+      })
+      const mid = state.activeChatModuleId
+      if (mid) {
+        state.chatByModule[mid] = {
+          messages: cloneMessagesForModule(state.messages.filter((m) => !m.streaming)),
+          conversationId: state.conversationId,
+          quizSessionId: state.quizSessionId,
+        }
+      }
+    },
     setRateLimited: (state, action) => {
       const sec = Math.max(1, Number(action.payload?.retryAfterSec || 60))
       if (action.payload.requestId && action.payload.requestId !== state.activeRequestId) return
@@ -275,6 +307,7 @@ const chatSlice = createSlice({
           role: 'assistant',
           content: '',
           streaming: true,
+          reveal: 'type',
           streamLabel: 'Đang xử lý câu hỏi…',
           contactInfo: undefined,
           citations: [],
@@ -298,6 +331,8 @@ const chatSlice = createSlice({
           last.citations = p.citations || []
           last.resolvedMode = p.resolved_mode || undefined
           last.interactive = p.interactive ?? null
+          last.routingSource = p.routing_source || undefined
+          last.status = p.status || undefined
         }
         if (p.conversation_id) {
           state.conversationId = p.conversation_id
@@ -307,6 +342,14 @@ const chatSlice = createSlice({
             (action.meta.arg.message && String(action.meta.arg.message).trim()) ||
             'Tin nhắn mới'
           upsertSession(p.conversation_id, preview)
+        }
+        const mid = state.activeChatModuleId
+        if (mid) {
+          state.chatByModule[mid] = {
+            messages: cloneMessagesForModule(state.messages.filter((m) => !m.streaming)),
+            conversationId: state.conversationId,
+            quizSessionId: state.quizSessionId,
+          }
         }
       })
       .addCase(sendMessage.rejected, (state, action) => {
@@ -335,7 +378,21 @@ const chatSlice = createSlice({
         const rows = action.payload.messages || []
         const mapped = []
         rows.forEach((m) => {
-          const ts = m.timestamp || new Date().toISOString()
+          const ts = m.timestamp || m.created_at || new Date().toISOString()
+          if (m.role === 'user' || m.role === 'assistant') {
+            mapped.push({
+              role: m.role,
+              content: m.content || '',
+              timestamp: ts,
+              routingSource: m.routing_source,
+              status: m.status,
+              citations: m.citations || [],
+              contactInfo: m.contact_info,
+              interactive: m.interactive ?? null,
+              reveal: 'instant',
+            })
+            return
+          }
           const um = (m.user_message || '').trim()
           if (um) {
             mapped.push({
@@ -389,6 +446,7 @@ export const {
   clearChat,
   clearChatError,
   addMessage,
+  applyCannedFaq,
   appendStreamChunk,
   setStreamStatus,
   setQuizSessionId,

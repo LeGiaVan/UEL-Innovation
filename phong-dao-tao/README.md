@@ -1,25 +1,11 @@
-# Starter — một đơn vị UEL
+# Phòng Đào tạo
 
-Copy thư mục này thành `phong-*/` hoặc `vien-quoc-te/`. Dev phòng sửa code trong bản copy. Bug chung vá ở `starter/`, phòng tự merge.
+`DEPARTMENT_ID=pdt` · `pdt.chat.uel.edu.vn`
 
-```text
-starter/
-  chatbot-web/     # React
-  chatbot-api/     # FastAPI
-  chatbot-data/    # 5 Excel + release
-  Dockerfile
-  docker-compose.yml
-```
-
-Dev nhanh:
+Điền `.env` + `chatbot-api/configs/department.yaml` (admins, form), rồi:
 
 ```bash
-# terminal 1
-cd chatbot-api && pip install -e . && uvicorn app.main:app --reload --port 8000
-# terminal 2
-cd chatbot-web && npm install && npm run dev
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Compose (P6): `docker compose up -d --build` — 1 app + mongo + qdrant. Không Postgres, không MinIO.
-
-Không làm trong starter: ticket, inbox, Holland/MBTI/BSKT, `RAG_ROUTES`, login mật khẩu.
+Hướng dẫn: `docs/deploy.md` (gốc repo).

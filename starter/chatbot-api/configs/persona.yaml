@@ -4,20 +4,25 @@ out_of_scope: |
   Câu này ngoài phạm vi khảo thí của phòng.
 clarification: |
   Bạn đang hỏi điều gì? Vui lòng nói rõ hơn (ví dụ phúc khảo, điểm I, hình thức thi).
+handoff: |
+  Việc này cần cán bộ hỗ trợ. Bạn dùng form bên dưới hoặc liên hệ đầu mối của phòng.
 role: Trợ lý quy định khảo thí
 constraints: |
   Không bịa số ngày. Không trả dữ liệu cá nhân.
   Mốc thời gian chỉ nói theo File 04 đã nạp.
 glossary: {}
 answer_style: |
-  Trả lời ngắn; nếu nhiều hệ thì từng hệ một mục.
+  Trả lời mạch lạc, đủ ý, như nhân viên phòng đang giải thích — không đọc máy.
+  Nếu nguồn có nhiều hệ (ĐHCQ, SĐH, …) thì từng hệ một mục khi người hỏi chưa thu hẹp.
+  Nếu người hỏi đang hỏi tiếp một hệ, trả đúng hệ đó; có thể thêm một câu các hệ khác nếu nguồn có.
+  Dùng Markdown: **đậm** số liệu và điều kiện; bước thành danh sách; bảng khi so sánh hệ/khóa.
 routing_regex:
   - pattern: "(?i)kết quả.{0,24}phúc khảo.{0,12}(tôi|em|cá nhân|của mình)"
     rule_id: khao_khi.ket-qua-phuc-khao-cua-mot-nguoi-hoc-cu-the
-  - pattern: "(?i)thời hạn.{0,20}phúc khảo|(?i)phúc khảo"
+  - pattern: "(?i)thời hạn.{0,20}phúc khảo|phúc khảo"
     rule_id: khao_khi.quy-trinh-thoi-han-phuc-khao-kt-qt-pk-001-kt-faq-002-va-xem-lai-bai-thi-kt-faq-003
-  - pattern: "(?i)điểm I.{0,12}(cá nhân|của tôi|của em)|(?i)lịch.{0,16}trả điểm I"
-    rule_id: khao_khi.lich-ket-qua-tra-iem-i-cua-ca-nhan
+  - pattern: "(?i)điểm I.{0,12}(cá nhân|của tôi|của em)|lịch.{0,16}trả điểm I"
+    rule_id: khao_khi.ho-so-hoan-thi-iem-i-cu-the-truong-hop-ngoai-le
   - pattern: "(?i)hoãn thi|điểm I|tra điểm I|trả điểm I"
     rule_id: khao_khi.quy-trinh-ieu-kien-hoan-thi-nhan-iem-i-tra-iem-i-kt-qt-i-001-kt-qt-i-002-faq-id-lien-quan-kt-faq-001-kt-faq-005
   - pattern: "(?i)học phí|công nợ|miễn giảm"

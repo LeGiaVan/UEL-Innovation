@@ -32,9 +32,20 @@ def _set_session_cookie(response: Response, token: str, settings) -> None:
     )
 
 
+def _public_department(request: Request) -> dict:
+    dept = request.app.state.department or {}
+    code = str(request.app.state.department_id or dept.get("id") or "").strip()
+    name = str(dept.get("name") or "").strip() or "Trợ lý UEL"
+    short = str(dept.get("short") or "").strip() or (code.upper() if code and code != "starter" else "UEL")
+    return {"id": code or "starter", "name": name, "short": short}
+
+
 @router.get("/config")
 def auth_config(request: Request) -> dict:
-    return {"google_client_id": request.app.state.settings.google_client_id or ""}
+    return {
+        "google_client_id": request.app.state.settings.google_client_id or "",
+        "department": _public_department(request),
+    }
 
 
 @router.get("/me")
@@ -65,7 +76,11 @@ def google_login(body: GoogleIn, request: Request, response: Response) -> dict:
     email = str(info["email"]).strip().lower()
     sub = str(info["sub"])
     department = request.app.state.department or {}
-    role = resolve_role(email, department.get("admins") or [])
+    role = resolve_role(
+        email,
+        department.get("admins") or [],
+        allow_non_uel_admin=bool(department.get("allow_non_uel_admin")),
+    )
     department_id = request.app.state.department_id
     sid = str(uuid4())
     ttl = settings.jwt_ttl_hours

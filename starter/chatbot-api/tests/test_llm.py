@@ -62,6 +62,60 @@ def test_anthropic_messages_api(monkeypatch) -> None:
     assert _Client.last["json"]["thinking"] == {"type": "disabled"}
 
 
+class _LimitClient:
+    calls = 0
+
+    def __init__(self, *args, **kwargs) -> None:
+        return None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def post(self, url, headers=None, json=None):
+        _LimitClient.calls += 1
+        n = _LimitClient.calls
+
+        class _Resp:
+            status_code = 200
+
+            def raise_for_status(self) -> None:
+                return None
+
+            def json(self) -> dict:
+                if n == 1:
+                    return {
+                        "content": [{"type": "text", "text": "Yêu cầu thấp hơn,"}],
+                        "stop_reason": "max_tokens",
+                        "usage": {"input_tokens": 10, "output_tokens": 8},
+                    }
+                return {
+                    "content": [{"type": "text", "text": " CEFR B1."}],
+                    "stop_reason": "end_turn",
+                    "usage": {"input_tokens": 12, "output_tokens": 4},
+                }
+
+        return _Resp()
+
+
+def test_anthropic_continues_on_max_tokens(monkeypatch) -> None:
+    _LimitClient.calls = 0
+    monkeypatch.setattr("app.services.llm.httpx.Client", _LimitClient)
+    text, tokens = chat_complete(
+        api_key="sk-ant-test",
+        model="claude-haiku-5-5",
+        provider="anthropic",
+        messages=[{"role": "user", "content": "hỏi"}],
+        max_tokens=32,
+        continue_on_limit=True,
+    )
+    assert text == "Yêu cầu thấp hơn, CEFR B1."
+    assert _LimitClient.calls == 2
+    assert tokens == 34
+
+
 def test_options_detect_anthropic_from_key() -> None:
     class S:
         llm_api_key = "sk-ant-x"

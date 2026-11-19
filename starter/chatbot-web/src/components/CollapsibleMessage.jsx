@@ -13,6 +13,7 @@ import StreamingAssistantMarkdown from './StreamingAssistantMarkdown'
 const CollapsibleMessage = ({
   rawText,
   streaming,
+  reveal,
   onRevealTick,
   maxCollapsedPx = 360,
 }) => {
@@ -39,7 +40,7 @@ const CollapsibleMessage = ({
     setNeedCollapse(h > maxCollapsedPx)
   }, [rawText, streaming, maxCollapsedPx])
 
-  const showCollapse = isMobile && needCollapse && !streaming
+  const showCollapse = isMobile && needCollapse && !streaming && reveal !== 'type'
   const isCollapsed = showCollapse && collapsed
 
   return (
@@ -52,6 +53,7 @@ const CollapsibleMessage = ({
         <StreamingAssistantMarkdown
           rawText={rawText}
           streaming={streaming}
+          reveal={reveal}
           onRevealTick={onRevealTick}
         />
       </div>

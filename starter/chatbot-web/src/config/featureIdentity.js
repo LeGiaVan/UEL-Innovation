@@ -1,7 +1,10 @@
 import { BookOpen, ClipboardCheck, MessageCircle, FileText } from 'lucide-react'
 import department from './department.json'
 const icons = [BookOpen, ClipboardCheck, MessageCircle, FileText]
-export const FEATURE_DEFS = department.topics.map((topic, i) => ({
+const topics = Array.isArray(department.topics) && department.topics.length
+  ? department.topics
+  : [['Hỗ trợ', 'Hỏi theo dữ liệu phòng đã nạp', 'Bạn cần hỗ trợ gì?', '']]
+export const FEATURE_DEFS = topics.map((topic, i) => ({
  key: `department-${i + 1}`, slug: `chu-de-${i + 1}`, moduleId: `module_${i + 1}`,
  label: topic[0], title: topic[0], bot_name: topic[0], tagline: topic[1],
  accent: '#144E8C', accentSoft: 'rgba(20,78,140,.14)', Icon: icons[i],

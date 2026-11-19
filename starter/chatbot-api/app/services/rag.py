@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import date, datetime
 from typing import Any
 
@@ -100,6 +101,43 @@ def citations_of(hits: list[dict[str, Any]]) -> list[dict[str, str]]:
     return items
 
 
+def _history_block(history: list[dict[str, Any]] | None) -> str:
+    if not history:
+        return ""
+    lines = []
+    for row in history[-8:]:
+        role = "Người hỏi" if row.get("role") == "user" else "Bot"
+        text = str(row.get("content") or "").strip()
+        if text:
+            lines.append(f"{role}: {strip_source_marks(text)[:600]}")
+    if not lines:
+        return ""
+    return "Lịch sử hội thoại:\n" + "\n".join(lines)
+
+
+ANSWER_MAX_TOKENS = 3072
+_CUT_OFF = re.compile(
+    r"(?i)[,:;–—\-]\s*$|\b(và|hoặc|gồm|như|theo|là|hơn|của|các|những)\s*$"
+)
+
+
+def looks_cut_off(text: str) -> bool:
+    t = (text or "").rstrip()
+    if len(t) < 24:
+        return False
+    if t.endswith("|") and not t.endswith("|\n"):
+        return True
+    return bool(_CUT_OFF.search(t))
+
+
+def strip_source_marks(text: str) -> str:
+    t = (text or "").strip()
+    t = re.sub(r"\n+Nguồn\s*:[\s\S]*$", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"(?m)^Nguồn\s*:.*$", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"\s*Nguồn\s*:\s*(?:\[[0-9]+\]\s*,?\s*)+\s*$", "", t, flags=re.IGNORECASE)
+    return t.strip()
+
+
 def generate_answer(
     *,
     query: str,
@@ -109,13 +147,15 @@ def generate_answer(
     api_key: str = "",
     base_url: str = "",
     model: str = "",
+    history: list[dict[str, Any]] | None = None,
 ) -> tuple[str, int]:
     if not hits:
         return "", 0
     blocks = []
-    for i, hit in enumerate(hits, start=1):
-        label = hit.get("title") or hit.get("question_code") or hit.get("milestone_id") or hit.get("kind")
-        blocks.append(f"[{i}] ({hit.get('source')}/{hit.get('kind')}) {label}\n{hit.get('text') or ''}")
+    for hit in hits:
+        text = str(hit.get("text") or "").strip()
+        if text:
+            blocks.append(text)
     context = "\n\n".join(blocks)[:12000]
     opts = dict(llm_opts or {})
     if not opts:
@@ -136,15 +176,47 @@ def generate_answer(
             str(persona.get("constraints") or ""),
             str(persona.get("answer_style") or ""),
             gloss_txt,
-            "Chỉ dùng nguồn đã cho. Không bịa. Thiếu nguồn thì nói không đủ thông tin. Cuối câu ghi Nguồn.",
+            "Chỉ dùng tài liệu đã cho. Không bịa. Thiếu thông tin thì nói không đủ thông tin.",
+            "Trả lời câu hiện tại, hiểu theo lịch sử (câu ngắn như «hệ chính quy thì sao» là hỏi tiếp chủ đề lượt trước).",
+            "Văn tự nhiên như nhân viên phòng đang giải thích, đủ ý, không đọc máy.",
+            "Trình bày Markdown cho giao diện chat: in đậm (**…**) mốc thời hạn, số ngày, tên hệ, điều kiện bắt buộc.",
+            "Quy trình/các bước: danh sách đánh số, mỗi bước một mục, tiêu đề bước in đậm.",
+            "So sánh nhiều hệ/khóa/mức: bảng Markdown (hàng là hệ hoặc khóa, cột là mức/thời hạn).",
+            "Ghi chú dùng blockquote (> **Lưu ý:** …). Tiêu đề nhỏ nhất ### . Không dùng heading lớn.",
+            "Khóa/hệ cùng mức thì một bảng, ghi rõ áp dụng khóa nào — không lặp bảng giống nhau.",
+            "Viết đủ đến hết ý. Không cắt giữa câu, giữa bảng hay sau «Yêu cầu thấp hơn,».",
+            "Không ghi [1], [2], «Nguồn:» hay nhãn tài liệu trong câu trả lời.",
         ]
         if part
     )
+    hist = _history_block(history)
+    user = "\n\n".join(p for p in [hist, f"Câu hỏi hiện tại: {query}", f"Tài liệu:\n{context}"] if p)
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
     text, tokens = llm_svc.chat_complete(
         **opts,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": f"Câu hỏi: {query}\n\nNguồn:\n{context}"},
-        ],
+        messages=messages,
+        max_tokens=ANSWER_MAX_TOKENS,
+        continue_on_limit=True,
     )
-    return text, tokens
+    if looks_cut_off(text):
+        more, extra = llm_svc.chat_complete(
+            **opts,
+            messages=[
+                *messages,
+                {"role": "assistant", "content": text},
+                {
+                    "role": "user",
+                    "content": "Tiếp tục đúng chỗ vừa dừng. Không lặp đoạn trước. Kết thúc đủ câu và đủ bảng.",
+                },
+            ],
+            max_tokens=2048,
+            continue_on_limit=True,
+        )
+        if more:
+            joiner = "" if text.endswith(("\n", " ")) or more.startswith(("\n", " ")) else "\n"
+            text = f"{text}{joiner}{more}".strip()
+            tokens += extra
+    return strip_source_marks(text), tokens

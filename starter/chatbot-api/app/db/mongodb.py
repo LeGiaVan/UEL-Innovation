@@ -27,6 +27,9 @@ def connect_mongo(settings: Settings) -> MongoClient | None:
         db["routing_rules"].create_index([("module_code", 1), ("release_id", 1), ("rule_id", 1)])
         db["faqs"].create_index([("module_code", 1), ("release_id", 1), ("question_code", 1)])
         db["milestones"].create_index([("module_code", 1), ("release_id", 1), ("milestone_id", 1)])
+        db["conversations"].create_index([("sub", 1), ("updated_at", -1)])
+        db["conversations"].create_index("id", unique=True)
+        db["messages"].create_index([("conversation_id", 1), ("created_at", 1)])
         return client
     except PyMongoError as exc:
         log.warning("Mongo not ready: %s", exc)

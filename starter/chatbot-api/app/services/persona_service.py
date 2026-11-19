@@ -20,6 +20,7 @@ class PersonaIn(BaseModel):
     greeting: str = Field("", max_length=4000)
     out_of_scope: str = Field("", max_length=4000)
     clarification: str = Field("", max_length=4000)
+    handoff: str = Field("", max_length=4000)
     role: str = Field("", max_length=400)
     constraints: str = Field("", max_length=4000)
     glossary: dict[str, str] = Field(default_factory=dict)
@@ -67,6 +68,7 @@ def public_persona(raw: dict[str, Any] | None) -> dict[str, Any]:
         "greeting": str(data.get("greeting") or ""),
         "out_of_scope": str(data.get("out_of_scope") or ""),
         "clarification": str(data.get("clarification") or ""),
+        "handoff": str(data.get("handoff") or ""),
         "role": str(data.get("role") or ""),
         "constraints": str(data.get("constraints") or ""),
         "glossary": {str(k): str(v or "") for k, v in glossary.items()},
@@ -80,9 +82,13 @@ def public_persona(raw: dict[str, Any] | None) -> dict[str, Any]:
 def runtime_persona(*, db, yaml_data: dict[str, Any] | None) -> dict[str, Any]:
     seed = public_persona(yaml_data)
     stored = load_persona_doc(db)
-    if stored:
-        return public_persona(stored)
-    return seed
+    if not stored:
+        return seed
+    live = public_persona(stored)
+    for key in ("handoff", "out_of_scope", "clarification", "greeting", "answer_style"):
+        if not str(live.get(key) or "").strip():
+            live[key] = seed.get(key) or ""
+    return live
 
 
 def load_persona_doc(db) -> dict[str, Any] | None:

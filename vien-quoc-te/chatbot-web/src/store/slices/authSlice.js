@@ -1,33 +1,111 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import api, { API_URL } from '../../api/client'
-import { setAccessToken } from '../../api/session'
-import department from '../../config/department.json'
 
-export const login = createAsyncThunk('auth/login', async (credentials, {rejectWithValue}) => {
- try {
-  const {data} = await api.post(`${API_URL}/auth/login`, credentials)
-  setAccessToken(data.access_token)
-  if (!data.user.memberships.some(m => m.department === department.id)) {
-   try { await api.post(`${API_URL}/auth/logout`) } finally { setAccessToken(null) }
-   return rejectWithValue('Tài khoản chưa được cấp quyền truy cập phòng này.')
+export const loadPublicConfig = createAsyncThunk(
+  'auth/loadPublicConfig',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`${API_URL}/auth/config`)
+      return data
+    } catch {
+      return rejectWithValue(null)
+    }
+  },
+)
+
+export const loadMe = createAsyncThunk('auth/loadMe', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get(`${API_URL}/auth/me`)
+    if (!data?.authenticated) return rejectWithValue(null)
+    return data
+  } catch {
+    return rejectWithValue(null)
   }
-  return data.user
- } catch (error) {
-  setAccessToken(null)
-  const detail = error.response?.data?.detail
-  return rejectWithValue(typeof detail === 'string' ? detail : 'Không thể đăng nhập. Vui lòng kiểm tra thông tin và kết nối.')
- }
 })
+
+export const loginWithGoogle = createAsyncThunk(
+  'auth/loginWithGoogle',
+  async (idToken, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`${API_URL}/auth/google`, { id_token: idToken })
+      return data
+    } catch (error) {
+      const detail = error.response?.data?.detail
+      return rejectWithValue(
+        typeof detail === 'string' ? detail : 'Không đăng nhập được Google.',
+      )
+    }
+  },
+)
+
 export const logout = createAsyncThunk('auth/logout', async () => {
- try { await api.post(`${API_URL}/auth/logout`) } finally { setAccessToken(null) }
+  try {
+    await api.post(`${API_URL}/auth/logout`)
+  } catch {
+    /* cookie may already be gone */
+  }
 })
+
 const slice = createSlice({
- name:'auth', initialState:{user:null,isLoading:false,error:null},
- reducers:{sessionExpired:state=>{state.user=null;state.error='Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'}},
- extraReducers:builder=>builder
-  .addCase(login.pending,state=>{state.isLoading=true;state.error=null})
-  .addCase(login.fulfilled,(state,action)=>{state.isLoading=false;state.user=action.payload})
-  .addCase(login.rejected,(state,action)=>{state.isLoading=false;state.error=action.payload})
+  name: 'auth',
+  initialState: {
+    user: null,
+    isLoading: false,
+    loaded: false,
+    error: null,
+    department: null,
+    googleClientId: '',
+  },
+  reducers: {
+    sessionExpired: (state) => {
+      state.user = null
+      state.loaded = true
+      state.error = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadPublicConfig.fulfilled, (state, action) => {
+        const data = action.payload || {}
+        state.googleClientId = data.google_client_id || ''
+        if (data.department && typeof data.department === 'object') {
+          state.department = data.department
+        }
+      })
+      .addCase(loadMe.fulfilled, (state, action) => {
+        state.loaded = true
+        state.user = action.payload
+      })
+      .addCase(loadMe.rejected, (state) => {
+        state.loaded = true
+        state.user = null
+      })
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.loaded = true
+        state.user = action.payload
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null
+        state.loaded = true
+        state.isLoading = false
+        state.error = null
+      })
+      .addCase(logout.rejected, (state) => {
+        state.user = null
+        state.loaded = true
+        state.isLoading = false
+      })
+  },
 })
-export const {sessionExpired} = slice.actions
+
+export const { sessionExpired } = slice.actions
 export default slice.reducer

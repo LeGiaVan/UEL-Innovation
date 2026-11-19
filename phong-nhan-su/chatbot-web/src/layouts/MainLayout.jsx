@@ -1,5 +1,5 @@
 import { fetchQA } from '../store/slices/qaSlice'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Menu, X } from 'lucide-react'
@@ -14,19 +14,25 @@ import '../styles/feature-scope.css'
 function MainLayoutShell() {
   const dispatch = useDispatch()
   const location = useLocation()
-  const modeLoaded = useSelector((s) => s.mode.loaded)
   const feature = useFeatureTheme()
   const vars = featureCssVars(feature)
+  const selectedMode = useSelector((s) => s.mode.selectedMode)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), [])
 
+  const modeFromPath = useMemo(() => {
+    const match = /\/bot\/chu-de-(\d+)/.exec(location.pathname)
+    return match ? `module_${match[1]}` : selectedMode
+  }, [location.pathname, selectedMode])
+
   useEffect(() => {
-    if (!modeLoaded) {
-      dispatch(fetchChatModes())
-      dispatch(fetchQA())
-    }
-  }, [dispatch, modeLoaded])
+    dispatch(fetchChatModes())
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(fetchQA({ mode: modeFromPath }))
+  }, [dispatch, modeFromPath])
 
   useEffect(() => {
     closeSidebar()

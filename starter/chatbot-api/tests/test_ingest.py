@@ -7,6 +7,7 @@ from pathlib import Path
 
 from app.integrations.qdrant import MemoryQdrant
 from app.repositories import catalog
+from app.services.ingest_service import recover_missing_releases
 from tests.conftest import logged_in_client
 from tests.excel_fixtures import (
     SCOPE_HANDOFF,
@@ -129,7 +130,7 @@ def test_duplicate_topic_slug_422(tmp_path: Path) -> None:
 
 
 def test_khao_khi_pack_ingests(tmp_path: Path) -> None:
-    folder = Path(__file__).resolve().parents[2] / "chatbot-data" / "modules" / "khao_khi"
+    folder = Path(__file__).resolve().parents[2] / "chatbot-data" / "modules" / "khao_khi" / "seed"
     files = {}
     for path in folder.glob("*.xlsx"):
         match = re.search(r"(\d+)\.", path.name)
@@ -261,3 +262,38 @@ def test_email_in_channel_column_is_warning_not_error(tmp_path: Path) -> None:
     rules = catalog.find_docs(client.app.state.db, "routing_rules", {"module_code": "thong_tin_chung"})
     assert "phongdaotao@uel.edu.vn" in (rules[0].get("contact_info") or "")
     assert not (rules[0].get("channel") or "")
+
+
+def test_recover_missing_release_from_disk(tmp_path: Path) -> None:
+    client = _admin(tmp_path)
+    pack = valid_pack()
+    source = tmp_path / "modules" / "thong_tin_chung" / "releases" / "r-old" / "source"
+    source.mkdir(parents=True)
+    for idx, blob in pack.items():
+        (source / f"{idx}.xlsx").write_bytes(blob)
+    recovered = recover_missing_releases(
+        db=client.app.state.db,
+        qdrant=client.app.state.qdrant,
+        data_dir=tmp_path,
+        department=client.app.state.department,
+        embed_dim=1024,
+        embed_backend="hash",
+    )
+    assert recovered and recovered[0]["module_code"] == "thong_tin_chung"
+    assert recovered[0]["counts"]["faqs"] >= 1
+    chat = client.post(
+        "/api/chat/stream",
+        json={"message": "Hạn phúc khảo ĐHCQ là bao lâu?", "module_code": "thong_tin_chung"},
+    )
+    assert chat.status_code == 200, chat.text
+    done = _sse_done(chat.text)
+    assert done["routing_source"] == "faq_exact"
+    again = recover_missing_releases(
+        db=client.app.state.db,
+        qdrant=client.app.state.qdrant,
+        data_dir=tmp_path,
+        department=client.app.state.department,
+        embed_dim=1024,
+        embed_backend="hash",
+    )
+    assert again == []

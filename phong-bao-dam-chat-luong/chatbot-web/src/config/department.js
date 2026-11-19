@@ -1,8 +1,8 @@
-/** Nhận diện giao diện. DEPARTMENT_ID runtime lấy từ backend / .env, không lấy file này. */
+/** Nhận diện giao diện dự phòng. Runtime lấy từ GET /api/auth/config (yaml). */
 export const department = {
-  short: 'ĐBCL',
-  name: 'Phòng Bảo đảm chất lượng',
-  id: 'dbcl',
+  short: "ĐBCL",
+  name: "Phòng Bảo đảm chất lượng",
+  id: "dbcl",
 }
 
 export const navigation = {

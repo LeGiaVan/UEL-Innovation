@@ -6,6 +6,7 @@ const EMPTY = {
   greeting: '',
   out_of_scope: '',
   clarification: '',
+  handoff: '',
   role: '',
   constraints: '',
   answer_style: '',
@@ -96,6 +97,7 @@ export default function AdminPersonaPage() {
   const [trialInput, setTrialInput] = useState('')
   const [trialBusy, setTrialBusy] = useState(false)
   const [trialLog, setTrialLog] = useState([])
+  const [trialConvId, setTrialConvId] = useState(null)
 
   const staleIds = useMemo(() => new Set((stale || []).map((s) => s.rule_id)), [stale])
   const topicOptions = useMemo(() => {
@@ -199,7 +201,12 @@ export default function AdminPersonaPage() {
       const res = await fetchApi(`${API_URL}/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, module_code: moduleCode, trial: true }),
+        body: JSON.stringify({
+          message,
+          module_code: moduleCode,
+          trial: true,
+          conversation_id: trialConvId,
+        }),
       })
       if (!res.ok) {
         const payload = await res.json().catch(() => ({}))
@@ -210,6 +217,7 @@ export default function AdminPersonaPage() {
       await consumeChatSse(res.body.getReader(), (ev) => {
         if (ev.type === 'done') done = ev
       })
+      if (done?.conversation_id) setTrialConvId(done.conversation_id)
       setTrialLog((prev) => [
         ...prev,
         {
@@ -267,6 +275,14 @@ export default function AdminPersonaPage() {
             <textarea
               value={form.clarification}
               onChange={(e) => setField('clarification', e.target.value)}
+            />
+          </label>
+          <label className="admin-field">
+            <span>Khi cần cán bộ hỗ trợ</span>
+            <span className="admin-hint">Không dùng cột «Cách chatbot xử lý» trên Excel — đó là hướng dẫn nội bộ.</span>
+            <textarea
+              value={form.handoff}
+              onChange={(e) => setField('handoff', e.target.value)}
             />
           </label>
           <label className="admin-field">

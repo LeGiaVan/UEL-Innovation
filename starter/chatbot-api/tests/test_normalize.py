@@ -1,4 +1,4 @@
-from app.ingestion.normalize import extract_iso_dates, resolve_ds
+from app.ingestion.normalize import extract_iso_dates, resolve_ds, slug
 
 AUDIENCE = {
     "Tất cả người học",
@@ -40,3 +40,8 @@ def test_extract_skips_academic_year() -> None:
     assert extract_iso_dates("Lễ tốt nghiệp năm học 2026-2027") == []
     assert extract_iso_dates("Công bố kết quả ngày 15/06/2026.") == ["2026-06-15"]
     assert extract_iso_dates("từ 01/09/2026 đến 15/09/2026") == ["2026-09-01", "2026-09-15"]
+
+
+def test_slug_maps_vietnamese_d_stroke() -> None:
+    assert slug("Chuẩn đầu ra và xét tốt nghiệp") == "chuan-dau-ra-va-xet-tot-nghiep"
+    assert slug("Khảo thí") == "khao-thi"

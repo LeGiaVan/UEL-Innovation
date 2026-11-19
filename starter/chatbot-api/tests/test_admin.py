@@ -59,14 +59,19 @@ def test_put_rejects_unknown_rule_id() -> None:
     assert "File 01" in str(res.json()["detail"])
 
 
-def test_put_persona_applies_to_trial_chat() -> None:
-    client = logged_in_client(email="boss@uel.edu.vn", admins=["boss@uel.edu.vn"])
+def test_put_persona_applies_to_trial_chat(tmp_path: Path) -> None:
+    client = _admin(tmp_path)
+    ingested = _post_ingest(client, valid_pack())
+    assert ingested.status_code == 200, ingested.text
     res = client.put("/api/admin/persona", json=PERSONA)
     assert res.status_code == 200, res.text
     assert res.json()["source"] == "mongo"
     got = client.get("/api/admin/persona")
     assert got.json()["persona"]["clarification"] == "XYZ_P5_CLARIFY"
-    chat = client.post("/api/chat/stream", json={"message": "câu lạ không faq", "trial": True})
+    chat = client.post(
+        "/api/chat/stream",
+        json={"message": "xyzabc câu lạ không faq", "module_code": "thong_tin_chung", "trial": True},
+    )
     assert chat.status_code == 200
     done = _sse_done(chat.text)
     assert "XYZ_P5_CLARIFY" in done["answer"]

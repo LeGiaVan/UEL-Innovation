@@ -9,7 +9,7 @@ export async function fetchApi(url, options = {}) {
   const token = getAccessToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)
   const response = await globalThis.fetch(url, { ...options, headers, credentials: 'include' })
-  if (response.status === 401 && token === getAccessToken()) expireSession()
+  if (response.status === 401) expireSession()
   return response
 }
 

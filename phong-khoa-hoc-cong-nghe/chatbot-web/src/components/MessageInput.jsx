@@ -104,7 +104,7 @@ const MessageInput = ({ value, onChange, onSend, onClear, isLoading, disabled })
         <form onSubmit={handleSubmit} className="message-input-form">
           <textarea
             aria-label="Nhập câu hỏi"
-            maxLength={4000}
+            maxLength={20000}
             ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import logging
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -11,6 +13,10 @@ from app.ingestion.pipeline import parse_and_validate
 from app.integrations.embeddings import embed_texts
 from app.integrations.qdrant import COL_DOCS, COL_RULES, point_id
 from app.repositories import catalog
+
+log = logging.getLogger(__name__)
+
+_EXCEL_SLOT = re.compile(r"(?i)^(?:template|templalet)?[\s_\-]*([1-5])(?:\D|$)")
 
 
 class IngestError(Exception):
@@ -313,3 +319,84 @@ def ingest_module(
             "file05_articles": len(file05_articles),
         },
     }
+
+
+def excel_slot(filename: str) -> int | None:
+    match = _EXCEL_SLOT.match(Path(filename).name.strip())
+    return int(match.group(1)) if match else None
+
+
+def _latest_source_dir(module_dir: Path) -> Path | None:
+    releases = module_dir / "releases"
+    if not releases.is_dir():
+        return None
+    found = [path / "source" for path in releases.iterdir() if (path / "source").is_dir()]
+    if not found:
+        return None
+    return max(found, key=lambda path: path.parent.name)
+
+
+def load_release_files(source_dir: Path) -> tuple[dict[int, bytes], dict[int, str]]:
+    files: dict[int, bytes] = {}
+    names: dict[int, str] = {}
+    if not source_dir.is_dir():
+        return files, names
+    for path in source_dir.iterdir():
+        if path.suffix.lower() not in {".xlsx", ".xlsm"}:
+            continue
+        idx = excel_slot(path.name)
+        if not idx:
+            continue
+        files[idx] = path.read_bytes()
+        names[idx] = path.name
+    return files, names
+
+
+def recover_missing_releases(
+    *,
+    db,
+    qdrant,
+    data_dir: Path,
+    department: dict,
+    embed_dim: int = 1024,
+    embed_backend: str = "hash",
+) -> list[dict[str, Any]]:
+    """Nạp lại Excel đã lưu trên đĩa nếu Mongo không còn release đang chạy."""
+    root = Path(data_dir) / "modules"
+    if db is None or qdrant is None or not root.is_dir():
+        return []
+    known = {str(mod.get("code") or "") for mod in (department.get("modules") or []) if mod.get("code")}
+    recovered: list[dict[str, Any]] = []
+    for module_dir in sorted(root.iterdir()):
+        if not module_dir.is_dir() or module_dir.name.startswith("."):
+            continue
+        code = module_dir.name
+        if known and code not in known:
+            continue
+        if catalog.get_active_release(db, code):
+            continue
+        source = _latest_source_dir(module_dir)
+        if source is None:
+            continue
+        files, names = load_release_files(source)
+        if len(files) < 5:
+            log.warning("recover skip %s: found slots %s in %s", code, sorted(files), source)
+            continue
+        log.info("recover ingest %s from %s", code, source)
+        try:
+            recovered.append(
+                ingest_module(
+                    db=db,
+                    qdrant=qdrant,
+                    data_dir=Path(data_dir),
+                    department=department,
+                    module_code=code,
+                    files=files,
+                    filenames=names,
+                    embed_dim=embed_dim,
+                    embed_backend=embed_backend,
+                )
+            )
+        except Exception:
+            log.exception("recover ingest failed for %s", code)
+    return recovered

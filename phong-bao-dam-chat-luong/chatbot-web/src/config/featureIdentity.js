@@ -1,7 +1,10 @@
 import { BookOpen, ClipboardCheck, MessageCircle, FileText } from 'lucide-react'
 import department from './department.json'
 const icons = [BookOpen, ClipboardCheck, MessageCircle, FileText]
-export const FEATURE_DEFS = department.topics.map((topic, i) => ({
+const topics = Array.isArray(department.topics) && department.topics.length
+  ? department.topics
+  : [['Hỗ trợ', 'Hỏi theo dữ liệu phòng đã nạp', 'Bạn cần hỗ trợ gì?', '']]
+export const FEATURE_DEFS = topics.map((topic, i) => ({
  key: `department-${i + 1}`, slug: `chu-de-${i + 1}`, moduleId: `module_${i + 1}`,
  label: topic[0], title: topic[0], bot_name: topic[0], tagline: topic[1],
  accent: '#144E8C', accentSoft: 'rgba(20,78,140,.14)', Icon: icons[i],
@@ -12,7 +15,13 @@ export const BOT_CHAT_NAV = FEATURE_DEFS
 export const REGISTRATION = { path: '/dang-ky-nhan-tin', label: 'Đăng ký hỗ trợ', bot_name: department.name }
 export const REGISTRATION_FEATURE = { ...FEATURE_DEFS[0], ...REGISTRATION }
 export const SIDEBAR_NAV_ITEMS = FEATURE_DEFS.map(f => ({ ...f, to: `/bot/${f.slug}`, sub: f.tagline, isActive: path => path === `/bot/${f.slug}` }))
-export const getModuleIdBySlug = slug => FEATURE_DEFS.find(f => f.slug === slug)?.moduleId
+export function getModuleIdBySlug(slug) {
+  const found = FEATURE_DEFS.find((f) => f.slug === slug)?.moduleId
+  if (found) return found
+  const numbered = /^chu-de-(\d+)$/.exec(slug || '')
+  if (numbered) return `module_${numbered[1]}`
+  if (slug && String(slug).startsWith('module_')) return slug
+}
 export const resolveFeatureFromPathname = path => FEATURE_DEFS.find(f => path === `/bot/${f.slug}`) || FEATURE_DEFS[0]
 export const getChatWelcome = feature => (feature || FEATURE_DEFS[0]).welcome
 export const displayNameForResolvedMode = (id, modes = []) => modes.find(m => m.id === id)?.label || FEATURE_DEFS.find(f => f.moduleId === id)?.label || id

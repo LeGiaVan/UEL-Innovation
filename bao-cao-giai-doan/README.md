@@ -1,6 +1,6 @@
 # Báo cáo giai đoạn — 8 chatbot phòng
 
-Mỗi pha trong `GIAI_DOAN.md` kết thúc bằng một file trong thư mục này. Đặc tả: `PLAN_UPDATE.md`.
+Mỗi pha trong `GIAI_DOAN.md` kết thúc bằng một file trong thư mục này. Đặc tả: `PLAN_UPDATE.md`. Deploy: `docs/deploy.md`.
 
 Không ghi secret, API key, cookie, mật khẩu, hay dữ liệu cá nhân.
 
@@ -13,9 +13,11 @@ Không ghi secret, API key, cookie, mật khẩu, hay dữ liệu cá nhân.
 | P2 | `P2.md` | `ACCEPTED` |
 | P3 | `P3.md` | `ACCEPTED` |
 | P4 | `P4.md` | `ACCEPTED` |
-| P5 | `P5.md` | `READY_FOR_REVIEW` |
-| P6 | `P6.md` | `NOT_STARTED` — chốt starter (Docker + gold + độ trễ), chưa clone |
-| P7 | `P7.md` | `NOT_STARTED` — clone starter, phòng deploy ngay |
+| P5 | `P5.md` | `ACCEPTED` |
+| P6 | `P6.md` | `ACCEPTED` — chốt starter (Docker + gold + độ trễ) |
+| P7 | `P7.md` | `READY_FOR_REVIEW` — copy 8 thư mục; cửa Compose 2 phòng đã bỏ |
+| P8 | `P8.md` | `READY_FOR_REVIEW` — Origin + tắt docs |
+| P9 | `P9.md` | `READY_FOR_REVIEW` — starter generic |
 
 Mẫu trống: `_TEMPLATE.md`.
 

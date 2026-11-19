@@ -8,6 +8,22 @@ from app.core.config import Settings
 from app.factory import create_app
 from fastapi.testclient import TestClient
 
+DEFAULT_ORIGIN = "http://localhost:8000"
+
+
+class ApiClient(TestClient):
+    """Gắn Origin localhost như trình duyệt; test Origin gửi header tường minh."""
+
+    def request(self, method, url, **kwargs):
+        headers = kwargs.get("headers")
+        if headers is None:
+            headers = {}
+            kwargs["headers"] = headers
+        if isinstance(headers, dict) and str(method).upper() in {"POST", "PUT", "PATCH", "DELETE"}:
+            if not any(str(key).lower() == "origin" for key in headers):
+                headers["Origin"] = DEFAULT_ORIGIN
+        return super().request(method, url, **kwargs)
+
 _API_DIR = Path(__file__).resolve().parents[1]
 
 
@@ -112,7 +128,13 @@ def fake_google(email: str, sub: str = "google-sub"):
     return _verify
 
 
-def logged_in_client(*, email: str, admins: list[str] | None = None, extra_body: dict | None = None) -> TestClient:
+def logged_in_client(
+    *,
+    email: str,
+    admins: list[str] | None = None,
+    extra_body: dict | None = None,
+    allow_non_uel_admin: bool = False,
+) -> ApiClient:
     app = isolated_app(google_client_id="test-client.apps.googleusercontent.com")
     app.state.db = FakeDB()
     app.state.mongo_ok = True
@@ -120,9 +142,10 @@ def logged_in_client(*, email: str, admins: list[str] | None = None, extra_body:
     dept["id"] = dept.get("id") or "starter"
     dept["admins"] = admins or []
     dept.setdefault("rate_limit", {"chats_per_minute": 10, "llm_tokens_per_day": 50000})
+    dept["allow_non_uel_admin"] = bool(allow_non_uel_admin)
     app.state.department = dept
     app.state.verify_google_id_token = fake_google(email)
-    client = TestClient(app)
+    client = ApiClient(app)
     body = {"id_token": "x" * 40}
     if extra_body:
         body.update(extra_body)

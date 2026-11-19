@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import api, { API_URL } from '../api/client'
 import { loginWithGoogle } from '../store/slices/authSlice'
-import department from '../config/department.json'
+import { liveDepartment } from '../config/departmentIdentity'
 import './LoginPage.css'
 
 export default function LoginPage() {
   const dispatch = useDispatch()
-  const { isLoading, error } = useSelector((s) => s.auth)
+  const { isLoading, error, department: apiDepartment } = useSelector((s) => s.auth)
+  const department = liveDepartment(apiDepartment)
   const btnRef = useRef(null)
   const [setupError, setSetupError] = useState('')
 
@@ -23,14 +24,14 @@ export default function LoginPage() {
         clientId = data?.google_client_id || ''
       } catch {
         if (!cancelled) {
-          setSetupError('Không gọi được API /api/auth/config. Kiểm tra uvicorn (cổng 8001) và proxy Vite.')
+          setSetupError('Không gọi được API /api/auth/config. Kiểm tra API đang chạy và (khi dev) proxy Vite.')
         }
         return
       }
       if (cancelled) return
       if (!clientId) {
         setSetupError(
-          'Chưa có GOOGLE_CLIENT_ID. Điền vào starter/.env hoặc starter/chatbot-api/.env rồi restart uvicorn.',
+          'Chưa có GOOGLE_CLIENT_ID. Điền vào .env rồi restart API / Compose.',
         )
         return
       }
