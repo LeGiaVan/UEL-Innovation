@@ -1,5 +1,6 @@
 id: pns
 name: Phòng Nhân sự
+short: P.NS
 domain: pns.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

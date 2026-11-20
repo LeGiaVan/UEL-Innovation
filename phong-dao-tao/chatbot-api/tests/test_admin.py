@@ -25,6 +25,21 @@ def test_member_cannot_get_or_put_persona() -> None:
     assert client.get("/api/admin/persona").status_code == 403
     assert client.put("/api/admin/persona", json=PERSONA).status_code == 403
     assert client.get("/api/admin/topics").status_code == 403
+    assert client.get("/api/admin/analytics").status_code == 403
+
+
+def test_admin_analytics_summary() -> None:
+    client = logged_in_client(email="boss@uel.edu.vn", admins=["boss@uel.edu.vn"])
+    res = client.get("/api/admin/analytics")
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["turns"] == 0
+    assert body["conversations"] == 0
+    assert body["users"] == 0
+    assert body["by_module"] == []
+    filtered = client.get("/api/admin/analytics", params={"module_code": "khao_khi"})
+    assert filtered.status_code == 200, filtered.text
+    assert filtered.json()["by_module"] == []
 
 
 def test_admin_get_persona_from_yaml() -> None:
@@ -46,28 +61,26 @@ def test_put_rejects_system_prompt() -> None:
     assert res.status_code == 422
 
 
-def test_put_rejects_unknown_rule_id() -> None:
+def test_put_persona_locked_to_yaml() -> None:
     client = logged_in_client(email="boss@uel.edu.vn", admins=["boss@uel.edu.vn"])
-    res = client.put(
-        "/api/admin/persona",
-        json={
-            **PERSONA,
-            "routing_regex": [{"pattern": "(?i)phúc khảo", "rule_id": "thong_tin_chung.khong-ton-tai"}],
-        },
-    )
-    assert res.status_code == 422
-    assert "File 01" in str(res.json()["detail"])
+    res = client.put("/api/admin/persona", json=PERSONA)
+    assert res.status_code == 405
+    assert "persona.yaml" in str(res.json()["detail"])
+    got = client.get("/api/admin/persona")
+    assert got.status_code == 200, got.text
+    assert got.json()["source"] == "yaml"
+    assert got.json()["readonly"] is True
 
 
-def test_put_persona_applies_to_trial_chat(tmp_path: Path) -> None:
+def test_persona_from_config_applies_to_trial_chat(tmp_path: Path) -> None:
     client = _admin(tmp_path)
     ingested = _post_ingest(client, valid_pack())
     assert ingested.status_code == 200, ingested.text
-    res = client.put("/api/admin/persona", json=PERSONA)
-    assert res.status_code == 200, res.text
-    assert res.json()["source"] == "mongo"
-    got = client.get("/api/admin/persona")
-    assert got.json()["persona"]["clarification"] == "XYZ_P5_CLARIFY"
+    locked = client.put("/api/admin/persona", json=PERSONA)
+    assert locked.status_code == 405
+    persona = dict(client.app.state.persona)
+    persona["clarification"] = "XYZ_P5_CLARIFY"
+    client.app.state.persona = persona
     chat = client.post(
         "/api/chat/stream",
         json={"message": "xyzabc câu lạ không faq", "module_code": "thong_tin_chung", "trial": True},
@@ -92,14 +105,9 @@ def test_regex_dropdown_from_active_file01(tmp_path: Path) -> None:
     assert rows
     rule_id = rows[0]["rule_id"]
     assert rows[0]["topic"]
-    saved = client.put(
-        "/api/admin/persona",
-        json={
-            **PERSONA,
-            "routing_regex": [{"pattern": "(?i)hạn phúc khảo p5", "rule_id": rule_id}],
-        },
-    )
-    assert saved.status_code == 200, saved.text
+    persona = dict(client.app.state.persona)
+    persona["routing_regex"] = [{"pattern": "(?i)hạn phúc khảo p5", "rule_id": rule_id}]
+    client.app.state.persona = persona
     chat = client.post(
         "/api/chat/stream",
         json={"message": "hạn phúc khảo p5", "module_code": "thong_tin_chung", "trial": True},

@@ -1,8 +1,13 @@
 import { useEffect } from 'react'
-import { department } from '../config/department.js'
+import { useSelector } from 'react-redux'
+import { liveDepartment } from '../config/departmentIdentity'
+import { assistantTitle } from '../config/assistantTitle'
 
 export function useDepartmentTitle() {
+  const department = liveDepartment(useSelector((s) => s.auth.department))
+  const title = assistantTitle(department.short)
+
   useEffect(() => {
-    document.title = `Trợ lý ${department.short} | UEL`
-  }, [])
+    document.title = `${title} | UEL`
+  }, [title])
 }

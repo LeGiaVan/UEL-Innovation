@@ -1,5 +1,6 @@
 id: ctsv
 name: Phòng Tuyển sinh & Công tác sinh viên
+short: P.CTSV
 domain: ctsv.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

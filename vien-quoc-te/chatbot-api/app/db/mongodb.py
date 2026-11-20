@@ -30,6 +30,12 @@ def connect_mongo(settings: Settings) -> MongoClient | None:
         db["conversations"].create_index([("sub", 1), ("updated_at", -1)])
         db["conversations"].create_index("id", unique=True)
         db["messages"].create_index([("conversation_id", 1), ("created_at", 1)])
+        db["chat_turns"].create_index("id", unique=True)
+        db["chat_turns"].create_index([("conversation_id", 1), ("turn_index", 1)])
+        db["chat_turns"].create_index([("created_at", -1)])
+        db["chat_turns"].create_index([("module_code", 1), ("created_at", -1)])
+        db["chat_turns"].create_index([("sub", 1), ("created_at", -1)])
+        db["chat_turns"].create_index([("status", 1), ("created_at", -1)])
         return client
     except PyMongoError as exc:
         log.warning("Mongo not ready: %s", exc)

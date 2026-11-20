@@ -1,0 +1,27 @@
+.empty-chat--gpt {
+  flex: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.25rem 4rem;
+  text-align: center;
+}
+
+.empty-chat-mark {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.empty-chat--gpt h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--uel-text-primary, #1f2937);
+  line-height: 1.3;
+}

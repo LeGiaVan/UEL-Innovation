@@ -1,5 +1,6 @@
 id: qtts
 name: Phòng Quản trị tài sản
+short: P.QTTS
 domain: qtts.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import time
 
 from typing import Annotated
 
@@ -77,6 +78,7 @@ async def chat_stream(
         conversation_id=body.conversation_id,
         sub=str(user.get("sub") or ""),
     )
+    started = time.perf_counter()
     try:
         result = await asyncio.to_thread(
             route_message,
@@ -92,6 +94,7 @@ async def chat_stream(
     except Exception as exc:  # noqa: BLE001
         log.exception("chat route failed")
         raise HTTPException(status_code=500, detail=f"Lỗi xử lý câu hỏi: {exc}") from exc
+    latency_ms = int((time.perf_counter() - started) * 1000)
     if result.llm_tokens and not body.trial:
         add_llm_tokens(
             request.app.state.db,
@@ -105,8 +108,10 @@ async def chat_stream(
             conversation_id = save_turn(
                 request.app.state.db,
                 sub=str(user.get("sub") or ""),
+                email=str(user.get("email") or "") or None,
                 conversation_id=body.conversation_id,
                 module_code=result.module_code or module_code,
+                department_id=str(user.get("department_id") or request.app.state.department_id or ""),
                 user_message=body.message,
                 answer=result.answer,
                 routing_source=result.routing_source,
@@ -115,6 +120,11 @@ async def chat_stream(
                 citations=result.citations,
                 contact_info=result.contact_info,
                 interactive=result.interactive,
+                release_id=result.release_id,
+                llm_tokens=result.llm_tokens,
+                latency_ms=latency_ms,
+                trial=body.trial,
+                user_agent=request.headers.get("user-agent"),
             )
         except Exception:  # noqa: BLE001
             log.exception("save conversation failed")

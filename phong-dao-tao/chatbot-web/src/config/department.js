@@ -1,6 +1,6 @@
 /** Nhận diện giao diện dự phòng. Runtime lấy từ GET /api/auth/config (yaml). */
 export const department = {
-  short: "PĐT",
+  short: "P.ĐT",
   name: "Phòng Đào tạo",
   id: "pdt",
 }

@@ -1,6 +1,10 @@
 {
-  "short": "UEL",
+  "short": "P.Starter",
   "name": "Trợ lý UEL (starter)",
   "id": "starter",
-  "topics": []
+  "topics": [
+    ["Khảo thí", "Hỏi quy định thi, phúc khảo, điểm I", "Bạn cần hỏi gì về khảo thí?"],
+    ["Thông tin chung", "Hỏi thông tin chung của đơn vị", "Bạn cần hỗ trợ gì?"],
+    ["Chuẩn đầu ra và xét tốt nghiệp", "Hỏi chuẩn đầu ra và xét tốt nghiệp", "Bạn cần hỏi gì về xét tốt nghiệp?"]
+  ]
 }

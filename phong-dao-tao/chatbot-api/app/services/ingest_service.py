@@ -326,14 +326,8 @@ def excel_slot(filename: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def _latest_source_dir(module_dir: Path) -> Path | None:
-    releases = module_dir / "releases"
-    if not releases.is_dir():
-        return None
-    found = [path / "source" for path in releases.iterdir() if (path / "source").is_dir()]
-    if not found:
-        return None
-    return max(found, key=lambda path: path.parent.name)
+def _complete_pack(files: dict[int, bytes]) -> bool:
+    return all(bool(files.get(i)) for i in range(1, 6))
 
 
 def load_release_files(source_dir: Path) -> tuple[dict[int, bytes], dict[int, str]]:
@@ -344,12 +338,35 @@ def load_release_files(source_dir: Path) -> tuple[dict[int, bytes], dict[int, st
     for path in source_dir.iterdir():
         if path.suffix.lower() not in {".xlsx", ".xlsm"}:
             continue
+        if path.stat().st_size <= 0:
+            continue
         idx = excel_slot(path.name)
         if not idx:
             continue
-        files[idx] = path.read_bytes()
+        blob = path.read_bytes()
+        if not blob:
+            continue
+        files[idx] = blob
         names[idx] = path.name
     return files, names
+
+
+def _latest_source_dir(module_dir: Path) -> Path | None:
+    releases = module_dir / "releases"
+    found: list[Path] = []
+    if releases.is_dir():
+        for path in releases.iterdir():
+            source = path / "source"
+            files, _ = load_release_files(source)
+            if _complete_pack(files):
+                found.append(source)
+    if found:
+        return max(found, key=lambda path: path.parent.name)
+    seed = module_dir / "seed"
+    files, _ = load_release_files(seed)
+    if _complete_pack(files):
+        return seed
+    return None
 
 
 def recover_missing_releases(
@@ -379,7 +396,7 @@ def recover_missing_releases(
         if source is None:
             continue
         files, names = load_release_files(source)
-        if len(files) < 5:
+        if not _complete_pack(files):
             log.warning("recover skip %s: found slots %s in %s", code, sorted(files), source)
             continue
         log.info("recover ingest %s from %s", code, source)

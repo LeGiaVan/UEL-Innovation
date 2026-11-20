@@ -1,21 +1,81 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { sendMessage, clearChat } from '../store/slices/chatSlice'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
-import DepartmentHub from './DepartmentHub'
+import EmptyChat from './EmptyChat'
+import FaqBoard from './FaqBoard'
 import './ChatInterface.css'
+
 export default function ChatInterface() {
- const dispatch=useDispatch(), location=useLocation()
- const {messages,isLoading,error,conversationId,rateLimit}=useSelector(s=>s.chat)
- const mode=useSelector(s=>s.mode.selectedMode)
- const [input,setInput]=useState(''), task=useRef(null)
- useEffect(()=>{setInput(location.state?.question || '')},[location.key,mode])
- useEffect(()=>()=>{task.current?.abort()},[location.pathname])
- function send(text) {
-  if(!text.trim() || isLoading || (rateLimit?.untilTs > Date.now()))return
-  task.current=dispatch(sendMessage({message:text.trim(),conversationId}));setInput('')
- }
- return <div className="chat-interface"><div className="chat-container">{!messages.length&&!isLoading ? <DepartmentHub onSuggestionClick={send}/> : <MessageList messages={messages} isLoading={isLoading} onSuggestionClick={send}/>} {error && <div className="error-message" role="alert">{error}</div>}</div><MessageInput value={input} onChange={setInput} onSend={e=>{e.preventDefault();send(input)}} onClear={()=>{dispatch(clearChat());setInput('')}} isLoading={isLoading} disabled={isLoading}/></div>
+  const dispatch = useDispatch()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { messages, isLoading, error, conversationId, rateLimit } = useSelector((s) => s.chat)
+  const mode = useSelector((s) => s.mode.selectedMode)
+  const [input, setInput] = useState('')
+  const task = useRef(null)
+  const faqOpen = new URLSearchParams(location.search).get('view') === 'faq'
+  const empty = !messages.length && !isLoading && !faqOpen
+
+  useEffect(() => {
+    setInput(location.state?.question || '')
+  }, [location.key, mode])
+
+  useEffect(() => () => {
+    task.current?.abort()
+  }, [location.pathname])
+
+  function closeFaq() {
+    navigate({ pathname: location.pathname, search: '' }, { replace: true })
+  }
+
+  function send(text) {
+    if (!text.trim() || isLoading || rateLimit?.untilTs > Date.now()) return
+    if (faqOpen) closeFaq()
+    task.current = dispatch(sendMessage({ message: text.trim(), conversationId }))
+    setInput('')
+  }
+
+  let main
+  if (faqOpen) {
+    main = <FaqBoard onAsked={closeFaq} />
+  } else if (empty) {
+    main = <EmptyChat />
+  } else {
+    main = (
+      <MessageList messages={messages} isLoading={isLoading} onSuggestionClick={send} />
+    )
+  }
+
+  return (
+    <div
+      className={`chat-interface${empty ? ' chat-interface--empty' : ''}${faqOpen ? ' chat-interface--faq' : ''}`}
+    >
+      <div className="chat-container">
+        {main}
+        {error ? (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        ) : null}
+      </div>
+      <MessageInput
+        value={input}
+        onChange={setInput}
+        onSend={(e) => {
+          e.preventDefault()
+          send(input)
+        }}
+        onClear={() => {
+          dispatch(clearChat())
+          setInput('')
+          if (faqOpen) closeFaq()
+        }}
+        isLoading={isLoading}
+        disabled={isLoading}
+      />
+    </div>
+  )
 }

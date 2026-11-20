@@ -1,6 +1,6 @@
 /** Nhận diện giao diện dự phòng. Runtime lấy từ GET /api/auth/config (yaml). */
 export const department = {
-  short: "CTSV",
+  short: "P.CTSV",
   name: "Phòng Tuyển sinh & Công tác sinh viên",
   id: "ctsv",
 }

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Uplo
 from fastapi.responses import StreamingResponse
 
 from app.api.dependencies import require_admin
+from app.services.conversation_service import summarize_chat_turns
 from app.services.ingest_service import IngestError, check_module, ingest_module
 from app.services.module_service import (
     ModuleIn,
@@ -20,9 +21,7 @@ from app.services.persona_service import (
     PersonaIn,
     active_topics,
     public_persona,
-    save_persona,
     stale_regex,
-    validate_regex,
     write_audit,
 )
 from app.repositories import catalog
@@ -76,6 +75,15 @@ def admin_status(request: Request, _admin: Annotated[dict, Depends(require_admin
     }
 
 
+@router.get("/analytics")
+def admin_analytics(
+    request: Request,
+    _admin: Annotated[dict, Depends(require_admin)],
+    module_code: str | None = None,
+) -> dict:
+    return summarize_chat_turns(request.app.state.db, module_code=module_code)
+
+
 @router.get("/releases")
 def list_releases(
     request: Request,
@@ -103,20 +111,17 @@ def list_topics(
 
 @router.get("/persona")
 def get_persona(request: Request, _admin: Annotated[dict, Depends(require_admin)]) -> dict:
-    yaml_seed = public_persona(getattr(request.app.state, "persona", None) or {})
+    persona = public_persona(getattr(request.app.state, "persona", None) or {})
     db = request.app.state.db
-    from app.services.persona_service import load_persona_doc
-
-    stored = load_persona_doc(db)
-    source = "mongo" if stored else "yaml"
-    persona = public_persona(stored) if stored else yaml_seed
     topics = active_topics(db, _dept(request))
     known = {row["rule_id"] for row in topics}
     return {
         "persona": persona,
-        "source": source,
-        "updated_at": str((stored or {}).get("updated_at") or ""),
-        "updated_by": str((stored or {}).get("updated_by") or ""),
+        "source": "yaml",
+        "readonly": True,
+        "config_path": "chatbot-api/configs/persona.yaml",
+        "updated_at": "",
+        "updated_by": "",
         "stale_regex": stale_regex(persona.get("routing_regex") or [], known),
         "topics": topics,
         "modules": _modules(request),
@@ -125,33 +130,14 @@ def get_persona(request: Request, _admin: Annotated[dict, Depends(require_admin)
 
 @router.put("/persona")
 def put_persona(
-    request: Request,
-    body: PersonaIn,
-    admin: Annotated[dict, Depends(require_admin)],
+    _request: Request,
+    _body: PersonaIn,
+    _admin: Annotated[dict, Depends(require_admin)],
 ) -> dict:
-    db = request.app.state.db
-    if db is None:
-        raise HTTPException(status_code=503, detail="MongoDB chưa sẵn sàng")
-    topics = active_topics(db, _dept(request))
-    known = {row["rule_id"] for row in topics}
-    errors = validate_regex(body.routing_regex, known)
-    if errors:
-        raise HTTPException(status_code=422, detail={"errors": errors, "warnings": []})
-    persona = save_persona(db, payload=body, email=str(admin.get("email") or ""))
-    request.app.state.persona = persona
-    write_audit(
-        db,
-        action="persona_update",
-        email=str(admin.get("email") or ""),
-        meta={"regex_count": len(persona.get("routing_regex") or [])},
+    raise HTTPException(
+        status_code=405,
+        detail="Cách bot trả lời chỉ sửa trong chatbot-api/configs/persona.yaml, rồi khởi động lại dịch vụ.",
     )
-    return {
-        "persona": persona,
-        "source": "mongo",
-        "stale_regex": [],
-        "topics": topics,
-        "modules": _modules(request),
-    }
 
 
 async def _read_pack(

@@ -1,5 +1,6 @@
 id: hc
 name: Phòng Hành chính
+short: P.HC
 domain: hc.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

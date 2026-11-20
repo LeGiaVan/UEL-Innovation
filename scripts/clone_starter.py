@@ -10,14 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 STARTER = ROOT / "starter"
 
 ROOMS = [
-    ("phong-hanh-chinh", "hc", "HC", "Phòng Hành chính", "hc.chat.uel.edu.vn"),
-    ("phong-tuyen-sinh-cong-tac-sinh-vien", "ctsv", "CTSV", "Phòng Tuyển sinh & Công tác sinh viên", "ctsv.chat.uel.edu.vn"),
-    ("phong-dao-tao", "pdt", "PĐT", "Phòng Đào tạo", "pdt.chat.uel.edu.vn"),
-    ("phong-quan-tri-tai-san", "qtts", "QTTS", "Phòng Quản trị tài sản", "qtts.chat.uel.edu.vn"),
-    ("vien-quoc-te", "vqt", "VQT", "Viện Quốc tế", "vqt.chat.uel.edu.vn"),
-    ("phong-nhan-su", "pns", "PNS", "Phòng Nhân sự", "pns.chat.uel.edu.vn"),
-    ("phong-khoa-hoc-cong-nghe", "khcn", "KHCN", "Phòng Khoa học công nghệ", "khcn.chat.uel.edu.vn"),
-    ("phong-bao-dam-chat-luong", "dbcl", "ĐBCL", "Phòng Bảo đảm chất lượng", "dbcl.chat.uel.edu.vn"),
+    ("phong-hanh-chinh", "hc", "P.HC", "Phòng Hành chính", "hc.chat.uel.edu.vn"),
+    ("phong-tuyen-sinh-cong-tac-sinh-vien", "ctsv", "P.CTSV", "Phòng Tuyển sinh & Công tác sinh viên", "ctsv.chat.uel.edu.vn"),
+    ("phong-dao-tao", "pdt", "P.ĐT", "Phòng Đào tạo", "pdt.chat.uel.edu.vn"),
+    ("phong-quan-tri-tai-san", "qtts", "P.QTTS", "Phòng Quản trị tài sản", "qtts.chat.uel.edu.vn"),
+    ("vien-quoc-te", "vqt", "V.QT", "Viện Quốc tế", "vqt.chat.uel.edu.vn"),
+    ("phong-nhan-su", "pns", "P.NS", "Phòng Nhân sự", "pns.chat.uel.edu.vn"),
+    ("phong-khoa-hoc-cong-nghe", "khcn", "P.KHCN", "Phòng Khoa học công nghệ", "khcn.chat.uel.edu.vn"),
+    ("phong-bao-dam-chat-luong", "dbcl", "P.BĐCL", "Phòng Bảo đảm chất lượng", "dbcl.chat.uel.edu.vn"),
 ]
 
 SKIP_DIR = {
@@ -80,10 +80,11 @@ def _ignore(directory: str, names: list[str]) -> set[str]:
     return skipped
 
 
-def _department_yaml(*, code: str, name: str, domain: str) -> str:
+def _department_yaml(*, code: str, name: str, domain: str, short: str) -> str:
     return (
         f"id: {code}\n"
         f"name: {name}\n"
+        f"short: {short}\n"
         f"domain: {domain}\n"
         "handoff_form_url: https://docs.google.com/forms/\n"
         "admins: []\n"
@@ -183,7 +184,7 @@ def fill_room(dest: Path, code: str, short: str, name: str, domain: str) -> None
     yaml_path = dest / "chatbot-api" / "configs" / "department.yaml"
     yaml_path.parent.mkdir(parents=True, exist_ok=True)
     yaml_path.write_text(
-        _department_yaml(code=code, name=name, domain=domain),
+        _department_yaml(code=code, name=name, domain=domain, short=short),
         encoding="utf-8",
     )
     _strip_demo_data(dest)

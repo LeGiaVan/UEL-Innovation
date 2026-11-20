@@ -1,11 +1,10 @@
 .message-input-container {
   flex-shrink: 0;
-  padding: 1.25rem 1.5rem;
-  /* iOS home bar: tránh bị che bởi thanh điều hướng */
-  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-  background-color: var(--uel-bg-white);
-  border-top: 1px solid var(--uel-border);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  padding: 0.65rem 1.5rem 1.15rem;
+  padding-bottom: max(1.15rem, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 28%);
+  border-top: 0;
+  box-shadow: none;
 }
 
 .message-input-wrapper {
@@ -17,12 +16,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--uel-bg-light);
-  border: 2px solid var(--uel-border);
-  border-radius: 16px;
-  padding: 0.65rem 1rem;
-  transition: all 0.2s;
-  min-height: var(--uel-touch-min, 52px);
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 26px;
+  padding: 0.55rem 0.7rem 0.55rem 1.05rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 52px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
 }
 
 .message-input-form:focus-within {
@@ -85,14 +85,9 @@
 }
 
 .send-button {
-  background: linear-gradient(
-    160deg,
-    var(--uel-submit-bg-light, #ef6c00) 0%,
-    var(--uel-submit-bg, #e65100) 48%,
-    var(--uel-submit-bg-hover, #bf360c) 100%
-  );
+  background: var(--uel-primary, #144e8c);
   color: #ffffff;
-  border-radius: 12px;
+  border-radius: 50%;
 }
 
 .send-button:hover:not(:disabled) {

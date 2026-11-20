@@ -297,3 +297,26 @@ def test_recover_missing_release_from_disk(tmp_path: Path) -> None:
         embed_backend="hash",
     )
     assert again == []
+
+
+def test_recover_skips_empty_latest_release(tmp_path: Path) -> None:
+    client = _admin(tmp_path)
+    pack = valid_pack()
+    good = tmp_path / "modules" / "thong_tin_chung" / "releases" / "r-old" / "source"
+    good.mkdir(parents=True)
+    for idx, blob in pack.items():
+        (good / f"{idx}.xlsx").write_bytes(blob)
+    empty = tmp_path / "modules" / "thong_tin_chung" / "releases" / "z-newer-empty" / "source"
+    empty.mkdir(parents=True)
+    for idx in range(1, 6):
+        (empty / f"{idx}.xlsx").write_bytes(b"")
+    recovered = recover_missing_releases(
+        db=client.app.state.db,
+        qdrant=client.app.state.qdrant,
+        data_dir=tmp_path,
+        department=client.app.state.department,
+        embed_dim=1024,
+        embed_backend="hash",
+    )
+    assert recovered and recovered[0]["module_code"] == "thong_tin_chung"
+    assert recovered[0]["counts"]["faqs"] >= 1

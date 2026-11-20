@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
 import { liveDepartment } from '../config/departmentIdentity'
+import { assistantTitle } from '../config/assistantTitle'
 import AppRoutes from '../routes/AppRoutes.jsx'
 import './Header.css'
 
@@ -21,7 +22,7 @@ export default function Header() {
             className="logo-img logo-img--on-primary"
           />
           <div className="header-title">
-            <h1 className="header-title-line">Trợ lý AI hỗ trợ {department.short}</h1>
+            <h1 className="header-title-line">{assistantTitle(department.short)}</h1>
             <p className="header-subtitle">Trường Đại học Kinh tế - Luật (ĐHQG-HCM)</p>
           </div>
         </div>

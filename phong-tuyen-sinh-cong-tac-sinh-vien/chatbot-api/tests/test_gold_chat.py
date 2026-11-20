@@ -54,7 +54,7 @@ def _gold_client(tmp_path: Path):
     dept = dict(client.app.state.department or {})
     dept.setdefault("handoff_form_url", "https://docs.google.com/forms/")
     dept["modules"] = [
-        {"code": "khao_khi", "name": "Khảo khí", "profile": "generic"},
+        {"code": "khao_khi", "name": "Khảo thí", "profile": "generic"},
         {"code": "thong_tin_chung", "name": "Thông tin chung", "profile": "generic"},
     ]
     dept["rate_limit"] = {"chats_per_minute": 1000, "llm_tokens_per_day": 50000}

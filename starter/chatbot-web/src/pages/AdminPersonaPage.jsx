@@ -46,22 +46,6 @@ function glossaryToText(obj) {
     .join('\n')
 }
 
-function textToGlossary(text) {
-  const out = {}
-  for (const line of String(text || '').split('\n')) {
-    const t = line.trim()
-    if (!t) continue
-    const eq = t.indexOf('=')
-    const col = t.indexOf(':')
-    const sep = eq >= 0 && (col < 0 || eq < col) ? eq : col
-    if (sep < 1) continue
-    const k = t.slice(0, sep).trim()
-    const v = t.slice(sep + 1).trim()
-    if (k) out[k] = v
-  }
-  return out
-}
-
 function patternToPhrase(pattern) {
   let p = String(pattern || '')
   p = p.replace(/^\(\?i\)/, '')
@@ -72,16 +56,9 @@ function patternToPhrase(pattern) {
   return String(pattern || '')
 }
 
-function phraseToPattern(phrase) {
-  const t = String(phrase || '').trim()
-  if (!t) return ''
-  if (t.startsWith('(?') || t.startsWith('^')) return t
-  const parts = t
-    .split(/[,;]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-  const esc = parts.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  return `(?i)${esc.join('|')}`
+function topicLabel(ruleId, topics) {
+  const found = (topics || []).find((t) => t.rule_id === ruleId)
+  return found?.topic || ruleId || '—'
 }
 
 export default function AdminPersonaPage() {
@@ -90,20 +67,15 @@ export default function AdminPersonaPage() {
   const [topics, setTopics] = useState([])
   const [modules, setModules] = useState([])
   const [stale, setStale] = useState([])
+  const [configPath, setConfigPath] = useState('chatbot-api/configs/persona.yaml')
   const [moduleCode, setModuleCode] = useState('')
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [ok, setOk] = useState('')
   const [trialInput, setTrialInput] = useState('')
   const [trialBusy, setTrialBusy] = useState(false)
   const [trialLog, setTrialLog] = useState([])
   const [trialConvId, setTrialConvId] = useState(null)
 
   const staleIds = useMemo(() => new Set((stale || []).map((s) => s.rule_id)), [stale])
-  const topicOptions = useMemo(() => {
-    const filtered = moduleCode ? topics.filter((t) => t.module_code === moduleCode) : topics
-    return filtered
-  }, [topics, moduleCode])
 
   useEffect(() => {
     let alive = true
@@ -122,6 +94,7 @@ export default function AdminPersonaPage() {
         setTopics(body.topics || [])
         setModules(body.modules || [])
         setStale(body.stale_regex || [])
+        setConfigPath(body.config_path || 'chatbot-api/configs/persona.yaml')
         setModuleCode(body.modules?.[0]?.code || '')
       })
       .catch((err) => {
@@ -131,64 +104,6 @@ export default function AdminPersonaPage() {
       alive = false
     }
   }, [])
-
-  function setField(key, value) {
-    setForm((prev) => ({ ...prev, [key]: value }))
-    setOk('')
-  }
-
-  function setRegex(i, patch) {
-    setForm((prev) => {
-      const rows = [...(prev.routing_regex || [])]
-      rows[i] = { ...rows[i], ...patch }
-      return { ...prev, routing_regex: rows }
-    })
-    setOk('')
-  }
-
-  async function onSave(e) {
-    e.preventDefault()
-    if (busy) return
-    setBusy(true)
-    setError('')
-    setOk('')
-    const payload = {
-      ...form,
-      cosine_threshold: Number(form.cosine_threshold),
-      top_k: Number(form.top_k),
-      glossary: textToGlossary(glossaryText),
-      routing_regex: (form.routing_regex || [])
-        .map((r) => ({
-          pattern: phraseToPattern(r.phrase || r.pattern),
-          rule_id: r.rule_id,
-        }))
-        .filter((r) => r.pattern && r.rule_id),
-    }
-    delete payload.phrase
-    try {
-      const res = await fetchApi(`${API_URL}/admin/persona`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(detailText(body) || `Lưu không thành công (${res.status})`)
-      const persona = { ...EMPTY, ...(body.persona || {}) }
-      persona.routing_regex = (persona.routing_regex || []).map((row) => ({
-        ...row,
-        phrase: patternToPhrase(row.pattern),
-      }))
-      setForm(persona)
-      setGlossaryText(glossaryToText(persona.glossary))
-      setTopics(body.topics || topics)
-      setStale(body.stale_regex || [])
-      setOk('Đã lưu. Ô thử câu hỏi bên phải dùng bản vừa lưu.')
-    } catch (err) {
-      setError(err.message || 'Lưu không thành công')
-    } finally {
-      setBusy(false)
-    }
-  }
 
   async function onTrial(e) {
     e.preventDefault()
@@ -243,156 +158,68 @@ export default function AdminPersonaPage() {
     <>
       <h1>Cách bot trả lời</h1>
       <p className="admin-lead">
-        Viết lời bot dùng với người học. Ô thử câu hỏi chỉ dành cho cán bộ phòng, không trừ hạn mức
-        hỏi của sinh viên.
+        Chỉ xem. Muốn sửa lời bot, giọng văn hay cụm từ định tuyến, sửa file{' '}
+        <code>{configPath}</code> rồi khởi động lại dịch vụ.
       </p>
       {error ? (
         <p className="admin-alert admin-alert--error" role="alert">
           {error}
         </p>
       ) : null}
-      {ok ? (
-        <p className="admin-alert admin-alert--ok" role="status">
-          {ok}
-        </p>
-      ) : null}
       <div className="admin-grid">
-        <form className="admin-card" onSubmit={onSave}>
+        <section className="admin-card admin-card--readonly">
           <h2>Lời bot</h2>
           <label className="admin-field">
             <span>Lời chào khi bắt đầu</span>
-            <textarea value={form.greeting} onChange={(e) => setField('greeting', e.target.value)} />
+            <textarea value={form.greeting} readOnly />
           </label>
           <label className="admin-field">
             <span>Khi câu hỏi không thuộc phòng</span>
-            <textarea
-              value={form.out_of_scope}
-              onChange={(e) => setField('out_of_scope', e.target.value)}
-            />
+            <textarea value={form.out_of_scope} readOnly />
           </label>
           <label className="admin-field">
             <span>Khi chưa rõ người học muốn hỏi gì</span>
-            <textarea
-              value={form.clarification}
-              onChange={(e) => setField('clarification', e.target.value)}
-            />
+            <textarea value={form.clarification} readOnly />
           </label>
           <label className="admin-field">
             <span>Khi cần cán bộ hỗ trợ</span>
-            <span className="admin-hint">Không dùng cột «Cách chatbot xử lý» trên Excel — đó là hướng dẫn nội bộ.</span>
-            <textarea
-              value={form.handoff}
-              onChange={(e) => setField('handoff', e.target.value)}
-            />
+            <textarea value={form.handoff} readOnly />
           </label>
           <label className="admin-field">
             <span>Bot giới thiệu mình là</span>
-            <input value={form.role} onChange={(e) => setField('role', e.target.value)} />
+            <input value={form.role} readOnly />
           </label>
           <label className="admin-field">
             <span>Điều bot không được làm</span>
-            <span className="admin-hint">Ví dụ: không bịa số ngày, không trả dữ liệu cá nhân.</span>
-            <textarea
-              value={form.constraints}
-              onChange={(e) => setField('constraints', e.target.value)}
-            />
+            <textarea value={form.constraints} readOnly />
           </label>
           <label className="admin-field">
             <span>Giọng văn</span>
-            <textarea
-              value={form.answer_style}
-              onChange={(e) => setField('answer_style', e.target.value)}
-            />
+            <textarea value={form.answer_style} readOnly />
           </label>
           <label className="admin-field">
             <span>Từ viết tắt / thuật ngữ phòng</span>
-            <span className="admin-hint">Mỗi dòng: viết tắt = nghĩa. Ví dụ: ĐHCQ = đại học chính quy</span>
-            <textarea value={glossaryText} onChange={(e) => setGlossaryText(e.target.value)} />
+            <textarea value={glossaryText} readOnly />
           </label>
-          <label className="admin-field">
-            <span>Chỉ trả lời khi khá chắc đúng chủ đề ({cosinePct}%)</span>
-            <span className="admin-hint">Khuyên dùng khoảng 62%. Thấp hơn thì bot dễ nhầm chủ đề.</span>
-            <input
-              type="range"
-              min="40"
-              max="90"
-              step="1"
-              value={cosinePct}
-              onChange={(e) => setField('cosine_threshold', Number(e.target.value) / 100)}
-            />
-          </label>
-          <label className="admin-field">
-            <span>Bot đọc tối đa bao nhiêu đoạn tài liệu khi trả lời</span>
-            <input
-              type="number"
-              min="1"
-              max="20"
-              step="1"
-              value={form.top_k}
-              onChange={(e) => setField('top_k', e.target.value)}
-            />
-          </label>
-          <h2>Câu hỏi đi thẳng tới chủ đề</h2>
           <p className="admin-hint">
-            Khi người học nói những chữ này, bot chọn đúng chủ đề bên cạnh — không cần đoán. Chủ đề
-            lấy từ file phạm vi trả lời đang dùng.
+            Chỉ trả lời khi khá chắc đúng chủ đề: {cosinePct}%. Đọc tối đa {form.top_k} đoạn tài
+            liệu.
           </p>
-          {(form.routing_regex || []).map((row, i) => (
-            <div
-              key={`${row.rule_id}-${i}`}
-              className={`admin-regex-row${staleIds.has(row.rule_id) ? ' stale' : ''}`}
-            >
-              <input
-                placeholder="Ví dụ: phúc khảo, xem lại điểm"
-                value={row.phrase || ''}
-                onChange={(e) => setRegex(i, { phrase: e.target.value })}
-              />
-              <select
-                value={row.rule_id || ''}
-                onChange={(e) => setRegex(i, { rule_id: e.target.value })}
+          <h2>Câu hỏi đi thẳng tới chủ đề</h2>
+          {(form.routing_regex || []).length === 0 ? (
+            <p className="admin-hint">Chưa khai cụm từ trong config.</p>
+          ) : (
+            (form.routing_regex || []).map((row, i) => (
+              <div
+                key={`${row.rule_id}-${i}`}
+                className={`admin-regex-row${staleIds.has(row.rule_id) ? ' stale' : ''}`}
               >
-                {staleIds.has(row.rule_id) ? (
-                  <option value={row.rule_id}>Chủ đề này không còn trên file Excel</option>
-                ) : null}
-                <option value="">Chọn chủ đề</option>
-                {topicOptions.map((t) => (
-                  <option key={t.rule_id} value={t.rule_id}>
-                    {t.topic}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost"
-                onClick={() =>
-                  setForm((prev) => ({
-                    ...prev,
-                    routing_regex: prev.routing_regex.filter((_, j) => j !== i),
-                  }))
-                }
-              >
-                Xóa
-              </button>
-            </div>
-          ))}
-          <div className="admin-actions">
-            <button
-              type="button"
-              className="admin-btn admin-btn-ghost"
-              onClick={() =>
-                setForm((prev) => ({
-                  ...prev,
-                  routing_regex: [...(prev.routing_regex || []), { phrase: '', rule_id: '' }],
-                }))
-              }
-            >
-              Thêm cụm từ
-            </button>
-            <button className="admin-btn" type="submit" disabled={busy}>
-              {busy ? 'Đang lưu…' : 'Lưu cách trả lời'}
-            </button>
-          </div>
-        </form>
+                <input value={row.phrase || ''} readOnly />
+                <input value={topicLabel(row.rule_id, topics)} readOnly />
+              </div>
+            ))
+          )}
+        </section>
         <section className="admin-card">
           <h2>Thử một câu hỏi</h2>
           <p className="admin-hint">Người học không thấy ô này.</p>

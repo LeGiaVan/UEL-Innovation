@@ -106,9 +106,10 @@ def make_settings(**kwargs: Any) -> Settings:
         "department_yaml": _API_DIR / "configs" / "department.yaml",
         "persona_yaml": _API_DIR / "configs" / "persona.yaml",
         "ui_dist_dir": Path("/nonexistent-ui-dist"),
+        "cookie_secure": False,
     }
     values.update(kwargs)
-    return Settings(**values)
+    return Settings(_env_file=None, **values)
 
 
 def isolated_app(**kwargs: Any):

@@ -7,6 +7,12 @@
   overflow: hidden;
 }
 
+.chat-interface--empty .chat-container,
+.chat-interface--faq .chat-container {
+  display: flex;
+  flex-direction: column;
+}
+
 /* module_2: dang lam trac nghiem — chi hien khoi quiz, khong co message list / input */
 .chat-interface--m2-quiz-focus {
   min-height: 0;

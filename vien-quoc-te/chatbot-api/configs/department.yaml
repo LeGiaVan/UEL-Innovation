@@ -1,5 +1,6 @@
 id: vqt
 name: Viện Quốc tế
+short: V.QT
 domain: vqt.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

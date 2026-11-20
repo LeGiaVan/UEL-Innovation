@@ -1,5 +1,6 @@
 id: pdt
 name: Phòng Đào tạo
+short: P.ĐT
 domain: pdt.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

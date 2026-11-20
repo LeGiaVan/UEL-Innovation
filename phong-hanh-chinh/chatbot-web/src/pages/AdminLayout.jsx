@@ -25,7 +25,7 @@ export default function AdminLayout() {
             />
             <div className="header-title">
               <h1 className="header-title-line">Quản lý dữ liệu — {department.short}</h1>
-              <p className="header-subtitle">Cập nhật Excel và cách bot trả lời cho người học</p>
+              <p className="header-subtitle">Cập nhật Excel. Cách bot trả lời chỉ sửa trong config.</p>
             </div>
           </div>
           <div className="header-user">

@@ -80,15 +80,8 @@ def public_persona(raw: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def runtime_persona(*, db, yaml_data: dict[str, Any] | None) -> dict[str, Any]:
-    seed = public_persona(yaml_data)
-    stored = load_persona_doc(db)
-    if not stored:
-        return seed
-    live = public_persona(stored)
-    for key in ("handoff", "out_of_scope", "clarification", "greeting", "answer_style"):
-        if not str(live.get(key) or "").strip():
-            live[key] = seed.get(key) or ""
-    return live
+    """Persona chỉ lấy từ config yaml. Admin UI không ghi đè."""
+    return public_persona(yaml_data)
 
 
 def load_persona_doc(db) -> dict[str, Any] | None:

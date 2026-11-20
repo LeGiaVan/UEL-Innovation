@@ -1,5 +1,6 @@
 id: khcn
 name: Phòng Khoa học công nghệ
+short: P.KHCN
 domain: khcn.chat.uel.edu.vn
 handoff_form_url: https://docs.google.com/forms/
 admins: []

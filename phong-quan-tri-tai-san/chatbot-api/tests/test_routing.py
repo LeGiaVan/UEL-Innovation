@@ -430,6 +430,41 @@ def test_followup_reuses_rule_and_saves_history(tmp_path: Path) -> None:
     assert detail.status_code == 200
     roles = [m["role"] for m in detail.json()["messages"]]
     assert roles == ["user", "assistant", "user", "assistant"]
+    turns = client.app.state.db["chat_turns"].find({"conversation_id": first["conversation_id"]})
+    assert [row["turn_index"] for row in turns] == [1, 2]
+    assert turns[0]["user_message"] == "Thời hạn phúc khảo ĐHCQ là bao lâu?"
+    conv = client.app.state.db["conversations"].find_one({"id": first["conversation_id"]})
+    assert conv["turn_count"] == 2
+
+
+def test_chat_persists_turns_for_analytics(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    _ingest(client, tmp_path)
+    client.headers["User-Agent"] = "pytest-analytics"
+    done = _chat(client, FAQ_Q)
+    turns = client.app.state.db["chat_turns"].find({})
+    assert len(turns) == 1
+    turn = turns[0]
+    assert turn["id"]
+    assert turn["conversation_id"] == done["conversation_id"]
+    assert turn["turn_index"] == 1
+    assert turn["sub"]
+    assert turn["email"] == "sv@gmail.com"
+    assert turn["department_id"] == "starter"
+    assert turn["module_code"] == "thong_tin_chung"
+    assert turn["release_id"]
+    assert turn["user_message"] == FAQ_Q
+    assert FAQ_A in (turn["assistant_answer"] or "")
+    assert turn["routing_source"] == "faq_exact"
+    assert turn["status"]
+    assert turn["latency_ms"] is not None
+    assert turn["latency_ms"] >= 0
+    assert turn["trial"] is False
+    assert turn["user_agent"] == "pytest-analytics"
+    assert isinstance(turn["llm_tokens"], int)
+    msgs = client.app.state.db["messages"].find({"conversation_id": done["conversation_id"]})
+    assert {m["role"] for m in msgs} == {"user", "assistant"}
+    assert all(m.get("turn_id") == turn["id"] for m in msgs)
 
 
 def test_current_regex_beats_followup_history(tmp_path: Path) -> None:

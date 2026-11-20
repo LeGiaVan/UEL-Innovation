@@ -1,7 +1,19 @@
+name: uel-innovation
+
+# Deploy n2nai: không ports:, mọi truy cập qua Traefik.
+# https://monitor.n2nai.io/huong-dan/
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-file: "3"
+    max-size: "10m"
+
 services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    mem_limit: 512m
     volumes: [mongo_data:/data/db]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
@@ -9,15 +21,25 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
+    logging: *default-logging
+
   qdrant:
     image: qdrant/qdrant:v1.12.6
     restart: unless-stopped
-    ports:
-      - "6335:6333"
+    mem_limit: 2g
     volumes: [qdrant_data:/qdrant/storage]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    logging: *default-logging
+
   app:
     build: .
     restart: unless-stopped
+    mem_limit: 8g
     env_file: .env
     environment:
       PYTHONPATH: /app
@@ -28,20 +50,15 @@ services:
       DEPARTMENT_YAML: /app/configs/department.yaml
       PERSONA_YAML: /app/configs/persona.yaml
       CHATBOT_DATA_DIR: /app/chatbot-data
+      COOKIE_SECURE: "true"
     volumes:
       - ./chatbot-data:/app/chatbot-data
       - ./chatbot-api/configs:/app/configs
-      - ./chatbot-api/app:/app/app
-      - ./chatbot-api/scripts:/app/scripts
     depends_on:
       mongo:
         condition: service_healthy
       qdrant:
-        condition: service_started
-    labels:
-      - traefik.http.routers.dbcl.rule=Host(`dbcl.chat.uel.edu.vn`)
-    ports:
-      - "8000:8000"
+        condition: service_healthy
     healthcheck:
       test:
         [
@@ -54,6 +71,14 @@ services:
       timeout: 5s
       retries: 12
       start_period: 90s
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.uel-innovation-app.rule=Host(`${N2NAI_HOST:-vanlg-uel-innovation.n2nai.io}`)"
+      - traefik.http.services.uel-innovation-app.loadbalancer.server.port=8000
+    logging: *default-logging
+
 volumes:
   mongo_data:
+    name: uel-innovation_starter_mongo_data
   qdrant_data:
+    name: uel-innovation_starter_qdrant_data

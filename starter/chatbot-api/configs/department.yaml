@@ -1,6 +1,7 @@
 id: starter
 name: Trợ lý UEL (starter)
-domain: localhost
+short: P.Starter
+domain: vanlg-uel-innovation.n2nai.io
 handoff_form_url: https://docs.google.com/forms/
 allow_non_uel_admin: true
 admins:
@@ -11,7 +12,7 @@ rate_limit:
   llm_tokens_per_day: 50000
 modules:
 - code: khao_khi
-  name: Khảo khí
+  name: Khảo thí
   profile: generic
 - code: thong_tin_chung
   name: Thông tin chung

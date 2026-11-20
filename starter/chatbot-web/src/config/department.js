@@ -1,6 +1,6 @@
 /** Nhận diện giao diện. DEPARTMENT_ID runtime lấy từ backend / .env, không lấy file này. */
 export const department = {
-  short: 'UEL',
+  short: 'P.Starter',
   name: 'Trợ lý UEL (starter)',
   id: 'starter',
 }

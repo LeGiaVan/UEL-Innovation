@@ -60,6 +60,21 @@
   color: var(--uel-primary, #144e8c);
 }
 
+.admin-card--readonly input,
+.admin-card--readonly textarea {
+  background: #f8fafc;
+  color: #334155;
+  cursor: default;
+  resize: none;
+}
+
+.admin-page code {
+  font-size: 0.88em;
+  background: #eef2f7;
+  padding: 0.08rem 0.35rem;
+  border-radius: 6px;
+}
+
 .admin-lead {
   margin: 0 0 1.1rem;
   max-width: 46rem;

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import api, { API_URL } from '../api/client'
 import { loginWithGoogle } from '../store/slices/authSlice'
 import { liveDepartment } from '../config/departmentIdentity'
+import { assistantTitle } from '../config/assistantTitle'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -81,7 +82,7 @@ export default function LoginPage() {
     <main className="login-page">
       <div className="login-card">
         <img src="/docs/logo-2026-06.png" alt="UEL" />
-        <h1>Trợ lý {department.name}</h1>
+        <h1>{assistantTitle(department.short)}</h1>
         <p>Đăng nhập bằng Google. Không dùng mật khẩu.</p>
         <div ref={btnRef} className="google-btn-slot" />
         {isLoading ? <p>Đang đăng nhập…</p> : null}
