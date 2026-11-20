@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { sendMessage, clearChat } from '../store/slices/chatSlice'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
@@ -11,7 +11,6 @@ import './ChatInterface.css'
 export default function ChatInterface() {
   const dispatch = useDispatch()
   const location = useLocation()
-  const navigate = useNavigate()
   const { messages, isLoading, error, conversationId, rateLimit } = useSelector((s) => s.chat)
   const mode = useSelector((s) => s.mode.selectedMode)
   const modes = useSelector((s) => s.mode.modes) || []
@@ -30,13 +29,8 @@ export default function ChatInterface() {
     task.current?.abort()
   }, [location.pathname])
 
-  function closeFaq() {
-    navigate({ pathname: location.pathname, search: '' }, { replace: true })
-  }
-
   function send(text) {
     if (!text.trim() || isLoading || rateLimit?.untilTs > Date.now()) return
-    if (faqOpen) closeFaq()
     task.current = dispatch(sendMessage({ message: text.trim(), conversationId }))
     setInput('')
   }
@@ -64,27 +58,28 @@ export default function ChatInterface() {
       ) : null}
       <div className="chat-container">
         {main}
-        {error ? (
+        {error && !faqOpen ? (
           <div className="error-message" role="alert">
             {error}
           </div>
         ) : null}
       </div>
-      <MessageInput
-        value={input}
-        onChange={setInput}
-        onSend={(e) => {
-          e.preventDefault()
-          send(input)
-        }}
-        onClear={() => {
-          dispatch(clearChat())
-          setInput('')
-          if (faqOpen) closeFaq()
-        }}
-        isLoading={isLoading}
-        disabled={isLoading}
-      />
+      {faqOpen ? null : (
+        <MessageInput
+          value={input}
+          onChange={setInput}
+          onSend={(e) => {
+            e.preventDefault()
+            send(input)
+          }}
+          onClear={() => {
+            dispatch(clearChat())
+            setInput('')
+          }}
+          isLoading={isLoading}
+          disabled={isLoading}
+        />
+      )}
     </div>
   )
 }

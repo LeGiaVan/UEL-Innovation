@@ -1,7 +1,10 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { Database, HelpCircle, MessageCircle, Settings } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Database, HelpCircle, Plus, Settings } from 'lucide-react'
 import AppRoutes from '../routes/AppRoutes.jsx'
+import { liveDepartment } from '../config/departmentIdentity'
+import { assistantTitle } from '../config/assistantTitle'
+import { clearChat } from '../store/slices/chatSlice'
 import './Sidebar.css'
 
 const MODULE_ICONS = [
@@ -23,11 +26,16 @@ const MODULE_ICONS = [
 ]
 
 export default function Sidebar({ onNavigate }) {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const { isLoading } = useSelector((s) => s.chat)
   const modes = useSelector((s) => s.mode.modes) || []
   const modeError = useSelector((s) => s.mode.error)
   const isAdmin = useSelector((s) => s.auth.user?.role === 'department_admin')
+  const greeting = useSelector((s) => s.auth.greeting)
+  const department = liveDepartment(useSelector((s) => s.auth.department))
+  const botName = assistantTitle(department.short)
   const faqOpen = new URLSearchParams(search).get('view') === 'faq'
   const activeModulePath = modes.reduce((found, mode, i) => {
     const n = String(mode.id || '').replace('module_', '') || String(i + 1)
@@ -35,29 +43,46 @@ export default function Sidebar({ onNavigate }) {
     return pathname === to ? to : found
   }, pathname.startsWith('/bot/') ? pathname : `/bot/chu-de-1`)
 
+  function startNewChat() {
+    dispatch(clearChat())
+    navigate(activeModulePath)
+    onNavigate?.()
+  }
+
   return (
     <aside className="sidebar">
+      <div className="sidebar-top">
+        <button type="button" className="sidebar-new" onClick={startNewChat}>
+          <Plus size={18} strokeWidth={2} aria-hidden />
+          Hội thoại mới
+        </button>
+      </div>
       <nav className="sidebar-modes" aria-label="Chủ đề hỗ trợ">
+        <h2 className="sidebar-modes-title">Chủ đề</h2>
         {modeError ? <p role="alert">{modeError}</p> : null}
         <ul className="sidebar-modes-list">
           {modes.map((mode, i) => {
             const n = String(mode.id || '').replace('module_', '') || String(i + 1)
             const to = `/bot/chu-de-${n}`
             const active = pathname === to && !faqOpen
+            const desc = String(mode.description || '').trim()
             return (
               <li key={mode.id || i}>
                 <Link
                   to={to}
                   aria-disabled={isLoading}
                   aria-current={active ? 'page' : undefined}
-                  className={`sidebar-mode-btn${active ? ' active' : ''}`}
+                  className={`sidebar-mode-btn${active ? ' active' : ''}${desc ? ' sidebar-mode-btn--stack' : ''}`}
                   onClick={(e) => {
                     if (isLoading) e.preventDefault()
                     else onNavigate?.()
                   }}
                 >
                   <span className="sidebar-mode-btn-icon">{MODULE_ICONS[i % MODULE_ICONS.length]}</span>
-                  <span className="sidebar-mode-btn-label">{mode.label}</span>
+                  <span className="sidebar-mode-btn-text">
+                    <span className="sidebar-mode-btn-label">{mode.label}</span>
+                    {desc ? <span className="sidebar-mode-btn-desc">{desc}</span> : null}
+                  </span>
                 </Link>
               </li>
             )
@@ -72,7 +97,10 @@ export default function Sidebar({ onNavigate }) {
               <span className="sidebar-mode-btn-icon">
                 <HelpCircle size={18} strokeWidth={1.7} />
               </span>
-              <span className="sidebar-mode-btn-label">FAQ</span>
+              <span className="sidebar-mode-btn-text">
+                <span className="sidebar-mode-btn-label">FAQ</span>
+                <span className="sidebar-mode-btn-desc">Câu hỏi thường gặp, chỉ xem</span>
+              </span>
             </Link>
           </li>
         </ul>
@@ -113,10 +141,10 @@ export default function Sidebar({ onNavigate }) {
           </ul>
         </nav>
       ) : null}
-      <p className="sidebar-footer">
-        <MessageCircle size={14} strokeWidth={1.7} aria-hidden />
-        Hỏi theo tài liệu phòng đã nạp
-      </p>
+      <div className="sidebar-identity">
+        <strong>{botName}</strong>
+        {greeting ? <p>{greeting}</p> : <p>Hỏi theo tài liệu phòng đã nạp.</p>}
+      </div>
     </aside>
   )
 }

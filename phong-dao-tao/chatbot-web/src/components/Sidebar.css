@@ -10,11 +10,39 @@
   flex: 1;
 }
 
+.sidebar-top {
+  flex-shrink: 0;
+  padding: 0.75rem 0.7rem 0.15rem;
+}
+
+.sidebar-new {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  border: 1.5px dashed #d7dde6;
+  border-radius: 12px;
+  background: #fff;
+  color: #1f2937;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.sidebar-new:hover {
+  border-color: #e65100;
+  color: #c2410c;
+  background: rgba(230, 81, 0, 0.06);
+}
+
 .sidebar-modes {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 0.7rem 0.55rem;
+  padding: 0.45rem 0.7rem 0.55rem;
 }
 
 .sidebar-modes-title {
@@ -96,12 +124,38 @@ a.sidebar-mode-btn {
   font-weight: 650;
 }
 
+.sidebar-mode-btn-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
 .sidebar-mode-btn-label {
   font-size: 0.92rem;
   font-weight: 550;
   color: #1f2937;
   line-height: 1.3;
   letter-spacing: -0.01em;
+}
+
+.sidebar-mode-btn-desc {
+  font-size: 0.75rem;
+  font-weight: 450;
+  color: #8b95a5;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sidebar-mode-btn--stack {
+  align-items: flex-start;
+}
+
+.sidebar-mode-btn--stack .sidebar-mode-btn-icon {
+  margin-top: 0.12rem;
 }
 
 .sidebar-mode-btn-sub {
@@ -122,14 +176,48 @@ a.sidebar-mode-btn {
   color: #8b95a5;
 }
 
+.sidebar-identity {
+  margin-top: auto;
+  margin-left: 0.7rem;
+  margin-right: 0.7rem;
+  margin-bottom: 0.85rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #eceff3;
+}
+
+.sidebar-identity strong {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.35;
+}
+
+.sidebar-identity p {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #667085;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
     border-right: none;
   }
 
+  .sidebar-top {
+    padding: 0.55rem 0.6rem 0.1rem;
+  }
+
   .sidebar-modes {
-    padding: 0.55rem 0.6rem 0.4rem;
+    padding: 0.4rem 0.6rem 0.4rem;
   }
 
   .sidebar-mode-btn {
