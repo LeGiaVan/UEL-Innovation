@@ -1,5 +1,6 @@
 .faq-board {
   width: min(100%, 44rem);
+  min-width: 0;
   margin: 0 auto;
   padding: 1.25rem 0 2rem;
 }
@@ -117,6 +118,13 @@
   cursor: pointer;
 }
 
+.faq-board__q span {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .faq-board__q svg {
   flex-shrink: 0;
   margin-top: 0.15rem;
@@ -138,6 +146,8 @@
   line-height: 1.6;
   color: #344054;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 768px) {

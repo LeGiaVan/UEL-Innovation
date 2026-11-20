@@ -2,11 +2,14 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .message {
   display: flex;
   width: 100%;
+  min-width: 0;
   animation: fadeIn 0.3s ease-in;
 }
 
@@ -40,6 +43,7 @@
 
 .message-content {
   max-width: 85%;
+  min-width: 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -53,6 +57,8 @@
 
 .message-text-wrapper {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -88,6 +94,8 @@
   border: 1px solid rgba(20, 78, 140, 0.2);
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .message-avatar {
@@ -138,7 +146,9 @@
   padding: 1rem 1.25rem;
   border-radius: 12px;
   line-height: 1.6;
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-x: hidden;
 }
 
 .user-text {
@@ -395,11 +405,25 @@
   color: var(--uel-text-secondary, var(--uel-text-light));
 }
 
+.assistant-text .assistant-md,
+.assistant-text .assistant-md pre,
+.collapsible-msg,
+.collapsible-msg__inner {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.assistant-text .assistant-md pre,
+.assistant-text .assistant-md code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .assistant-text .assistant-table-scroll {
   margin: 0.5rem 0;
   max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
   border-radius: 8px;
   border: 1px solid var(--uel-border);
   background: var(--uel-bg-light, #fff);
@@ -407,7 +431,9 @@
 
 .assistant-text .assistant-table-scroll table {
   width: 100%;
-  min-width: 280px;
+  max-width: 100%;
+  min-width: 0;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.92rem;
 }
@@ -418,13 +444,15 @@
   padding: 0.45rem 0.55rem;
   text-align: left;
   vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .assistant-text .assistant-table-scroll th {
   background: rgba(20, 78, 140, 0.08);
   font-weight: 600;
   color: var(--uel-primary);
-  white-space: nowrap;
 }
 
 .assistant-text .assistant-table-scroll tbody tr:nth-child(even) {

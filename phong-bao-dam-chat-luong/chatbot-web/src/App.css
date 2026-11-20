@@ -3,14 +3,18 @@
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  min-width: 0;
   min-height: 0;
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background-color: var(--uel-bg-white);
 }
 
 .app-container {
   display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
 }

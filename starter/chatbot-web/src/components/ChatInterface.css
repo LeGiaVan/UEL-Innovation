@@ -1,5 +1,6 @@
 .chat-interface {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -20,6 +21,7 @@
 .chat-module-bar {
   flex-shrink: 0;
   width: min(100%, 44rem);
+  min-width: 0;
   margin: 0 auto;
   padding: 0.7rem 1.25rem 0.15rem;
   display: flex;
@@ -68,7 +70,9 @@
 
 .chat-container {
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
