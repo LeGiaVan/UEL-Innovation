@@ -9,6 +9,7 @@ from app.core.security import COOKIE_NAME, encode_session_jwt, resolve_role
 from app.repositories.sessions import create_session, revoke_session
 from app.repositories.users import upsert_google_user
 from app.services.auth_service import GoogleTokenError, verify_google_id_token
+from app.services.persona_service import public_persona
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -44,9 +45,11 @@ def _public_department(request: Request) -> dict:
 
 @router.get("/config")
 def auth_config(request: Request) -> dict:
+    persona = public_persona(getattr(request.app.state, "persona", None) or {})
     return {
         "google_client_id": request.app.state.settings.google_client_id or "",
         "department": _public_department(request),
+        "greeting": str(persona.get("greeting") or "").strip(),
     }
 
 

@@ -2,7 +2,7 @@ import { fetchQA } from '../store/slices/qaSlice'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Menu, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import { fetchChatModes } from '../store/slices/modeSlice'
@@ -30,13 +30,16 @@ function MainLayoutShell() {
     dispatch(fetchChatModes())
   }, [dispatch])
 
+  const faqOpen = new URLSearchParams(location.search).get('view') === 'faq'
+
   useEffect(() => {
-    dispatch(fetchQA({ mode: modeFromPath }))
-  }, [dispatch, modeFromPath])
+    if (faqOpen) dispatch(fetchQA({ all: true }))
+    else dispatch(fetchQA({ mode: modeFromPath }))
+  }, [dispatch, modeFromPath, faqOpen])
 
   useEffect(() => {
     closeSidebar()
-  }, [location.pathname, closeSidebar])
+  }, [location.pathname, location.search, closeSidebar])
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)')
@@ -66,21 +69,8 @@ function MainLayoutShell() {
 
   return (
     <div className="app" style={vars}>
-      <Header />
+      <Header onOpenMenu={() => setSidebarOpen(true)} />
       <div className="app-container">
-        <div className="mobile-module-bar">
-          <button
-            type="button"
-            className="mobile-module-bar__btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Mở danh sách tư vấn"
-            aria-expanded={sidebarOpen}
-            aria-controls="sidebar-drawer"
-          >
-            <Menu size={22} strokeWidth={2} aria-hidden />
-            <span>Danh sách tư vấn</span>
-          </button>
-        </div>
 
         <div
           className={`sidebar-overlay${sidebarOpen ? ' is-visible' : ''}`}

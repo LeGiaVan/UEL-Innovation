@@ -4,7 +4,9 @@ import { Loader2 } from 'lucide-react'
 import StreamingAssistantMarkdown from './StreamingAssistantMarkdown'
 import CollapsibleMessage from './CollapsibleMessage'
 import { useFeatureTheme } from '../context/FeatureThemeContext'
-import { getChatWelcome, displayNameForResolvedMode } from '../config/featureIdentity'
+import { getChatWelcome } from '../config/featureIdentity'
+import { liveDepartment } from '../config/departmentIdentity'
+import { assistantTitle } from '../config/assistantTitle'
 import './MessageList.css'
 
 function findScrollPane(anchorEl) {
@@ -23,18 +25,14 @@ function isNearBottom(el, px = 96) {
 }
 
 const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
-  const modes = useSelector((s) => s.mode.modes)
   const moduleId = useSelector((s) => s.chat.activeChatModuleId)
+  const department = liveDepartment(useSelector((s) => s.auth.department))
+  const botName = assistantTitle(department.short)
   const feature = useFeatureTheme()
   const welcome = getChatWelcome(feature)
   const messageEndRef = useRef(null)
   const stickToBottomRef = useRef(true)
   const userGrabRef = useRef(false)
-
-  const resolvedModeLabel = useCallback(
-    (id) => displayNameForResolvedMode(id, modes),
-    [modes]
-  )
 
   const last = messages[messages.length - 1]
   const showLoaderBubble = isLoading && !(last?.role === 'assistant' && last?.streaming)
@@ -146,24 +144,9 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
               </div>
             ) : (
               <>
-                {(message.routingSource || message.status || message.resolvedMode) && !message.streaming && (
-                  <div className="route-meta" aria-label="Nguồn định tuyến">
-                    {message.routingSource ? (
-                      <span className="route-meta__chip" title="routing_source">{message.routingSource}</span>
-                    ) : null}
-                    {message.status ? (
-                      <span className="route-meta__chip" title="status">{message.status}</span>
-                    ) : null}
-                    {message.resolvedMode ? (
-                      <span
-                        className="route-meta__chip"
-                        title={`Chế độ xử lý: ${resolvedModeLabel(message.resolvedMode)}`}
-                      >
-                        {resolvedModeLabel(message.resolvedMode)}
-                      </span>
-                    ) : null}
-                  </div>
-                )}
+                <div className="route-meta" aria-label={botName}>
+                  <span className="route-meta__chip">{botName}</span>
+                </div>
                 <div className="message-text assistant-text">
                   {message.streaming && !message.content ? (
                     <p className="waiting">{message.streamLabel || 'Đang soạn câu trả lời…'}</p>
@@ -244,6 +227,9 @@ const MessageList = ({ messages, isLoading, onSuggestionClick }) => {
               />
             </div>
             <div className="message-text-wrapper">
+              <div className="route-meta" aria-label={botName}>
+                <span className="route-meta__chip">{botName}</span>
+              </div>
               <div className="message-text assistant-text">
                 <div className="loading-indicator">
                   <Loader2 className="spinner" />

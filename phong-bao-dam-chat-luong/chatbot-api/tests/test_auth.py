@@ -41,6 +41,7 @@ def test_auth_config_exposes_yaml_department() -> None:
     assert dept["id"]
     assert dept["name"]
     assert dept["short"]
+    assert "greeting" in body
 
 
 def test_me_unauthenticated() -> None:

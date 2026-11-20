@@ -1,8 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { Database, HelpCircle, MessageCircle, Settings } from 'lucide-react'
-import { liveDepartment } from '../config/departmentIdentity'
-import { assistantTitle } from '../config/assistantTitle'
 import AppRoutes from '../routes/AppRoutes.jsx'
 import './Sidebar.css'
 
@@ -30,7 +28,6 @@ export default function Sidebar({ onNavigate }) {
   const modes = useSelector((s) => s.mode.modes) || []
   const modeError = useSelector((s) => s.mode.error)
   const isAdmin = useSelector((s) => s.auth.user?.role === 'department_admin')
-  const department = liveDepartment(useSelector((s) => s.auth.department))
   const faqOpen = new URLSearchParams(search).get('view') === 'faq'
   const activeModulePath = modes.reduce((found, mode, i) => {
     const n = String(mode.id || '').replace('module_', '') || String(i + 1)
@@ -40,7 +37,6 @@ export default function Sidebar({ onNavigate }) {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">{assistantTitle(department.short)}</div>
       <nav className="sidebar-modes" aria-label="Chủ đề hỗ trợ">
         {modeError ? <p role="alert">{modeError}</p> : null}
         <ul className="sidebar-modes-list">

@@ -6,9 +6,10 @@ export const fetchQA = createAsyncThunk(
   'qa/fetchQA',
   async (arg, { getState, rejectWithValue }) => {
     try {
-      const mode = arg?.mode || getState().mode?.selectedMode || 'module_1'
-      const response = await axios.get(`${API_URL}/qa`, { params: { mode } })
-      return { mode, questions: Array.isArray(response.data) ? response.data : [] }
+      const all = Boolean(arg?.all)
+      const mode = all ? null : arg?.mode || getState().mode?.selectedMode || 'module_1'
+      const response = await axios.get(`${API_URL}/qa`, all ? {} : { params: { mode } })
+      return { mode: all ? 'all' : mode, questions: Array.isArray(response.data) ? response.data : [] }
     } catch (error) {
       return rejectWithValue(
         typeof error.response?.data?.detail === 'string' ? error.response.data.detail : error.message

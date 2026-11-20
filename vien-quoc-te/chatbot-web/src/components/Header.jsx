@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { Menu } from 'lucide-react'
 import { logout } from '../store/slices/authSlice'
 import { liveDepartment } from '../config/departmentIdentity'
 import { assistantTitle } from '../config/assistantTitle'
 import AppRoutes from '../routes/AppRoutes.jsx'
 import './Header.css'
 
-export default function Header() {
+export default function Header({ onOpenMenu }) {
   const dispatch = useDispatch()
   const user = useSelector((s) => s.auth.user)
   const department = liveDepartment(useSelector((s) => s.auth.department))
@@ -15,6 +16,16 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-content">
+        {onOpenMenu ? (
+          <button
+            type="button"
+            className="header-menu"
+            onClick={onOpenMenu}
+            aria-label="Mở danh sách tư vấn"
+          >
+            <Menu size={22} strokeWidth={2} aria-hidden />
+          </button>
+        ) : null}
         <div className="header-logo">
           <img
             src="/docs/logo-2026-06.png"

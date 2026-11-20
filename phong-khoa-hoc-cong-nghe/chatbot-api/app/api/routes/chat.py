@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.api.dependencies import require_user
+from app.repositories import catalog
 from app.services.conversation_service import load_history, save_turn
 from app.services.module_service import live_department
 from app.services.rate_limit_service import add_llm_tokens, check_chat_limits
@@ -23,17 +24,22 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 @router.get("/modes")
 def chat_modes(request: Request, _user: Annotated[dict, Depends(require_user)]) -> dict:
     dept = live_department(getattr(request.app.state, "department", None), request.app.state.db)
+    db = request.app.state.db
     modes = []
     for i, mod in enumerate(dept.get("modules") or [], start=1):
+        code = mod.get("code") or f"module_{i}"
+        rel = catalog.get_active_release(db, code) if db is not None and code else None
+        header = (rel or {}).get("header") or {}
         modes.append(
             {
                 "id": f"module_{i}",
-                "code": mod.get("code") or f"module_{i}",
-                "label": mod.get("name") or mod.get("code") or f"module_{i}",
+                "code": code,
+                "label": mod.get("name") or code,
+                "description": str(header.get("module_description") or "").strip(),
             }
         )
     if not modes:
-        modes = [{"id": "module_1", "label": "Chat"}]
+        modes = [{"id": "module_1", "label": "Chat", "code": "module_1", "description": ""}]
     return {"modes": modes}
 
 

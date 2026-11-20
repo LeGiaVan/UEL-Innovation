@@ -77,32 +77,7 @@
 
 @media (max-width: 768px) {
   .mobile-module-bar {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    padding: 0.3rem 0.65rem;
-    background: var(--uel-bg-white, #fff);
-    border-bottom: 1px solid var(--uel-border, #e0e0e0);
-  }
-
-  .mobile-module-bar__btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 44px;
-    padding: 0.35rem 0.65rem;
-    border: 1px solid rgba(20, 78, 140, 0.22);
-    border-radius: 12px;
-    background: var(--uel-bg-light, #f7f9fc);
-    color: var(--uel-primary, #144e8c);
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  .mobile-module-bar__btn:hover {
-    background: var(--uel-primary-lighter, #e8f0f8);
+    display: none;
   }
 
   .sidebar-overlay {
@@ -184,9 +159,9 @@
     border: none;
     border-bottom: none;
     border-right: none;
-    /* Đảm bảo stack DỌC, không phải ngang */
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar-drawer .sidebar-modes {

@@ -57,10 +57,17 @@
   --uel-module-head-pad-y: 0.85rem;
 }
 
-/* Tablet & điện thoại: nút và ô nhập tối thiểu lớn hơn (Apple HIG ~44–48px) */
+/* Tablet: nút đủ lớn. Điện thoại siết lại để header/composer không chiếm nửa màn. */
 @media (max-width: 1024px) {
   :root {
-    --uel-touch-min: 52px;
-    --uel-readable-line: 1.58;
+    --uel-touch-min: 44px;
+    --uel-readable-line: 1.5;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --uel-touch-min: 40px;
+    --uel-readable-line: 1.5;
   }
 }

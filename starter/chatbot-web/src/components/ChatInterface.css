@@ -13,6 +13,50 @@
   flex-direction: column;
 }
 
+.chat-module-bar {
+  flex-shrink: 0;
+  width: min(100%, 44rem);
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.chat-module-bar strong {
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: #e65100;
+}
+
+.chat-module-bar span {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--uel-text-secondary, #667085);
+}
+
+@media (max-width: 768px) {
+  .chat-module-bar {
+    padding: 0.45rem 0.85rem 0;
+  }
+
+  .chat-module-bar strong {
+    font-size: 0.82rem;
+  }
+
+  .chat-module-bar span {
+    font-size: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .chat-interface--faq .chat-container {
+    padding: 0.5rem 0.85rem 0.4rem;
+  }
+}
+
 /* module_2: dang lam trac nghiem — chi hien khoi quiz, khong co message list / input */
 .chat-interface--m2-quiz-focus {
   min-height: 0;
@@ -134,16 +178,16 @@
 /* Mobile - dưới 480px */
 @media (max-width: 480px) {
   .chat-container {
-    padding: 0.45rem 0.65rem 0.65rem;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 0.4rem);
+    padding: 0.4rem 0.75rem 0.5rem;
+    padding-top: 0.4rem;
   }
 }
 
 /* Tablet nhỏ và mobile lớn - 481px đến 768px */
 @media (min-width: 481px) and (max-width: 768px) {
   .chat-container {
-    padding: 0.5rem 0.85rem 0.85rem;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 0.45rem);
+    padding: 0.45rem 0.85rem 0.55rem;
+    padding-top: 0.4rem;
   }
 }
 

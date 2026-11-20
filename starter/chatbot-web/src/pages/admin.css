@@ -463,6 +463,15 @@
   }
 
   .admin-page {
-    padding: 1rem;
+    padding: 0.85rem 0.85rem 1.5rem;
+  }
+
+  .admin-nav {
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .admin-shell .header-subtitle {
+    display: none;
   }
 }

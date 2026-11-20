@@ -80,28 +80,28 @@
 /* Mobile — chữ rõ, dễ đọc */
 @media (max-width: 480px) {
   .contact-info {
-    padding: 0.85rem 1rem;
+    padding: 0.7rem 0.85rem;
   }
 
   .contact-info-header {
-    margin-bottom: 0.85rem;
-    padding-bottom: 0.6rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.45rem;
   }
 
   .contact-info-header h3 {
-    font-size: clamp(1.05rem, 3vw, 1.2rem);
+    font-size: 1rem;
   }
 
   .contact-item {
-    font-size: clamp(0.95rem, 2.8vw, 1.05rem);
-    line-height: var(--uel-readable-line, 1.55);
-    padding: 0.55rem 0.4rem;
-    gap: 0.65rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    padding: 0.4rem 0.25rem;
+    gap: 0.5rem;
   }
 
   .contact-item svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 }
 

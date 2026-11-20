@@ -89,11 +89,16 @@
   cursor: pointer;
 }
 
+.header-menu {
+  display: none;
+}
+
 .header-logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+  flex: 1;
 }
 
 /* Đơn vị đồng hành (sponsor) — góc phải header */
@@ -157,35 +162,63 @@
   font-weight: 600;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .header {
-    padding: 0.38rem 0.65rem;
+    padding: 0.4rem 0.7rem;
+    border-bottom-width: 3px;
   }
 
-  .header-wave {
-    left: 48%;
+  .header-content {
+    gap: 0.5rem;
   }
 
-  .header-wave-img {
-    min-width: 58%;
-    opacity: 0.82;
+  .header-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    cursor: pointer;
   }
 
   .header-logo {
-    gap: 0.55rem;
+    gap: 0.5rem;
   }
 
   .logo-img {
-    height: 54px;
+    height: 36px;
+    max-width: 36px;
   }
 
-  .header-sponsor__label {
-    font-size: 0.55rem;
+  .header-title {
+    min-width: 0;
   }
 
-  .header-sponsor__img {
-    height: 30px;
-    max-width: 34vw;
+  .header-title-line {
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-subtitle,
+  .header-admin,
+  .header-user-email,
+  .header-user-role {
+    display: none;
+  }
+
+  .header-logout {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
   }
 }
 

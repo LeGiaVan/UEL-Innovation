@@ -112,31 +112,57 @@
 /* Mobile — giữ chữ và nút đủ lớn (không thu nhỏ như trước) */
 @media (max-width: 480px) {
   .message-input-container {
-    padding: 0.85rem 1rem;
-    padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+    padding: 0.55rem 0.75rem 0.7rem;
+    padding-bottom: max(0.7rem, env(safe-area-inset-bottom, 0px));
   }
 
   .message-input-form {
-    padding: 0.55rem 0.85rem;
-    min-height: var(--uel-touch-min, 52px);
-    border-radius: 14px;
+    padding: 0.35rem 0.4rem 0.35rem 0.85rem;
+    min-height: 46px;
+    border-radius: 24px;
+    gap: 0.3rem;
   }
 
   .message-input {
-    font-size: clamp(1.0625rem, 3.2vw, 1.125rem);
-    padding: 0.4rem 0;
+    font-size: 16px;
+    padding: 0.35rem 0;
+  }
+
+  .clear-button,
+  .send-button {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 50%;
   }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   .message-input-container {
-    padding: 1rem 1.15rem;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    padding: 0.55rem 0.85rem 0.75rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
   }
 
   .message-input-form {
-    padding: 0.6rem 1rem;
-    min-height: 54px;
+    padding: 0.35rem 0.4rem 0.35rem 0.9rem;
+    min-height: 46px;
+    border-radius: 24px;
+    gap: 0.3rem;
+  }
+
+  .message-input {
+    font-size: 16px;
+    padding: 0.35rem 0;
+  }
+
+  .clear-button,
+  .send-button {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 50%;
   }
 }
 

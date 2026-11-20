@@ -55,6 +55,7 @@ const slice = createSlice({
     error: null,
     department: null,
     googleClientId: '',
+    greeting: '',
   },
   reducers: {
     sessionExpired: (state) => {
@@ -68,6 +69,7 @@ const slice = createSlice({
       .addCase(loadPublicConfig.fulfilled, (state, action) => {
         const data = action.payload || {}
         state.googleClientId = data.google_client_id || ''
+        state.greeting = String(data.greeting || '').trim()
         if (data.department && typeof data.department === 'object') {
           state.department = data.department
         }

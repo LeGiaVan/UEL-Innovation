@@ -26,16 +26,9 @@ body {
   overflow: hidden;
 }
 
-/* iPad & điện thoại: cỡ chữ cơ sở lớn hơn để dễ đọc */
-@media (max-width: 1024px) {
-  html {
-    font-size: 106.25%;
-  }
-}
-
 @media (max-width: 600px) {
   html {
-    font-size: 112.5%;
+    font-size: 100%;
   }
 }
 

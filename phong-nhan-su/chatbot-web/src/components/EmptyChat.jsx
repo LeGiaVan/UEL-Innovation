@@ -5,7 +5,11 @@ import './EmptyChat.css'
 
 export default function EmptyChat() {
   const department = liveDepartment(useSelector((s) => s.auth.department))
+  const greeting = useSelector((s) => s.auth.greeting)
   const title = assistantTitle(department.short)
+  const modes = useSelector((s) => s.mode.modes) || []
+  const selectedMode = useSelector((s) => s.mode.selectedMode)
+  const current = modes.find((m) => m.id === selectedMode)
 
   return (
     <section className="empty-chat empty-chat--gpt" aria-label={title}>
@@ -15,6 +19,8 @@ export default function EmptyChat() {
         className="empty-chat-mark"
       />
       <h2>{title}</h2>
+      {current?.label ? <p className="empty-chat-module">{current.label}</p> : null}
+      {greeting ? <p className="empty-chat-desc">{greeting}</p> : null}
     </section>
   )
 }

@@ -89,6 +89,11 @@ def test_valid_five_files_empty_04_05(tmp_path: Path) -> None:
     assert len(listed) == body["counts"]["faqs"]
     assert listed[0]["question"]
     assert listed[0]["answer"]
+    assert "section" in listed[0]
+    modes = client.get("/api/chat/modes")
+    assert modes.status_code == 200
+    labels = {m["id"]: m for m in modes.json()["modes"]}
+    assert labels["module_2"]["description"]
     this_mod = client.get("/api/qa", params={"mode": "module_2"})
     assert this_mod.status_code == 200
     assert len(this_mod.json()) == body["counts"]["faqs"]
