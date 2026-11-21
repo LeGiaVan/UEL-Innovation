@@ -13,9 +13,6 @@ export default function ChatInterface() {
   const location = useLocation()
   const { messages, isLoading, error, conversationId, rateLimit } = useSelector((s) => s.chat)
   const mode = useSelector((s) => s.mode.selectedMode)
-  const modes = useSelector((s) => s.mode.modes) || []
-  const currentMode = modes.find((m) => m.id === mode)
-  const greeting = useSelector((s) => s.auth.greeting)
   const [input, setInput] = useState('')
   const task = useRef(null)
   const faqOpen = new URLSearchParams(location.search).get('view') === 'faq'
@@ -50,12 +47,6 @@ export default function ChatInterface() {
     <div
       className={`chat-interface${empty ? ' chat-interface--empty' : ''}${faqOpen ? ' chat-interface--faq' : ''}`}
     >
-      {!faqOpen && !empty && currentMode?.label ? (
-        <div className="chat-module-bar">
-          <strong>{currentMode.label}</strong>
-          {greeting ? <span>{greeting}</span> : null}
-        </div>
-      ) : null}
       <div className="chat-container">
         {main}
         {error && !faqOpen ? (

@@ -15,7 +15,7 @@ html {
 }
 
 body {
-  font-family: 'Be Vietnam Pro', 'Noto Sans', system-ui, sans-serif;
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--uel-bg-light);

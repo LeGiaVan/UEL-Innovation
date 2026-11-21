@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Search } from 'lucide-react'
 import { fetchQA } from '../store/slices/qaSlice'
 import './FaqBoard.css'
+
+function fold(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+}
 
 export default function FaqBoard() {
   const dispatch = useDispatch()
@@ -12,6 +20,7 @@ export default function FaqBoard() {
   const currentMode = modes.find((m) => m.id === selectedMode)
   const [moduleCode, setModuleCode] = useState(currentMode?.code || '')
   const [section, setSection] = useState('')
+  const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState(null)
 
   useEffect(() => {
@@ -38,9 +47,16 @@ export default function FaqBoard() {
   }, [section, sections])
 
   const items = useMemo(() => {
-    if (!section) return byModule
-    return byModule.filter((q) => String(q.section || '').trim() === section)
-  }, [byModule, section])
+    const scoped = section
+      ? byModule.filter((q) => String(q.section || '').trim() === section)
+      : byModule
+    const needle = fold(query).trim()
+    if (!needle) return scoped
+    return scoped.filter((q) => {
+      const hay = `${fold(q.question)} ${fold(q.answer)} ${fold(q.section)}`
+      return hay.includes(needle)
+    })
+  }, [byModule, section, query])
 
   const grouped = useMemo(() => {
     const map = new Map()
@@ -56,6 +72,20 @@ export default function FaqBoard() {
     <section className="faq-board" aria-label="Câu hỏi thường gặp">
       <header className="faq-board__head">
         <h2>Câu hỏi thường gặp</h2>
+        <label className="faq-board__search">
+          <Search size={18} strokeWidth={1.75} aria-hidden />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value)
+              setOpenId(null)
+            }}
+            placeholder="Tìm nhanh câu hỏi…"
+            aria-label="Tìm câu hỏi thường gặp"
+            autoComplete="off"
+          />
+        </label>
         <div className="faq-board__filters">
           <label>
             <span>Mô-đun</span>
@@ -103,7 +133,11 @@ export default function FaqBoard() {
       ) : null}
       {isLoading ? <p className="faq-board__status">Đang tải…</p> : null}
       {!isLoading && !error && items.length === 0 ? (
-        <p className="faq-board__status">Chưa có câu hỏi thường gặp cho lựa chọn này.</p>
+        <p className="faq-board__status">
+          {query.trim()
+            ? 'Không tìm thấy câu hỏi khớp với từ khóa này.'
+            : 'Chưa có câu hỏi thường gặp cho lựa chọn này.'}
+        </p>
       ) : null}
       {grouped.map(([group, rows]) => (
         <div key={group} className="faq-board__group">

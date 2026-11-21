@@ -38,7 +38,7 @@ def _public_department(request: Request) -> dict:
     code = str(request.app.state.department_id or dept.get("id") or "").strip()
     name = str(dept.get("name") or "").strip() or "Trợ lý UEL"
     short = str(dept.get("short") or "").strip() or (
-        "P.Starter" if not code or code == "starter" else f"P.{code.upper()}"
+        "P.Mẫu" if not code or code == "starter" else f"P.{code.upper()}"
     )
     return {"id": code or "starter", "name": name, "short": short}
 

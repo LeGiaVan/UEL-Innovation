@@ -153,6 +153,16 @@ export default function AdminPersonaPage() {
   }
 
   const cosinePct = Math.round(Number(form.cosine_threshold || 0) * 100)
+  const personaBlocks = [
+    ['Lời chào khi bắt đầu', form.greeting],
+    ['Khi câu hỏi không thuộc phòng', form.out_of_scope],
+    ['Khi chưa rõ người học muốn hỏi gì', form.clarification],
+    ['Khi cần cán bộ hỗ trợ', form.handoff],
+    ['Bot giới thiệu mình là', form.role],
+    ['Điều bot không được làm', form.constraints],
+    ['Giọng văn', form.answer_style],
+    ['Từ viết tắt / thuật ngữ phòng', glossaryText],
+  ]
 
   return (
     <>
@@ -167,57 +177,41 @@ export default function AdminPersonaPage() {
         </p>
       ) : null}
       <div className="admin-grid">
-        <section className="admin-card admin-card--readonly">
+        <section className="admin-card persona-view">
           <h2>Lời bot</h2>
-          <label className="admin-field">
-            <span>Lời chào khi bắt đầu</span>
-            <textarea value={form.greeting} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Khi câu hỏi không thuộc phòng</span>
-            <textarea value={form.out_of_scope} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Khi chưa rõ người học muốn hỏi gì</span>
-            <textarea value={form.clarification} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Khi cần cán bộ hỗ trợ</span>
-            <textarea value={form.handoff} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Bot giới thiệu mình là</span>
-            <input value={form.role} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Điều bot không được làm</span>
-            <textarea value={form.constraints} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Giọng văn</span>
-            <textarea value={form.answer_style} readOnly />
-          </label>
-          <label className="admin-field">
-            <span>Từ viết tắt / thuật ngữ phòng</span>
-            <textarea value={glossaryText} readOnly />
-          </label>
-          <p className="admin-hint">
-            Chỉ trả lời khi khá chắc đúng chủ đề: {cosinePct}%. Đọc tối đa {form.top_k} đoạn tài
-            liệu.
+          <dl className="persona-dl">
+            {personaBlocks.map(([label, value]) => (
+              <div key={label} className="persona-dl__item">
+                <dt>{label}</dt>
+                <dd>{value?.trim() ? value : '—'}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="persona-meta">
+            Chỉ trả lời khi khá chắc đúng chủ đề: <strong>{cosinePct}%</strong>. Đọc tối đa{' '}
+            <strong>{form.top_k}</strong> đoạn tài liệu.
           </p>
           <h2>Câu hỏi đi thẳng tới chủ đề</h2>
           {(form.routing_regex || []).length === 0 ? (
-            <p className="admin-hint">Chưa khai cụm từ trong config.</p>
+            <p className="persona-empty">Chưa khai cụm từ trong config.</p>
           ) : (
-            (form.routing_regex || []).map((row, i) => (
-              <div
-                key={`${row.rule_id}-${i}`}
-                className={`admin-regex-row${staleIds.has(row.rule_id) ? ' stale' : ''}`}
-              >
-                <input value={row.phrase || ''} readOnly />
-                <input value={topicLabel(row.rule_id, topics)} readOnly />
-              </div>
-            ))
+            <ul className="persona-routes">
+              {(form.routing_regex || []).map((row, i) => (
+                <li
+                  key={`${row.rule_id}-${i}`}
+                  className={`persona-routes__item${staleIds.has(row.rule_id) ? ' is-stale' : ''}`}
+                >
+                  <div>
+                    <span className="persona-routes__kicker">Cụm từ</span>
+                    <p className="persona-routes__phrase">{row.phrase || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="persona-routes__kicker">Chủ đề</span>
+                    <p className="persona-routes__topic">{topicLabel(row.rule_id, topics)}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </section>
         <section className="admin-card">
@@ -235,7 +229,7 @@ export default function AdminPersonaPage() {
           </label>
           <div className="admin-trial-log">
             {trialLog.length === 0 ? (
-              <p className="admin-lead">{form.greeting || 'Gõ một câu như người học sẽ hỏi.'}</p>
+              <p className="persona-empty">{form.greeting || 'Gõ một câu như người học sẽ hỏi.'}</p>
             ) : null}
             {trialLog.map((m, i) => (
               <div key={i} className={`admin-trial-bubble ${m.role === 'user' ? 'user' : 'bot'}`}>

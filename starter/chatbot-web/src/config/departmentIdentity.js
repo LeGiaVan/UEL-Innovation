@@ -6,6 +6,6 @@ export function liveDepartment(fromApi) {
   const short =
     fromApi?.short ||
     baked.short ||
-    (id === 'starter' ? 'P.Starter' : `P.${String(id).toUpperCase()}`)
+    (id === 'starter' ? 'P.Mẫu' : `P.${String(id).toUpperCase()}`)
   return { id, name, short }
 }

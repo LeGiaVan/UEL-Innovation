@@ -1,6 +1,6 @@
 id: starter
-name: Trợ lý UEL (starter)
-short: P.Starter
+name: Trợ lý UEL (mẫu)
+short: P.Mẫu
 domain: vanlg-uel-innovation.n2nai.io
 handoff_form_url: https://docs.google.com/forms/
 allow_non_uel_admin: true
